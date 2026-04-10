@@ -2526,7 +2526,7 @@ body[data-theme="paper"] .community-link-field span {
   }
 
   .market-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .section-heading {
@@ -2568,9 +2568,17 @@ body[data-theme="paper"] .community-link-field span {
 }
 
 @media (max-width: 640px) {
+  .market-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .page-shell {
     width: min(100% - 20px, 100%);
     padding-top: 20px;
+  }
+
+  .market-grid {
+    gap: 10px;
   }
 
   .ticker-chip {
@@ -2589,19 +2597,103 @@ body[data-theme="paper"] .community-link-field span {
   }
 
   .portfolio-metrics,
-  .card-topline,
   .price-row {
     flex-direction: column;
     align-items: flex-start;
   }
 
+  .market-card {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .market-card .card-topline {
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .market-card .artist-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .market-card .ticker {
+    font-size: 0.98rem;
+  }
+
+  .market-card .category-badge,
+  .market-card .owned-tag {
+    font-size: 9px;
+    padding: 4px 8px;
+  }
+
+  .market-card .watch-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .market-card .price {
+    font-size: 1.35rem;
+  }
+
+  .market-card .vol-badge {
+    font-size: 10px;
+    padding: 4px 7px;
+  }
+
+  .market-card .sparkline-wrap {
+    height: 44px;
+    margin: 8px 0 10px;
+  }
+
+  .market-card .profile {
+    margin: 0 0 10px;
+    min-height: 0;
+    font-size: 0.83rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .trade-controls {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .market-card .qty-stepper {
+    gap: 6px;
+  }
+
+  .market-card .qty-button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .market-card .qty-input {
+    width: 48px;
+    padding: 6px;
   }
 
   .card-actions {
     width: 100%;
+  }
+
+  .market-card .card-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .market-card .buy,
+  .market-card .sell,
+  .market-card .trade {
+    min-width: 0;
+    padding: 9px 0;
+    font-size: 0.8rem;
   }
 
   .buy,
@@ -2623,6 +2715,92 @@ body[data-theme="paper"] .community-link-field span {
     grid-template-columns: 1fr;
   }
 
+
+@media (max-width: 430px) {
+  .market-grid {
+    gap: 8px;
+  }
+
+  .market-card {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .market-card .card-topline,
+  .market-card .price-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .market-card .artist-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .market-card .ticker {
+    font-size: 0.9rem;
+  }
+
+  .market-card .category-badge,
+  .market-card .owned-tag,
+  .market-card .vol-badge {
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+
+  .market-card .price {
+    font-size: 1.15rem;
+  }
+
+  .market-card .sparkline-wrap {
+    height: 36px;
+    margin: 6px 0 8px;
+  }
+
+  .market-card .profile {
+    font-size: 0.76rem;
+    line-height: 1.28;
+    margin-bottom: 8px;
+    -webkit-line-clamp: 2;
+  }
+
+  .market-card .trade-controls {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .market-card .qty-label {
+    font-size: 9px;
+  }
+
+  .market-card .qty-stepper {
+    gap: 4px;
+  }
+
+  .market-card .qty-button {
+    width: 26px;
+    height: 26px;
+    font-size: 0.95rem;
+  }
+
+  .market-card .qty-input {
+    width: 40px;
+    padding: 5px;
+    font-size: 0.82rem;
+  }
+
+  .market-card .card-actions {
+    gap: 4px;
+  }
+
+  .market-card .buy,
+  .market-card .sell,
+  .market-card .trade {
+    padding: 8px 0;
+    font-size: 0.72rem;
+    border-radius: 12px;
+  }
+}
   .artist-analytics-head {
     flex-direction: column;
   }
