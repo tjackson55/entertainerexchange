@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cristiano Ronaldo - Athlete</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="../theme.js" defer></script>
+        <script>
+                const slugToId = {
+                        ariana_grande: 6,
+                        beyonce: 4,
+                        billie_eilish: 8,
+                        cristiano_ronaldo: 7,
+                        drake: 2,
+                        dwayne_johnson: 20,
+                        ed_sheeran: 11,
+                        kim_kardashian: 16,
+                        lebron_james: 9,
+                        lionel_messi: 5,
+                        robert_downey_jr: 13,
+                        selena_gomez: 10,
+                        taylor_swift: 1,
+                        tom_holland: 36,
+                        zendaya: 12
+                };
+
+                function formatCompactNumber(value) {
+                        const absValue = Math.abs(Number(value) || 0);
+                        if (absValue >= 1000000000) return `${(value / 1000000000).toFixed(absValue >= 10000000000 ? 0 : 1)}B`;
+                        if (absValue >= 1000000) return `${(value / 1000000).toFixed(absValue >= 10000000 ? 0 : 1)}M`;
+                        if (absValue >= 1000) return `${(value / 1000).toFixed(absValue >= 100000 ? 0 : 1)}K`;
+                        return `${Math.round(value)}`;
+                }
+
+                function formatCompactCurrency(value) {
+                        return `$${formatCompactNumber(value)}`;
+                }
+
+                function calculateVolatilityPercent(history) {
+                        const values = Array.isArray(history) ? history.filter((value) => Number.isFinite(value) && value > 0) : [];
+                        if (values.length < 3) return 0;
+                        const returns = [];
+                        for (let index = 1; index < values.length; index += 1) {
+                                returns.push((values[index] - values[index - 1]) / values[index - 1]);
+                        }
+                        const meanReturn = returns.reduce((sum, value) => sum + value, 0) / returns.length;
+                        const variance = returns.reduce((sum, value) => sum + Math.pow(value - meanReturn, 2), 0) / returns.length;
+                        return Math.sqrt(variance) * 100;
+                }
+
+                const legacyProfiles = {
+                        oprah_winfrey: {
+                                name: "Oprah Winfrey",
+                                bio: "Talk show host, producer, author, and media entrepreneur with lasting cultural influence.",
+                                price: 132,
+                                popularity: 90,
+                                projects: ["The Oprah Winfrey Show", "OWN", "Super Soul"],
+                                upcoming: ["Media Summit 2026"],
+                                socials: {
+                                        instagram: "https://instagram.com/oprah",
+                                        x: "https://x.com/Oprah",
+                                        youtube: "https://youtube.com/@OWN"
+                                },
+                                history: [118, 121, 124, 127, 130, 131, 132],
+                                volume24h: 9200000,
+                                momentum: 11,
+                                liquidityScore: 78
+                        }
+                };
+
+                const slug = window.location.pathname.split("/").pop().replace(/\.html$/, "");
+                const id = slugToId[slug];
+
+                if (id) {
+                        window.location.replace(`../profile.html?id=${id}`);
+                } else if (legacyProfiles[slug]) {
+                        const profile = legacyProfiles[slug];
+                        const circulatingShares = Math.round((1400000 + (profile.popularity * 12000) + (51 * 15000)) / 50000) * 50000;
+                        const marketCap = profile.price * circulatingShares;
+                        const shareVolume24h = Math.round(profile.volume24h / profile.price);
+                        const turnover = shareVolume24h / circulatingShares;
+                        const volatilityPct = calculateVolatilityPercent(profile.history);
+
+                        document.addEventListener("DOMContentLoaded", () => {
+                                document.title = `${profile.name} - Entertainers Exchange`;
+                                document.body.innerHTML = `
+                                        <div class="page-shell">
+                                            <article class="artist-detail-card">
+                                                <div class="artist-hero">
+                                                    <div class="artist-photo avatar-badge avatar-creator" aria-hidden="true">OW</div>
+                                                    <div>
+                                                        <p class="section-kicker">Entertainer Profile</p>
+                                                        <h1>${profile.name}</h1>
+                                                        <p class="artist-bio">${profile.bio}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="artist-sections">
+                                                    <section>
+                                                        <h3>Projects</h3>
+                                                        <ul class="artist-list">${profile.projects.map((item) => `<li>${item}</li>`).join("")}</ul>
+                                                    </section>
+                                                    <section>
+                                                        <h3>Upcoming</h3>
+                                                        <ul class="artist-list">${profile.upcoming.map((item) => `<li>${item}</li>`).join("")}</ul>
+                                                    </section>
+                                                    <section>
+                                                        <h3>Socials</h3>
+                                                        <ul class="artist-list">
+                                                            <li><a href="${profile.socials.instagram}" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                                                            <li><a href="${profile.socials.x}" target="_blank" rel="noopener noreferrer">X</a></li>
+                                                            <li><a href="${profile.socials.youtube}" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+                                                        </ul>
+                                                    </section>
+                                                </div>
+                                                <section class="artist-analytics">
+                                                    <div class="artist-analytics-head">
+                                                        <h3>Index Analytics</h3>
+                                                        <div class="artist-quick-stats">
+                                                            <span>Price: $${profile.price.toFixed(2)}</span>
+                                                            <span>MCap: ${formatCompactCurrency(marketCap)}</span>
+                                                            <span>Vol 24h: ${formatCompactCurrency(profile.volume24h)}</span>
+                                                            <span>Turnover: ${(turnover * 100).toFixed(2)}%</span>
+                                                            <span>Volatility: ${volatilityPct.toFixed(2)}%</span>
+                                                            <span class="positive-text">Momentum: +${profile.momentum}</span>
+                                                            <span>Liq: ${profile.liquidityScore}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="artist-chart-wrap">
+                                                        <p class="section-note">7-point history: ${profile.history.join(" / ")}</p>
+                                                    </div>
+                                                </section>
+                                                <a href="../index.html" class="card-link" style="margin-top:1.5rem;display:inline-block;">Back to Index</a>
+                                            </article>
+                                        </div>
+                                `;
+                        });
+                }
+        </script>
+</head>
+<body>
+    <h1>Cristiano Ronaldo</h1>
+    <img src="../images/cristiano_ronaldo.jpg" alt="Cristiano Ronaldo" style="width:200px;">
+    <p><strong>Profession:</strong> Athlete</p>
+    <p><strong>Bio:</strong> Portuguese footballer, known for his goal-scoring and athleticism.</p>
+    <a href="index.html">Back to Entertainers</a>
+</body>
+</html>

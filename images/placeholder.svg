@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">Entertainer placeholder</title>
+  <desc id="desc">A stylized placeholder portrait for entertainer cards and profiles.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#dbeafe" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="36" fill="url(#bg)"/>
+  <circle cx="160" cy="118" r="58" fill="url(#glow)" opacity="0.92"/>
+  <path d="M76 264c18-52 60-82 84-82s66 30 84 82" fill="none" stroke="#eff6ff" stroke-width="28" stroke-linecap="round"/>
+  <circle cx="244" cy="78" r="18" fill="#f8fafc" opacity="0.55"/>
+  <circle cx="82" cy="92" r="10" fill="#bfdbfe" opacity="0.6"/>
+</svg>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entertainer Profile</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+    <script src="theme.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <article class="artist-detail-card">
+      <div id="profile"></div>
+      <section class="artist-analytics">
+        <div class="artist-analytics-head">
+          <h3>Index Analytics</h3>
+          <div id="profile-metrics" class="artist-quick-stats"></div>
+        </div>
+        <div class="artist-chart-wrap">
+          <canvas id="priceChart" aria-label="Price chart"></canvas>
+        </div>
+      </section>
+      <a href="index.html" class="card-link" style="margin-top:1.5rem;display:inline-block;">Back to Index</a>
+    </article>
+  </div>
+  <footer class="site-footer" role="contentinfo">
+    <p class="site-footer-copy">Fantasy entertainment index for trend tracking and editorial-style analysis. No real ownership, cash-out, or entertainer endorsement is implied.</p>
+    <nav class="site-footer-links" aria-label="Legal and site links">
+      <a href="disclaimer.html">Disclaimer</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </footer>
+  <script src="shared-catalog.js"></script>
+  <script src="data.js"></script>
+  <script>
+    function formatCategoryLabel(category) {
+      const labels = {
+        musician: "Musician",
+        athlete: "Athlete",
+        actor: "Actor",
+        comedian: "Comedian",
+        tv: "TV Personality",
+        creator: "Creator"
+      };
+      return labels[category] || "Entertainer";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const id = Number(params.get("id"));
+    const entertainer = entertainers.find(e => e.id === id);
+    if(entertainer) {
+      const metrics = getEntertainerMetrics(entertainer);
+      document.getElementById("profile").innerHTML = `
+        <div class="artist-hero">
+          <div class="artist-photo avatar-badge avatar-${entertainer.category || "creator"}" aria-hidden="true">${entertainer.name.split(/\s+/).slice(0,2).map(part => part[0]).join("")}</div>
+          <div>
+            <p class="section-kicker">Entertainer Profile</p>
+            <h1>${entertainer.name}</h1>
+            <p class="artist-category-row"><span class="category-badge category-${entertainer.category || "creator"}">${formatCategoryLabel(entertainer.category)}</span></p>
+            <p class="artist-bio">${entertainer.bio}</p>
+          </div>
+        </div>
+        <div class="artist-sections">
+          <section>
+            <h3>Projects</h3>
+            <ul class="artist-list">${entertainer.projects.map(p=>`<li>${p}</li>`).join("")}</ul>
+          </section>
+          <section>
+            <h3>Upcoming</h3>
+            <ul class="artist-list">${entertainer.upcoming.map(event=>`<li>${event}</li>`).join("")}</ul>
+          </section>
+          <section>
+            <h3>Socials</h3>
+            <ul class="artist-list">
+              <li><a href="${entertainer.socials.instagram}" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+              <li><a href="${entertainer.socials.x}" target="_blank" rel="noopener noreferrer">X</a></li>
+              <li><a href="${entertainer.socials.youtube}" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+            </ul>
+          </section>
+        </div>
+      `;
+      document.getElementById("profile-metrics").innerHTML = `
+        <span>Price: ${formatCurrency(entertainer.price)}</span>
+        <span>MCap: ${formatCompactCurrency(metrics.marketCap)}</span>
+        <span>Vol 24h: ${formatCompactCurrency(metrics.volume24h)}</span>
+        <span>Turnover: ${(metrics.turnover * 100).toFixed(2)}%</span>
+        <span>Volatility: ${metrics.volatilityPct.toFixed(2)}%</span>
+        <span class="${metrics.momentum >= 0 ? "positive-text" : "negative-text"}">Momentum: ${metrics.momentum >= 0 ? "+" : ""}${metrics.momentum}</span>
+        <span>Liq: ${metrics.liquidityScore}</span>
+      `;
+      const ctx = document.getElementById('priceChart');
+      new Chart(ctx,{
+        type:'line',
+        data:{
+          labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+          datasets:[{
+            label:'Price Movement',
+            data:entertainer.history,
+            borderColor:'#7dd3fc',
+            backgroundColor:'rgba(125, 211, 252, 0.18)',
+            fill:true,
+            tension:0.4
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{ display:false } }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

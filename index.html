@@ -1,0 +1,3699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entertainers Exchange</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+    <script src="theme.js" defer></script>
+</head>
+<body>
+    
+  
+  <div class="background-orb orb-one"></div>
+  <div class="background-orb orb-two"></div>
+  <div class="grid-glow"></div>
+
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Fantasy entertainment index</p>
+        <h1>Entertainers Exchange</h1>
+        <p class="hero-text">Track performer momentum, build a fantasy roster, and follow the next wave of celebrity attention without real-money trading.</p>
+        <div class="hero-strip">
+          <span>Fantasy Index Live</span>
+          <span>Trend Refresh Every 5s</span>
+          <span>Celebrity Attention Tracker</span>
+        </div>
+        <div class="hero-pulse" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <div class="hero-board">
+        <div class="hero-metric">
+          <span>Credits</span>
+          <strong id="money">$1500.00</strong>
+        </div>
+        <div class="hero-metric">
+          <span>Roster Value</span>
+          <strong id="net-worth">$1500.00</strong>
+        </div>
+        <div class="hero-metric">
+          <span>Active Picks</span>
+          <strong id="open-positions">0</strong>
+        </div>
+        <div class="hero-metric">
+          <span>Index Score</span>
+          <strong id="score-value">0</strong>
+        </div>
+        <label class="difficulty-field" for="difficulty-select">
+          <span>Difficulty</span>
+          <select id="difficulty-select">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+        <details class="settings-menu">
+          <summary class="settings-summary">Settings</summary>
+          <div class="settings-grid">
+            <label class="settings-field" for="theme-select">
+              <span>Theme</span>
+              <select id="theme-select">
+                <option value="ocean">Ocean</option>
+                <option value="emerald">Emerald</option>
+                <option value="sunset">Sunset</option>
+                <option value="daylight">Daylight</option>
+                <option value="midnight">Midnight</option>
+                <option value="forest">Forest</option>
+                <option value="slate">Slate</option>
+                <option value="paper">Paper</option>
+              </select>
+            </label>
+            <label class="settings-field" for="layout-select">
+              <span>Layout</span>
+              <select id="layout-select">
+                <option value="balanced">Balanced</option>
+                <option value="market-focus">Index Focus</option>
+                <option value="side-focus">Side Focus</option>
+              </select>
+            </label>
+            <label class="settings-field" for="density-select">
+              <span>Density</span>
+              <select id="density-select">
+                <option value="comfortable">Comfortable</option>
+                <option value="compact">Compact</option>
+                <option value="spacious">Spacious</option>
+              </select>
+            </label>
+            <label class="settings-field" for="ticker-speed-select">
+              <span>Ticker Speed</span>
+              <select id="ticker-speed-select">
+                <option value="slow">Slow</option>
+                <option value="ultra" selected>Ultra Slow</option>
+                <option value="paused">Paused</option>
+              </select>
+            </label>
+            <label class="settings-field" for="font-size-select">
+              <span>Font Size</span>
+              <select id="font-size-select">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+                <option value="xlarge">Extra Large</option>
+              </select>
+            </label>
+            <label class="settings-field" for="brightness-select">
+              <span>Brightness</span>
+              <select id="brightness-select">
+                <option value="dim">Dim</option>
+                <option value="normal" selected>Normal</option>
+                <option value="bright">Bright</option>
+              </select>
+            </label>
+            <button id="sound-toggle" class="ghost-button settings-action-button" type="button">Sound: On</button>
+            <button id="profile-create-top" class="ghost-button settings-action-button" type="button">Create Profile</button>
+            <button id="reset-from-settings" class="ghost-button ghost-button-danger settings-reset-button" type="button">Reset Game</button>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    <main class="layout-grid">
+      <section class="panel panel-market">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Index board</p>
+            <h2>Fantasy Index</h2>
+          </div>
+          <p class="section-note section-note-center">Compare trend lines, follow fan momentum, and manage a fantasy roster built on public attention signals.</p>
+        </div>
+        <div class="market-banner">
+          <span class="market-banner-label">Now trending</span>
+          <div id="ticker-tape" class="ticker-tape"></div>
+        </div>
+        <div class="market-toolbar">
+          <label class="toolbar-field">
+            <span>Sort</span>
+            <select id="sort-select">
+              <option value="default">Featured</option>
+              <option value="popularity">Popularity (Live)</option>
+              <option value="price-desc">Price High-Low</option>
+              <option value="price-asc">Price Low-High</option>
+              <option value="market-cap">Reach Score</option>
+              <option value="volume">Volume (24h)</option>
+              <option value="name-asc">Name A-Z</option>
+              <option value="owned">Picked First</option>
+            </select>
+          </label>
+          <label class="toolbar-field toolbar-search">
+            <span>Search</span>
+            <input id="search-input" type="search" placeholder="Find entertainer">
+          </label>
+          <button id="owned-only" class="filter-chip" type="button">Picked Only: Off</button>
+          <button id="watchlist-only" class="filter-chip" type="button">Watchlist: Off</button>
+
+        </div>
+        <div class="category-toolbar" role="group" aria-label="Filter by entertainer category">
+          <button class="category-chip active" type="button" data-category="all">All</button>
+          <button class="category-chip" type="button" data-category="musician">Musicians</button>
+          <button class="category-chip" type="button" data-category="athlete">Athletes</button>
+          <button class="category-chip" type="button" data-category="actor">Actors</button>
+          <button class="category-chip" type="button" data-category="comedian">Comedians</button>
+          <button class="category-chip" type="button" data-category="tv">TV Personalities</button>
+          <button class="category-chip" type="button" data-category="creator">Creators</button>
+        </div>
+        <div id="market" class="market-grid"></div>
+        <div class="market-pagination" aria-label="Market pagination">
+          <button id="market-prev" class="ghost-button pagination-button" type="button">Prev</button>
+          <span id="market-page-info" class="page-info">Page 1 of 1</span>
+          <button id="market-next" class="ghost-button pagination-button" type="button">Next</button>
+        </div>
+        <div class="featured-links">
+          <a href="entertainers-11-30.html" class="featured-nav-link">View Entertainers 11-30</a>
+          <a href="entertainers-31-50.html" class="featured-nav-link">View Entertainers 31-50</a>
+        </div>
+      </section>
+
+      <div class="side-stack">
+        <section class="panel panel-portfolio">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Your roster</p>
+              <h2>Fantasy Roster</h2>
+            </div>
+            <p class="section-note">Track roster value, session movement, and which entertainers are driving your score.</p>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span class="stat-label">Roster Value</span>
+              <strong id="portfolio-value">$0.00</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Session Change</span>
+              <strong id="portfolio-gain">$0.00</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Top Pick</span>
+              <strong id="best-position">None</strong>
+            </article>
+          </div>
+
+          <div class="equity-panel">
+            <div class="equity-header">
+              <div>
+                <p class="section-kicker">Account curve</p>
+                <h3>Roster Curve</h3>
+              </div>
+              <strong id="equity-change">+$0.00</strong>
+            </div>
+            <div class="equity-chart-wrap">
+              <canvas id="equity-chart" aria-label="Roster curve history"></canvas>
+            </div>
+          </div>
+
+          <div id="portfolio-empty" class="empty-state">No picks yet. Add an entertainer to start building your roster.</div>
+          <div id="portfolio" class="portfolio-list"></div>
+
+          <div id="shorts-wrap" hidden>
+            <p class="section-kicker shorts-kicker">Short Positions</p>
+            <div id="shorts-list" class="portfolio-list"></div>
+          </div>
+
+          <div class="trade-history-wrap">
+            <p class="section-kicker shorts-kicker">Activity Log</p>
+            <div id="trade-history-empty" class="empty-state">No activity recorded yet.</div>
+            <div id="trade-history" class="trade-history-list"></div>
+          </div>
+        </section>
+
+        <section class="panel panel-feed">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Pulse</p>
+              <h2>Momentum Feed</h2>
+            </div>
+            <p class="section-note">Verified featured updates appear first, followed by your recent roster activity and fantasy index events.</p>
+          </div>
+          <div id="feed" class="feed-list"></div>
+        </section>
+
+        <section class="panel panel-community">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Community</p>
+              <h2>Share Your Profile</h2>
+            </div>
+            <p class="section-note">Create a profile card with your bio, links, and profile caption, then share your page URL.</p>
+          </div>
+          <div id="profile-empty" class="empty-state">Profile is optional. Create one any time to make this page shareable.</div>
+          <article id="profile-card" class="community-profile-card" hidden>
+            <div class="community-profile-head">
+              <h3 id="profile-name">Your Name</h3>
+              <span id="profile-status-pill" class="profile-status-pill">Share Ready</span>
+            </div>
+            <p id="profile-bio" class="community-profile-bio"></p>
+            <blockquote id="profile-message" class="community-profile-message" hidden></blockquote>
+            <div id="profile-stats" class="community-profile-stats"></div>
+            <div id="profile-badges" class="community-profile-badges"></div>
+            <div id="profile-unlocks" class="community-profile-unlocks"></div>
+            <div id="profile-links" class="community-profile-links"></div>
+          </article>
+          <div class="community-profile-actions">
+            <button id="profile-create-button" class="ghost-button" type="button">Create Profile</button>
+            <button id="profile-copy-link" class="ghost-button" type="button" disabled>Copy Share Link</button>
+          </div>
+          <label class="community-link-field" for="profile-share-link">
+            <span>Share URL</span>
+            <input id="profile-share-link" type="text" readonly placeholder="Profile optional. Create one to generate your share link">
+          </label>
+        </section>
+
+        <section class="panel panel-pro">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Pro</p>
+              <h2>Pro Analytics</h2>
+            </div>
+          </div>
+          <ul class="pro-feature-list">
+            <li>Advanced ranking filters and private watchlists</li>
+            <li>Historical trend breakdowns and weekly mover reports</li>
+            <li>Creator, athlete, and actor sector dashboards</li>
+            <li>Premium alerts and export-ready roster summaries</li>
+          </ul>
+          <div class="pro-actions">
+            <button id="pro-waitlist-btn" class="featured-nav-link featured-nav-button" type="button">Join Pro Waitlist</button>
+            <a class="featured-nav-link" href="#fantasy-use-note">View Fantasy Use Note</a>
+          </div>
+          <p id="fantasy-use-note" class="disclaimer-copy">Fantasy-use note: this experience is for entertainment and trend tracking only. It does not offer real ownership in entertainers, real-money cash out, or affiliation with the public figures featured here.</p>
+        </section>
+
+        <section class="panel panel-trending">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Hot right now</p>
+              <h2>Trending</h2>
+            </div>
+            <p class="section-note">Biggest movers this session.</p>
+          </div>
+          <div id="trending-list" class="trending-list"></div>
+        </section>
+
+        <section class="panel panel-watchlist">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Watching</p>
+              <h2>Watchlist</h2>
+            </div>
+            <p class="section-note">Click ★ on any card to add.</p>
+          </div>
+          <div id="watchlist-empty" class="empty-state">No items yet. Star an entertainer to track it here.</div>
+          <div id="watchlist-panel-list" class="watchlist-panel-list"></div>
+        </section>
+
+        <section class="panel panel-leaderboard">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Rankings</p>
+              <h2>Leaderboard</h2>
+            </div>
+            <p class="section-note">Top scores. Share your profile to appear here.</p>
+          </div>
+          <div id="leaderboard-list" class="leaderboard-list"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <section id="artist-page" class="artist-page" hidden>
+    <div class="artist-page-shell">
+      <button id="artist-back" class="ghost-button artist-back" type="button">Back to Index</button>
+      <article class="artist-detail-card">
+        <div class="artist-hero">
+          <div id="artist-photo" class="artist-photo avatar-badge avatar-creator" role="img" aria-label="Artist icon">AR</div>
+          <div>
+            <p class="section-kicker">Entertainer Profile</p>
+            <h2 id="artist-name">Artist Name</h2>
+            <p id="artist-category-row" class="artist-category-row"></p>
+            <p id="artist-bio" class="artist-bio"></p>
+          </div>
+        </div>
+        <section class="artist-analytics">
+          <div class="artist-analytics-head">
+            <h3>Index Analytics</h3>
+            <div class="artist-quick-stats">
+              <span id="artist-current-price">Price: $0.00</span>
+              <span id="artist-price-move">Movement: +$0.00</span>
+              <span id="artist-volume-24h">Vol 24h: $0</span>
+              <span id="artist-market-cap">MCap: $0</span>
+              <span id="artist-turnover">Turnover: 0%</span>
+              <span id="artist-momentum">Momentum: 0</span>
+              <span id="artist-liquidity">Liq: 0</span>
+              <label class="artist-timeframe-label" for="artist-timeframe">
+                <span>Window</span>
+                <select id="artist-timeframe" class="artist-timeframe">
+                  <option value="10">10 pts</option>
+                  <option value="25">25 pts</option>
+                  <option value="all" selected>All</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="artist-chart-wrap">
+            <canvas id="artist-analytics-chart" aria-label="Artist price and volume history"></canvas>
+          </div>
+        </section>
+        <div class="artist-sections">
+          <section>
+            <h3>Coverage & Context</h3>
+            <ul id="artist-news" class="artist-list"></ul>
+          </section>
+          <section>
+            <h3>Released Projects</h3>
+            <ul id="artist-projects" class="artist-list"></ul>
+          </section>
+          <section>
+            <h3>Upcoming Events</h3>
+            <ul id="artist-events" class="artist-list"></ul>
+          </section>
+          <section>
+            <h3>Social Platforms</h3>
+            <ul id="artist-socials" class="artist-list"></ul>
+          </section>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="profile-modal" class="profile-modal" hidden>
+    <div class="profile-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+      <div class="profile-modal-head">
+        <h2 id="profile-modal-title">Create Your Profile</h2>
+        <button id="profile-modal-close" class="ghost-button" type="button" aria-label="Close profile creator">Close</button>
+      </div>
+      <form id="profile-form" class="profile-form">
+        <label for="profile-form-name">
+          <span>Display Name</span>
+          <input id="profile-form-name" type="text" maxlength="60" required placeholder="Your name or alias">
+        </label>
+        <label for="profile-form-bio">
+          <span>Bio</span>
+          <textarea id="profile-form-bio" rows="4" maxlength="280" required placeholder="Tell other users about yourself."></textarea>
+        </label>
+        <label for="profile-form-links">
+          <span>Links (Optional)</span>
+          <textarea id="profile-form-links" rows="3" maxlength="500" placeholder="One URL per line, e.g. https://example.com"></textarea>
+        </label>
+        <label for="profile-form-message">
+          <span>Profile Caption (Optional)</span>
+          <input id="profile-form-message" type="text" maxlength="140" placeholder="A short caption for other users">
+        </label>
+        <div class="profile-form-actions">
+          <button id="profile-skip" class="ghost-button" type="button">Skip For Now</button>
+          <button id="profile-cancel" class="ghost-button" type="button">Cancel</button>
+          <button class="buy" type="submit">Save Profile</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section id="alert-modal" class="profile-modal" hidden>
+    <div class="profile-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="alert-modal-title">
+      <div class="profile-modal-head">
+        <h2 id="alert-modal-title">Index Alert</h2>
+        <button id="alert-modal-close" class="ghost-button" type="button" aria-label="Close">Close</button>
+      </div>
+      <p id="alert-modal-subtitle" class="alert-modal-subtitle"></p>
+      <form id="alert-form" class="profile-form">
+        <label for="alert-above">
+          <span>Alert when index rises above ($)</span>
+          <input id="alert-above" type="number" min="0.01" step="0.01" placeholder="e.g. 150.00">
+        </label>
+        <label for="alert-below">
+          <span>Alert when index falls below ($)</span>
+          <input id="alert-below" type="number" min="0.01" step="0.01" placeholder="e.g. 80.00">
+        </label>
+        <div class="profile-form-actions">
+          <button id="alert-clear" class="ghost-button" type="button">Clear Alerts</button>
+          <button class="buy" type="submit">Save Alert</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section id="limit-modal" class="profile-modal" hidden>
+    <div class="profile-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="limit-modal-title">
+      <div class="profile-modal-head">
+        <h2 id="limit-modal-title">Auto Adjust</h2>
+        <button id="limit-modal-close" class="ghost-button" type="button" aria-label="Close">Close</button>
+      </div>
+      <p id="limit-modal-subtitle" class="alert-modal-subtitle"></p>
+      <form id="limit-form" class="profile-form">
+        <label for="limit-action">
+          <span>Adjustment</span>
+          <select id="limit-action">
+            <option value="buy">Add when index dips to</option>
+            <option value="sell">Trim when index rises to</option>
+          </select>
+        </label>
+        <label for="limit-price">
+          <span>Target Index ($)</span>
+          <input id="limit-price" type="number" min="0.01" step="0.01" required placeholder="e.g. 100.00">
+        </label>
+        <label for="limit-qty">
+          <span>Roster Size</span>
+          <input id="limit-qty" type="number" min="1" step="1" value="1" required>
+        </label>
+        <div class="profile-form-actions">
+          <button id="limit-cancel" class="ghost-button" type="button">Cancel</button>
+          <button class="buy" type="submit">Save Rule</button>
+        </div>
+      </form>
+      <div id="limit-orders-section" class="limit-orders-section" style="display:none">
+        <p class="section-kicker" style="margin-bottom:8px">Saved Rules</p>
+        <div id="limit-orders-list" class="limit-orders-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reset-modal" class="profile-modal" hidden>
+    <div class="profile-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+      <div class="profile-modal-head">
+        <h2 id="reset-modal-title">Reset Game</h2>
+        <button id="reset-modal-close" class="ghost-button" type="button" aria-label="Close">Cancel</button>
+      </div>
+      <p class="reset-warning">This will reset credits to $1500 and clear your fantasy roster, short positions, activity log, watchlist, alerts, and saved rules. Display settings and profile are kept. This cannot be undone.</p>
+      <div class="profile-form-actions">
+        <button id="reset-cancel-btn" class="ghost-button" type="button">Cancel</button>
+        <button id="reset-confirm-btn" class="sell" type="button">Reset Everything</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="receipt-toast" class="receipt-toast" hidden>
+    <div class="receipt-toast-inner">
+      <p id="receipt-text" class="receipt-text"></p>
+      <div class="receipt-toast-actions">
+        <button id="receipt-share-btn" class="ghost-button" type="button">Share Receipt</button>
+        <button id="receipt-dismiss-btn" class="ghost-button" type="button">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" role="contentinfo">
+    <p class="site-footer-copy">Fantasy entertainment index for trend tracking and editorial-style analysis. No real ownership, cash-out, or entertainer endorsement is implied.</p>
+    <nav class="site-footer-links" aria-label="Legal and site links">
+      <a href="disclaimer.html">Disclaimer</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </footer>
+
+  <script>
+    (function() {
+      const featuredFallback = [
+        { name: "Taylor Swift", category: "musician", price: "$110.00" },
+        { name: "Drake", category: "musician", price: "$116.00" },
+        { name: "The Weeknd", category: "musician", price: "$122.00" },
+        { name: "Bad Bunny", category: "musician", price: "$128.00" },
+        { name: "Ariana Grande", category: "musician", price: "$134.00" },
+        { name: "Billie Eilish", category: "musician", price: "$140.00" },
+        { name: "Ed Sheeran", category: "musician", price: "$146.00" },
+        { name: "Beyonce", category: "musician", price: "$110.00" },
+        { name: "Rihanna", category: "musician", price: "$116.00" },
+        { name: "Travis Scott", category: "musician", price: "$122.00" }
+      ];
+
+      const marketFallback = [
+        { name: "Taylor Swift", category: "musician", price: "$110.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Drake", category: "musician", price: "$116.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "The Weeknd", category: "musician", price: "$122.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Bad Bunny", category: "musician", price: "$128.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Ariana Grande", category: "musician", price: "$134.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Billie Eilish", category: "musician", price: "$140.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Ed Sheeran", category: "musician", price: "$146.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Beyonce", category: "musician", price: "$110.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Rihanna", category: "musician", price: "$116.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Travis Scott", category: "musician", price: "$122.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Dua Lipa", category: "musician", price: "$128.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Justin Bieber", category: "musician", price: "$134.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Olivia Rodrigo", category: "musician", price: "$140.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "Bruno Mars", category: "musician", price: "$146.00", profile: "Global recording artist with major chart and streaming influence." },
+        { name: "SZA", category: "musician", price: "$110.00", profile: "Global recording artist with major chart and streaming influence." }
+      ];
+
+      function initials(name) {
+        return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase();
+      }
+
+      function renderFeaturedCard(item, index) {
+        const safeName = item.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        return `
+          <div class="entertainer-card">
+            <div class="card-img" style="margin-bottom:10px;text-align:center;">
+              <span class="artist-photo avatar-badge avatar-${item.category}" aria-hidden="true">${initials(item.name)}</span>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">#${index + 1} ${item.name}</h3>
+              <div class="card-meta">
+                <span class="card-price">Price: ${item.price}</span><br>
+                <span class="card-popularity">Live index</span>
+              </div>
+              <div class="card-actions entertainer-actions" style="margin-top:10px;display:flex;gap:8px;justify-content:center;">
+                <button class="buy" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'buy')">Add</button>
+                <button class="sell" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'sell')">Trim</button>
+                <button class="trade" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'trade')">Adjust</button>
+              </div>
+              <a class="card-link" href="#" onclick="window.openArtistFromCard && window.openArtistFromCard('${safeName}'); return false;">View Profile</a>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderMarketCard(item) {
+        const safeName = item.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        return `
+          <article class="market-card">
+            <div class="card-topline">
+              <span class="artist-photo avatar-badge avatar-${item.category}" aria-hidden="true">${initials(item.name)}</span>
+              <strong class="ticker">${item.name}</strong>
+              <span class="owned-tag">Preview</span>
+            </div>
+            <div class="price-row">
+              <strong class="price">${item.price}</strong>
+            </div>
+            <p class="profile">${item.profile}</p>
+            <div class="card-actions">
+              <button class="buy" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'buy')">Add</button>
+              <button class="sell" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'sell')">Trim</button>
+              <button class="trade" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'trade')">Adjust</button>
+            </div>
+            <a class="card-link" href="#" onclick="window.openArtistFromCard && window.openArtistFromCard('${safeName}'); return false;">View Profile</a>
+          </article>
+        `;
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        const featuredMarket = document.getElementById("featured-market");
+        const market = document.getElementById("market");
+
+        if (featuredMarket && featuredMarket.children.length === 0) {
+          featuredMarket.innerHTML = featuredFallback.map(renderFeaturedCard).join("");
+        }
+
+        if (market && market.children.length === 0) {
+          market.innerHTML = marketFallback.map(renderMarketCard).join("");
+        }
+      });
+    }());
+  </script>
+
+  <script src="shared-catalog.js"></script>
+
+  <script>
+    const STARTING_MONEY = 1500;
+    const PAGE_SIZE = 10;
+    const POPULARITY_REFRESH_MS = 10 * 60 * 1000;
+    const BASE_POPULARITY_INDEX = {
+      "Drake": 1000,
+      "Bad Bunny": 990,
+      "Taylor Swift": 985,
+      "The Weeknd": 980,
+      "Bruno Mars": 970,
+      "Billie Eilish": 960,
+      "Ariana Grande": 955,
+      "Justin Bieber": 950,
+      Rihanna: 948,
+      "Ed Sheeran": 945,
+      "Kendrick Lamar": 940,
+      "Travis Scott": 935,
+      Beyonce: 930,
+      "Lady Gaga": 925,
+      "Post Malone": 920,
+      "Dua Lipa": 915,
+      SZA: 905,
+      "Harry Styles": 900,
+      "Miley Cyrus": 890,
+      "Olivia Rodrigo": 885,
+      "Cristiano Ronaldo": 1000,
+      "Lionel Messi": 995,
+      "LeBron James": 980,
+      "Virat Kohli": 975,
+      "Stephen Curry": 970,
+      "Kylian Mbappe": 960,
+      "Patrick Mahomes": 950,
+      "Shohei Ohtani": 945,
+      "Max Verstappen": 940,
+      "Lewis Hamilton": 935,
+      "Giannis Antetokounmpo": 925,
+      "Erling Haaland": 920,
+      "Novak Djokovic": 915,
+      "Simone Biles": 905,
+      "Coco Gauff": 890,
+      "Dwayne Johnson": 1000,
+      Zendaya: 980,
+      "Ryan Reynolds": 965,
+      "Tom Holland": 960,
+      "Margot Robbie": 955,
+      "Keanu Reeves": 950,
+      "Scarlett Johansson": 948,
+      "Pedro Pascal": 945,
+      "Jenna Ortega": 940,
+      "Timothee Chalamet": 935,
+      "Chris Hemsworth": 930,
+      "Emma Stone": 920,
+      "Cillian Murphy": 915,
+      "Millie Bobby Brown": 910,
+      "Florence Pugh": 905,
+      MrBeast: 1000,
+      "Khaby Lame": 980,
+      "Charli D'Amelio": 960,
+      IShowSpeed: 940,
+      "Kai Cenat": 935,
+      "Logan Paul": 920,
+      "Jake Paul": 900,
+      Pokimane: 890,
+      "Emma Chamberlain": 875,
+      "Mark Rober": 870,
+      "Kevin Hart": 930,
+      "Trevor Noah": 905,
+      "Matt Rife": 880,
+      "Jimmy Fallon": 915,
+      "Steve Harvey": 910,
+      "Gordon Ramsay": 920,
+      "DJ Akademiks": 885,
+      "Zach King": 930,
+      "Bella Poarch": 900,
+      "Addison Rae": 910
+    };
+
+    function slugify(value) {
+      return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    }
+
+    function getWikiUrl(title) {
+      return `https://en.wikipedia.org/wiki/${encodeURIComponent(title).replace(/%20/g, "_")}`;
+    }
+
+    function getNewsUrl(name) {
+      return `https://news.google.com/search?q=${encodeURIComponent(name)}`;
+    }
+
+    function getYouTubeSearchUrl(name) {
+      return `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}`;
+    }
+
+    function getInitials(name) {
+      return (name || "NA")
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase();
+    }
+
+    function getCategoryPalette(category) {
+      const palettes = {
+        musician: ["#0ea5e9", "#2563eb"],
+        athlete: ["#22c55e", "#15803d"],
+        actor: ["#f97316", "#c2410c"],
+        comedian: ["#f59e0b", "#d97706"],
+        tv: ["#ec4899", "#be185d"],
+        creator: ["#a855f7", "#7c3aed"]
+      };
+      return palettes[category] || palettes.creator;
+    }
+
+    function buildAvatarDataUrl(label, category) {
+      const [startColor, endColor] = getCategoryPalette(category);
+      const text = String(label || "NA").replace(/[&<>\"']/g, "");
+      const svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"240\" height=\"240\" viewBox=\"0 0 240 240\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0%\" stop-color=\"${startColor}\"/><stop offset=\"100%\" stop-color=\"${endColor}\"/></linearGradient></defs><rect width=\"240\" height=\"240\" rx=\"40\" fill=\"url(#g)\"/><text x=\"50%\" y=\"56%\" text-anchor=\"middle\" fill=\"#f8fafc\" font-family=\"Arial, sans-serif\" font-size=\"78\" font-weight=\"700\">${text}</text></svg>`;
+      return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+    }
+
+    function getCategoryPhoto(category) {
+      const categoryCode = {
+        musician: "MU",
+        athlete: "AT",
+        actor: "AC",
+        comedian: "CM",
+        tv: "TV",
+        creator: "CR"
+      };
+      return buildAvatarDataUrl(categoryCode[category] || "CR", category);
+    }
+
+    function getEntertainerPhoto(name, category) {
+      return buildAvatarDataUrl(getInitials(name), category);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function getAvatarBadgeMarkup(name, category, className = "artist-avatar") {
+      const initials = escapeHtml(getInitials(name));
+      const safeClass = escapeHtml(className);
+      const safeCategory = escapeHtml(category || "creator");
+      return `<span class="${safeClass} avatar-badge avatar-${safeCategory}" aria-hidden="true">${initials}</span>`;
+    }
+
+    function formatCategoryLabel(category) {
+      const labels = {
+        musician: "Musician",
+        athlete: "Athlete",
+        actor: "Actor",
+        comedian: "Comedian",
+        tv: "TV Personality",
+        creator: "Creator"
+      };
+      return labels[category] || "Entertainer";
+    }
+
+    function getCategoryBadgeMarkup(category, className = "category-badge") {
+      const safeCategory = escapeHtml(category || "creator");
+      const safeClass = escapeHtml(className);
+      const safeLabel = escapeHtml(formatCategoryLabel(category));
+      return `<span class="${safeClass} category-${safeCategory}">${safeLabel}</span>`;
+    }
+
+    function handleCardActionByName(name, action) {
+      const index = entertainers.findIndex((candidate) => candidate.name === name);
+      if (index === -1) {
+        return;
+      }
+
+      if (action === "buy") {
+        buy(index);
+        return;
+      }
+      if (action === "sell") {
+        sell(index);
+        return;
+      }
+      openLimitModal(name);
+    }
+
+    window.handleCardActionByName = handleCardActionByName;
+    window.openArtistFromCard = openArtistPage;
+
+    function ensureEntertainerPhotos() {
+      entertainers.forEach((entertainer) => {
+        if (typeof entertainer.photo !== "string" || !entertainer.photo.trim()) {
+          entertainer.photo = getEntertainerPhoto(entertainer.name, entertainer.category);
+        }
+      });
+    }
+
+    function getBasePrice(category, index) {
+      const baseByCategory = {
+        musician: 110,
+        athlete: 105,
+        actor: 95,
+        comedian: 92,
+        tv: 94,
+        creator: 90
+      };
+      return baseByCategory[category] + (index % 7) * 6;
+    }
+
+    function getCirculatingShares(category, index, basePopularityIndex) {
+      const baseByCategory = {
+        musician: 2400000,
+        athlete: 2200000,
+        actor: 1800000,
+        comedian: 1650000,
+        tv: 1700000,
+        creator: 1400000
+      };
+      const baseShares = baseByCategory[category] || 1500000;
+      const popularityBoost = Math.max(0, (basePopularityIndex - 850) * 1800);
+      const indexBoost = index * 18000;
+      return Math.round((baseShares + popularityBoost + indexBoost) / 50000) * 50000;
+    }
+
+    function getBasePopularityIndex(name, category) {
+      if (typeof BASE_POPULARITY_INDEX[name] === "number") {
+        return BASE_POPULARITY_INDEX[name];
+      }
+
+      const categoryFallback = {
+        musician: 850,
+        athlete: 850,
+        actor: 850,
+        comedian: 840,
+        tv: 845,
+        creator: 850
+      };
+      return categoryFallback[category] || 850;
+    }
+
+    function computePopularityScore(baseIndex, liveViews) {
+      const safeBase = Number.isFinite(baseIndex) ? baseIndex : 0;
+      const safeLiveViews = Number.isFinite(liveViews) && liveViews > 0 ? liveViews : 0;
+      const liveSignal = Math.log10(1 + safeLiveViews) * 100;
+      return Math.round((safeBase * 100) + liveSignal);
+    }
+
+    function buildEntertainer(entry, index) {
+      const profileByCategory = {
+        musician: "Global recording artist with major chart and streaming influence.",
+        athlete: "Elite athlete with international fan reach and brand presence.",
+        actor: "High-visibility screen talent with broad box-office and media impact.",
+        comedian: "Comedian with strong live-demand, viral clips, and mainstream audience reach.",
+        tv: "Television personality with durable audience recognition and weekly viewing visibility.",
+        creator: "Digital creator with strong multi-platform audience momentum."
+      };
+      const bioCategoryContext = {
+        musician: "music",
+        athlete: "sports",
+        actor: "film and television",
+        comedian: "comedy",
+        tv: "television",
+        creator: "creator-led entertainment"
+      };
+      const sharedPopularityIndex = Number.isFinite(Number(entry.popularity))
+        ? Math.round(760 + (Number(entry.popularity) * 2.4))
+        : 0;
+      const basePopularityIndex = typeof BASE_POPULARITY_INDEX[entry.name] === "number"
+        ? BASE_POPULARITY_INDEX[entry.name]
+        : Math.max(getBasePopularityIndex(entry.name, entry.category), sharedPopularityIndex);
+      const startingPrice = Number.isFinite(Number(entry.price)) ? Number(entry.price) : getBasePrice(entry.category, index);
+      const upcomingTitles = Array.isArray(entry.upcoming) && entry.upcoming.length > 0
+        ? entry.upcoming
+        : ["Media Appearance", "Fan Engagement Event"];
+      const socialLinks = entry.socials && typeof entry.socials === "object"
+        ? [
+          { label: "Instagram", url: entry.socials.instagram || `https://www.instagram.com/${slugify(entry.name).replace(/-/g, "")}/` },
+          { label: "X", url: entry.socials.x || `https://x.com/search?q=${encodeURIComponent(entry.name)}&src=typed_query` },
+          { label: "YouTube", url: entry.socials.youtube || getYouTubeSearchUrl(entry.name) }
+        ]
+        : [
+          { label: "Instagram", url: `https://www.instagram.com/${slugify(entry.name).replace(/-/g, "")}/` },
+          { label: "X", url: `https://x.com/search?q=${encodeURIComponent(entry.name)}&src=typed_query` },
+          { label: "YouTube", url: getYouTubeSearchUrl(entry.name) }
+        ];
+      const priceHistory = Array.isArray(entry.history) && entry.history.length > 0
+        ? entry.history.slice(-14)
+        : [startingPrice];
+
+      return {
+        id: entry.id || index + 1,
+        name: entry.name,
+        category: entry.category,
+        wikiTitle: entry.wikiTitle,
+        popularityBaseIndex: basePopularityIndex,
+        popularityLiveViews: 0,
+        popularityScore: computePopularityScore(basePopularityIndex, 0),
+        price: startingPrice,
+        circulatingShares: getCirculatingShares(entry.category, index, basePopularityIndex),
+        profile: profileByCategory[entry.category],
+        photo: getEntertainerPhoto(entry.name, entry.category),
+        bio: entry.bio || `${entry.name} is one of the most followed names in ${bioCategoryContext[entry.category] || "entertainment"}, with strong audience engagement and sustained public attention.`,
+        projects: [
+          { title: "Wikipedia Profile", link: getWikiUrl(entry.wikiTitle) },
+          { title: "Current Coverage", link: getNewsUrl(entry.name) },
+          { title: "Video Highlights", link: getYouTubeSearchUrl(entry.name) }
+        ],
+        upcomingEvents: upcomingTitles.map((title, eventIndex) => ({
+          title,
+          date: eventIndex % 2 === 0 ? "2026-07-10" : "2026-08-22"
+        })),
+        socials: socialLinks,
+        news: [
+          { kind: "coverage", badge: "Coverage", title: `${entry.name} in current coverage and search interest`, source: "Google News", url: getNewsUrl(entry.name) },
+          { kind: "context", badge: "Context", title: `${entry.name} profile and career background`, source: "Wikipedia", url: getWikiUrl(entry.wikiTitle) }
+        ],
+        history: priceHistory,
+        volumeHistory: new Array(priceHistory.length).fill(0)
+      };
+    }
+
+    function getSharedCatalogEntries() {
+      return Array.isArray(window.ENTERTAINERS_EXCHANGE_CATALOG)
+        ? window.ENTERTAINERS_EXCHANGE_CATALOG.map((entry) => ({ ...entry }))
+        : [];
+    }
+
+    const baseEntertainers = getSharedCatalogEntries().map((entry, index) => buildEntertainer(entry, index));
+
+    const STORAGE_KEY = "entertainers-exchange-state";
+    const STORAGE_BACKUP_KEY = "entertainers-exchange-state-backup";
+    const DISPLAY_SETTINGS_KEY = "entertainers-exchange-display-settings";
+    const PERMANENT_TRADES_KEY = "entertainers-exchange-trades";
+    const PRO_WAITLIST_KEY = "entertainers-exchange-pro-waitlist";
+    const FEATURED_FEED_REFRESH_MS = 5 * 60 * 1000;
+    const MARKET_EVENT_INTERVAL_MS = 12000;
+    const PRICE_HISTORY_LIMIT = 14;
+    const EQUITY_HISTORY_LIMIT = 24;
+    const TRADE_HISTORY_LIMIT = 5000;
+    const UI_UPDATE_THROTTLE_MS = 120;
+    const REALTIME_MAX_BACKOFF_MS = 30000;
+    const REQUIRE_PRIVATE_LINK = true;
+    const PRIVATE_ACCESS_TOKEN = "D7FVYgsgRxWaUfSklGsdV67en6bSwJQs";
+
+    let entertainers = cloneBaseEntertainers();
+    let portfolio = {};
+    let newsFeed = [];
+    let featuredFeedItems = [];
+    let money = STARTING_MONEY;
+    let tradeQuantities = {};
+    let charts = {};
+    let equityHistory = [];
+    let marketFilters = { sort: "default", search: "", ownedOnly: false, watchlistOnly: false, category: "all", page: 1 };
+    let soundEnabled = false;
+    let audioContext = null;
+    let difficulty = "normal";
+    let displaySettings = { theme: "ocean", layout: "balanced", density: "comfortable", tickerSpeed: "ultra", fontSize: "medium", brightness: "normal" };
+    let exchangeScore = 0;
+    let selectedArtist = null;
+    let userProfile = null;
+    let watchlist = new Set();
+    let priceAlerts = {};
+    let firedAlerts = new Set();
+    let limitOrders = [];
+    let shortPositions = {};
+    let tradeHistory = [];
+    let leaderboard = [];
+    let focusedEntity = null;
+    let alertModalTarget = null;
+    let limitModalTarget = null;
+    let receiptData = null;
+    let artistTimeframe = "all";
+    let nextLimitOrderSeq = 0;
+    let activeModalId = null;
+    let restoreFocusEl = null;
+    let realtimeSocket = null;
+    let realtimeBackoffMs = 1000;
+    let realtimeReconnectTimer = null;
+    let uiUpdateTimer = null;
+    let realtimeEnabled = false;
+    let realtimeWsUrl = "";
+    let featuredFeedUrl = "/api/featured-news";
+    let featuredFeedTimer = null;
+    let mobilePortfolioFirstEnabled = false;
+    let portfolioMovedForMobile = false;
+    let portfolioOriginalParent = null;
+    let portfolioOriginalNextSibling = null;
+
+    const difficultySettings = {
+      easy: { min: -6, max: 8, scoreMultiplier: 0.8 },
+      normal: { min: -10, max: 10, scoreMultiplier: 1 },
+      hard: { min: -16, max: 18, scoreMultiplier: 1.35 }
+    };
+
+    const displayOptions = {
+      theme: ["ocean", "emerald", "sunset", "daylight", "midnight", "forest", "slate", "paper"],
+      layout: ["balanced", "market-focus", "side-focus"],
+      density: ["comfortable", "compact", "spacious"],
+      tickerSpeed: ["slow", "ultra", "paused"],
+      fontSize: ["small", "medium", "large", "xlarge"],
+      brightness: ["dim", "normal", "bright"]
+    };
+
+    function parseRealtimeConfig() {
+      const params = new URLSearchParams(window.location.search);
+      realtimeEnabled = params.get("realtime") === "1";
+      realtimeWsUrl = params.get("ws") || "";
+      featuredFeedUrl = params.get("newsApi") || "/api/featured-news";
+      mobilePortfolioFirstEnabled = params.get("mportfolio") === "1";
+    }
+
+    function applyMobilePortfolioPreference() {
+      if (!mobilePortfolioFirstEnabled) {
+        return;
+      }
+
+      const isPortraitMobile = window.matchMedia("(max-width: 960px) and (orientation: portrait)").matches;
+      const layoutGrid = document.querySelector("main.layout-grid");
+      const marketPanel = document.querySelector("section.panel-market");
+      const portfolioPanel = document.querySelector("section.panel-portfolio");
+      if (!layoutGrid || !marketPanel || !portfolioPanel) {
+        return;
+      }
+
+      if (!portfolioOriginalParent) {
+        portfolioOriginalParent = portfolioPanel.parentElement;
+        portfolioOriginalNextSibling = portfolioPanel.nextElementSibling;
+      }
+
+      if (isPortraitMobile && !portfolioMovedForMobile) {
+        layoutGrid.insertBefore(portfolioPanel, marketPanel);
+        portfolioMovedForMobile = true;
+        return;
+      }
+
+      if (!isPortraitMobile && portfolioMovedForMobile && portfolioOriginalParent) {
+        if (portfolioOriginalNextSibling && portfolioOriginalNextSibling.parentElement === portfolioOriginalParent) {
+          portfolioOriginalParent.insertBefore(portfolioPanel, portfolioOriginalNextSibling);
+        } else {
+          portfolioOriginalParent.prepend(portfolioPanel);
+        }
+        portfolioMovedForMobile = false;
+      }
+    }
+
+    function enforcePrivateAccess() {
+      // Private access check disabled: site is always accessible
+      return true;
+    }
+
+    function isRealtimeMode() {
+      return realtimeEnabled && Boolean(realtimeWsUrl);
+    }
+
+    function scheduleUpdateUI() {
+      if (uiUpdateTimer) {
+        return;
+      }
+      uiUpdateTimer = setTimeout(() => {
+        uiUpdateTimer = null;
+        updateUI();
+      }, UI_UPDATE_THROTTLE_MS);
+    }
+
+    function upsertEntertainerFromServer(update) {
+      if (!update || typeof update.name !== "string") {
+        return;
+      }
+      const entertainer = entertainers.find((item) => item.name === update.name);
+      if (!entertainer) {
+        return;
+      }
+
+      if (typeof update.price === "number" && Number.isFinite(update.price)) {
+        entertainer.price = Math.max(1, update.price);
+      }
+
+      if (Array.isArray(update.history) && update.history.length > 0) {
+        entertainer.history = update.history.slice(-PRICE_HISTORY_LIMIT);
+      } else {
+        const volume = typeof update.volume === "number" ? Math.max(0, Math.round(update.volume)) : 0;
+        recordPrice(entertainer, volume);
+      }
+
+      if (Array.isArray(update.volumeHistory) && update.volumeHistory.length > 0) {
+        entertainer.volumeHistory = update.volumeHistory.slice(-PRICE_HISTORY_LIMIT);
+      }
+    }
+
+    function applyRealtimeSnapshot(payload) {
+      if (!payload || !Array.isArray(payload.entertainers)) {
+        return;
+      }
+      payload.entertainers.forEach((item) => upsertEntertainerFromServer(item));
+
+      if (typeof payload.money === "number") money = payload.money;
+      if (payload.portfolio && typeof payload.portfolio === "object") portfolio = payload.portfolio;
+      if (Array.isArray(payload.newsFeed)) newsFeed = payload.newsFeed.slice(-64);
+      if (typeof payload.exchangeScore === "number") exchangeScore = payload.exchangeScore;
+      if (Array.isArray(payload.tradeHistory)) tradeHistory = payload.tradeHistory.slice(-50);
+      if (Array.isArray(payload.limitOrders)) limitOrders = payload.limitOrders;
+      if (payload.shortPositions && typeof payload.shortPositions === "object") shortPositions = payload.shortPositions;
+
+      ensureEntertainerPhotos();
+      checkPriceAlerts();
+      scheduleUpdateUI();
+    }
+
+    function applyRealtimePatch(payload) {
+      if (!payload) {
+        return;
+      }
+      if (Array.isArray(payload.updates)) {
+        payload.updates.forEach((item) => upsertEntertainerFromServer(item));
+      }
+      if (payload.update) {
+        upsertEntertainerFromServer(payload.update);
+      }
+      if (Array.isArray(payload.news)) {
+        payload.news.forEach((item) => newsFeed.push(String(item)));
+        newsFeed = newsFeed.slice(-64);
+      }
+      ensureEntertainerPhotos();
+      checkPriceAlerts();
+      scheduleUpdateUI();
+    }
+
+    function sendRealtimeIntent(action, payload) {
+      if (!isRealtimeMode() || !realtimeSocket || realtimeSocket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
+      try {
+        realtimeSocket.send(JSON.stringify({ type: "intent", action, payload, ts: Date.now() }));
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function connectRealtime() {
+      if (!isRealtimeMode()) {
+        return false;
+      }
+
+      if (realtimeReconnectTimer) {
+        clearTimeout(realtimeReconnectTimer);
+        realtimeReconnectTimer = null;
+      }
+
+      try {
+        realtimeSocket = new WebSocket(realtimeWsUrl);
+      } catch (error) {
+        realtimeSocket = null;
+        realtimeReconnectTimer = setTimeout(connectRealtime, realtimeBackoffMs);
+        realtimeBackoffMs = Math.min(REALTIME_MAX_BACKOFF_MS, realtimeBackoffMs * 2);
+        return true;
+      }
+
+      realtimeSocket.addEventListener("open", () => {
+        realtimeBackoffMs = 1000;
+        newsFeed.push("Connected to live index stream.");
+        newsFeed = newsFeed.slice(-64);
+        scheduleUpdateUI();
+      });
+
+      realtimeSocket.addEventListener("message", (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.type === "snapshot") {
+            applyRealtimeSnapshot(payload);
+            return;
+          }
+          if (payload.type === "patch" || payload.type === "price_update") {
+            applyRealtimePatch(payload);
+          }
+        } catch (error) {
+          /* ignore malformed message */
+        }
+      });
+
+      realtimeSocket.addEventListener("close", () => {
+        realtimeSocket = null;
+        newsFeed.push("Live index connection dropped. Reconnecting...");
+        newsFeed = newsFeed.slice(-64);
+        scheduleUpdateUI();
+        realtimeReconnectTimer = setTimeout(connectRealtime, realtimeBackoffMs);
+        realtimeBackoffMs = Math.min(REALTIME_MAX_BACKOFF_MS, realtimeBackoffMs * 2);
+      });
+
+      realtimeSocket.addEventListener("error", () => {
+        if (realtimeSocket) {
+          try { realtimeSocket.close(); } catch (error) { /* ignore */ }
+        }
+      });
+
+      return true;
+    }
+
+    function sanitizeDisplaySettings(value) {
+      const safe = value && typeof value === "object" ? value : {};
+      return {
+        theme: displayOptions.theme.includes(safe.theme) ? safe.theme : "ocean",
+        layout: displayOptions.layout.includes(safe.layout) ? safe.layout : "balanced",
+        density: displayOptions.density.includes(safe.density) ? safe.density : "comfortable",
+        tickerSpeed: displayOptions.tickerSpeed.includes(safe.tickerSpeed) ? safe.tickerSpeed : "ultra",
+        fontSize: displayOptions.fontSize.includes(safe.fontSize) ? safe.fontSize : "medium",
+        brightness: displayOptions.brightness.includes(safe.brightness) ? safe.brightness : "normal"
+      };
+    }
+
+    function renderProWaitlistButton() {
+      const button = document.getElementById("pro-waitlist-btn");
+      if (!button) return;
+      const joined = window.localStorage.getItem(PRO_WAITLIST_KEY) === "1";
+      button.innerText = joined ? "Interest Saved" : "Join Pro Waitlist";
+      button.disabled = joined;
+    }
+
+    function joinProWaitlist() {
+      window.localStorage.setItem(PRO_WAITLIST_KEY, "1");
+      newsFeed.push("Pro interest saved on this device.");
+      if (newsFeed.length > 64) newsFeed = newsFeed.slice(-64);
+      renderProWaitlistButton();
+      renderFeed();
+      const note = document.getElementById("fantasy-use-note");
+      if (note) {
+        note.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    function saveDisplaySettings() {
+      try {
+        localStorage.setItem(DISPLAY_SETTINGS_KEY, JSON.stringify(sanitizeDisplaySettings(displaySettings)));
+      } catch (error) {
+        /* ignore quota/storage write errors */
+      }
+    }
+
+    function loadDisplaySettings() {
+      const parsed = safeParseJson(localStorage.getItem(DISPLAY_SETTINGS_KEY));
+      return sanitizeDisplaySettings(parsed);
+    }
+
+    function applyDisplaySettings() {
+      const safe = sanitizeDisplaySettings(displaySettings);
+      displaySettings = safe;
+      document.body.dataset.theme = safe.theme;
+      document.body.dataset.layout = safe.layout;
+      document.body.dataset.density = safe.density;
+      document.body.dataset.tickerSpeed = safe.tickerSpeed;
+      document.body.dataset.fontSize = safe.fontSize;
+      document.body.dataset.brightness = safe.brightness;
+      saveDisplaySettings();
+    }
+
+    function cloneBaseEntertainers() {
+      return baseEntertainers.map((entertainer) => ({
+        ...entertainer,
+        history: Array.isArray(entertainer.history) ? entertainer.history.slice() : [entertainer.price],
+        volumeHistory: Array.isArray(entertainer.volumeHistory) ? entertainer.volumeHistory.slice() : [0],
+        projects: entertainer.projects.map((project) => ({ ...project })),
+        upcomingEvents: entertainer.upcomingEvents.map((event) => ({ ...event })),
+        socials: entertainer.socials.map((social) => ({ ...social })),
+        news: entertainer.news.map((item) => ({ ...item }))
+      }));
+    }
+
+    function renderEntertainerNews(entertainer) {
+      const items = Array.isArray(entertainer.news) ? entertainer.news.slice(0, 2) : [];
+      if (items.length === 0) {
+        return "";
+      }
+
+      return `
+        <div class="card-news">
+          ${items.map((item) => `
+            <a class="card-news-item ${item.kind || (item.breaking ? "coverage" : "context")}" href="${item.url}" target="_blank" rel="noopener noreferrer">
+              <span class="card-news-badge">${item.badge || (item.breaking ? "Coverage" : "Context")}</span>
+              <span class="card-news-title">${item.title}</span>
+              <span class="card-news-source">Source: ${item.source}</span>
+            </a>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function formatCurrency(value) {
+      return `$${value.toFixed(2)}`;
+    }
+
+    function sanitizeId(value) {
+      return value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    }
+
+    function normalizeProfileLink(value) {
+      if (typeof value !== "string") {
+        return "";
+      }
+
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return "";
+      }
+
+      const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      try {
+        const parsed = new URL(withProtocol);
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+          return "";
+        }
+        return parsed.href;
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function parseProfileLinks(rawValue) {
+      if (typeof rawValue !== "string") {
+        return [];
+      }
+
+      const uniqueLinks = new Set();
+      rawValue
+        .split(/\r?\n|,/)
+        .map((chunk) => normalizeProfileLink(chunk))
+        .filter(Boolean)
+        .forEach((link) => uniqueLinks.add(link));
+
+      return Array.from(uniqueLinks).slice(0, 8);
+    }
+
+    function sanitizeUserProfile(value) {
+      const safe = value && typeof value === "object" ? value : {};
+      const name = typeof safe.name === "string" ? safe.name.trim().slice(0, 60) : "";
+      const bio = typeof safe.bio === "string" ? safe.bio.trim().slice(0, 280) : "";
+      const message = typeof safe.message === "string" ? safe.message.trim().slice(0, 140) : "";
+      const links = Array.isArray(safe.links)
+        ? safe.links.map((link) => normalizeProfileLink(link)).filter(Boolean).slice(0, 8)
+        : parseProfileLinks(typeof safe.links === "string" ? safe.links : "");
+
+      if (!name || !bio) {
+        return null;
+      }
+
+      const score = typeof safe.score === "number" ? safe.score : null;
+      const tradeCount = typeof safe.tradeCount === "number" ? safe.tradeCount : null;
+      const bestTrade = typeof safe.bestTrade === "string" ? safe.bestTrade.slice(0, 80) : null;
+      const totalRealizedGain = typeof safe.totalRealizedGain === "number" ? safe.totalRealizedGain : null;
+
+      return { name, bio, message, links, score, tradeCount, bestTrade, totalRealizedGain };
+    }
+
+    function encodeProfilePayload(profile) {
+      const json = JSON.stringify(profile);
+      const bytes = new TextEncoder().encode(json);
+      let binary = "";
+      bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+      return btoa(binary);
+    }
+
+    function decodeProfilePayload(encodedValue) {
+      const binary = atob(encodedValue);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index);
+      }
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+
+    function buildShareProfileUrl(profile) {
+      const baseUrl = window.location.origin && window.location.origin !== "null"
+        ? `${window.location.origin}${window.location.pathname}`
+        : window.location.pathname;
+      return `${baseUrl}?profile=${encodeURIComponent(encodeProfilePayload(profile))}`;
+    }
+
+    function getNextLimitOrderId() {
+      nextLimitOrderSeq = (nextLimitOrderSeq + 1) % 1000;
+      return Date.now() * 1000 + nextLimitOrderSeq;
+    }
+
+    function getModalFocusableElements(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return [];
+      const selector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      return Array.from(modal.querySelectorAll(selector)).filter((el) => !el.hasAttribute("hidden"));
+    }
+
+    function openModal(modalId, focusElementId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      restoreFocusEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      activeModalId = modalId;
+      modal.removeAttribute("hidden");
+      setTimeout(() => {
+        const target = focusElementId ? document.getElementById(focusElementId) : getModalFocusableElements(modalId)[0];
+        if (target && typeof target.focus === "function") target.focus();
+      }, 0);
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.setAttribute("hidden", "true");
+      if (activeModalId === modalId) {
+        activeModalId = null;
+      }
+      if (restoreFocusEl && typeof restoreFocusEl.focus === "function") {
+        restoreFocusEl.focus();
+      }
+      restoreFocusEl = null;
+    }
+
+    function handleModalFocusTrap(event) {
+      if (event.key !== "Tab" || !activeModalId) return;
+      const focusables = getModalFocusableElements(activeModalId);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function getProfileFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const payload = params.get("profile");
+      if (!payload) {
+        return null;
+      }
+
+      try {
+        return sanitizeUserProfile(decodeProfilePayload(payload));
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function renderUserProfile() {
+      const emptyState = document.getElementById("profile-empty");
+      const card = document.getElementById("profile-card");
+      const nameNode = document.getElementById("profile-name");
+      const statusNode = document.getElementById("profile-status-pill");
+      const bioNode = document.getElementById("profile-bio");
+      const messageNode = document.getElementById("profile-message");
+      const badgesNode = document.getElementById("profile-badges");
+      const unlocksNode = document.getElementById("profile-unlocks");
+      const linksNode = document.getElementById("profile-links");
+      const shareInput = document.getElementById("profile-share-link");
+      const copyButton = document.getElementById("profile-copy-link");
+      const createButton = document.getElementById("profile-create-button");
+      const topButton = document.getElementById("profile-create-top");
+
+      if (!userProfile) {
+        emptyState.style.display = "block";
+        card.setAttribute("hidden", "true");
+        card.className = "community-profile-card";
+        shareInput.value = "";
+        copyButton.disabled = true;
+        createButton.innerText = "Create Profile";
+        topButton.innerText = "Create Profile";
+        return;
+      }
+
+      emptyState.style.display = "none";
+      card.removeAttribute("hidden");
+      nameNode.innerText = userProfile.name;
+      bioNode.innerText = userProfile.bio;
+
+      if (userProfile.message) {
+        messageNode.innerText = `"${userProfile.message}"`;
+        messageNode.removeAttribute("hidden");
+      } else {
+        messageNode.setAttribute("hidden", "true");
+        messageNode.innerText = "";
+      }
+
+      linksNode.innerHTML = "";
+      if (userProfile.links.length === 0) {
+        const emptyLinks = document.createElement("p");
+        emptyLinks.className = "community-profile-links-empty";
+        emptyLinks.innerText = "No links added.";
+        linksNode.appendChild(emptyLinks);
+      } else {
+        userProfile.links.forEach((link) => {
+          const anchor = document.createElement("a");
+          anchor.href = link;
+          anchor.target = "_blank";
+          anchor.rel = "noopener noreferrer";
+          try {
+            const parsed = new URL(link);
+            anchor.innerText = parsed.hostname.replace(/^www\./, "");
+          } catch (error) {
+            anchor.innerText = link;
+          }
+          linksNode.appendChild(anchor);
+        });
+      }
+
+      const statsEl = document.getElementById("profile-stats");
+      const ps = getProfileStats();
+      const progress = getProfileProgress(userProfile, ps);
+      card.className = `community-profile-card frame-${progress.frame}`;
+      statusNode.innerText = `${progress.tier} Unlocked`;
+      if (statsEl) {
+        const displayScore = userProfile.score ?? ps.score;
+        const displayTrades = userProfile.tradeCount ?? ps.tradeCount;
+        const displayBest = userProfile.bestTrade || ps.bestTrade;
+        statsEl.innerHTML = `
+          <div class="profile-stat-item"><span>Score</span><strong>${Number(displayScore).toLocaleString()}</strong></div>
+          <div class="profile-stat-item"><span>Trades</span><strong>${displayTrades}</strong></div>
+          <div class="profile-stat-item"><span>Best Trade</span><strong>${displayBest || "—"}</strong></div>
+        `;
+      }
+      if (badgesNode) {
+        badgesNode.innerHTML = progress.badges.length > 0
+          ? `<p class="profile-group-label">Earned badges</p><div class="profile-chip-row">${progress.badges.map((badge) => `<span class="badge-chip">${escapeHtml(badge)}</span>`).join("")}</div>`
+          : "";
+      }
+      if (unlocksNode) {
+        unlocksNode.innerHTML = progress.unlocks.length > 0
+          ? `<p class="profile-group-label">Unlocked cosmetics</p><div class="profile-chip-row">${progress.unlocks.map((unlock) => `<span class="unlock-chip">${escapeHtml(unlock)}</span>`).join("")}</div>`
+          : "";
+      }
+      shareInput.value = buildShareProfileUrl(userProfile);
+      copyButton.disabled = false;
+      createButton.innerText = "Edit Profile";
+      topButton.innerText = "Edit Profile";
+    }
+
+    function openProfileModal() {
+      const formName = document.getElementById("profile-form-name");
+      const formBio = document.getElementById("profile-form-bio");
+      const formLinks = document.getElementById("profile-form-links");
+      const formMessage = document.getElementById("profile-form-message");
+
+      formName.value = userProfile ? userProfile.name : "";
+      formBio.value = userProfile ? userProfile.bio : "";
+      formLinks.value = userProfile ? userProfile.links.join("\n") : "";
+      formMessage.value = userProfile ? userProfile.message : "";
+
+      openModal("profile-modal", "profile-form-name");
+    }
+
+    function closeProfileModal() {
+      closeModal("profile-modal");
+    }
+
+    function skipProfileCreation() {
+      closeProfileModal();
+      newsFeed.push("Profile setup skipped. You can create one later from Share Your Profile.");
+      if (newsFeed.length > 64) {
+        newsFeed = newsFeed.slice(-64);
+      }
+      renderFeed();
+      saveState();
+    }
+
+    async function copyProfileShareLink() {
+      const shareInput = document.getElementById("profile-share-link");
+      const copyButton = document.getElementById("profile-copy-link");
+      const shareUrl = shareInput.value;
+      if (!shareUrl) {
+        return;
+      }
+
+      let copied = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(shareUrl);
+          copied = true;
+        }
+      } catch (error) {
+        copied = false;
+      }
+
+      if (!copied) {
+        shareInput.focus();
+        shareInput.select();
+        copied = document.execCommand("copy");
+      }
+
+      const originalText = copyButton.innerText;
+      copyButton.innerText = copied ? "Link Copied" : "Copy Failed";
+      setTimeout(() => {
+        copyButton.innerText = originalText;
+      }, 1200);
+    }
+
+    function applyProfileFromUrl() {
+      const sharedProfile = getProfileFromUrl();
+      if (!sharedProfile) {
+        return;
+      }
+
+      const currentSnapshot = userProfile ? JSON.stringify(userProfile) : "";
+      const incomingSnapshot = JSON.stringify(sharedProfile);
+      userProfile = sharedProfile;
+      if (currentSnapshot !== incomingSnapshot) {
+        newsFeed.push(`Shared profile loaded for ${sharedProfile.name}.`);
+        if (sharedProfile.score) {
+          const existingIdx = leaderboard.findIndex((e) => !e.isLocal && e.name === sharedProfile.name);
+          const entry = { name: sharedProfile.name, score: sharedProfile.score, bestTrade: sharedProfile.bestTrade || "" };
+          if (existingIdx !== -1) leaderboard[existingIdx] = entry; else leaderboard.push(entry);
+        }
+      }
+    }
+
+    function getQuantity(name) {
+      const value = Number(tradeQuantities[name]);
+      if (!Number.isFinite(value) || value < 1) {
+        return 1;
+      }
+
+      return Math.floor(value);
+    }
+
+    function setQuantity(name, value) {
+      tradeQuantities[name] = Math.max(1, Math.floor(value));
+    }
+
+    function getHolding(name) {
+      if (!portfolio[name]) {
+        portfolio[name] = { shares: 0, totalCost: 0 };
+      }
+
+      return portfolio[name];
+    }
+
+    function calculatePortfolioStats() {
+      let portfolioValue = 0;
+      let totalGain = 0;
+      let openPositions = 0;
+      let bestPosition = null;
+
+      entertainers.forEach((entertainer) => {
+        const holding = portfolio[entertainer.name];
+        if (!holding || holding.shares === 0) {
+          return;
+        }
+
+        const averageCost = holding.totalCost / holding.shares;
+        const marketValue = holding.shares * entertainer.price;
+        const gain = marketValue - holding.totalCost;
+
+        portfolioValue += marketValue;
+        totalGain += gain;
+        openPositions += 1;
+
+        if (!bestPosition || gain > bestPosition.gain) {
+          bestPosition = { name: entertainer.name, gain };
+        }
+      });
+
+      return {
+        portfolioValue,
+        totalGain,
+        openPositions,
+        netWorth: money + portfolioValue,
+        bestPosition: bestPosition ? `${bestPosition.name} ${formatSignedCurrency(bestPosition.gain)}` : "None"
+      };
+    }
+
+    function formatSignedCurrency(value) {
+      return `${value >= 0 ? "+" : "-"}${formatCurrency(Math.abs(value))}`;
+    }
+
+    function safeParseJson(rawValue) {
+      if (typeof rawValue !== "string" || !rawValue) {
+        return null;
+      }
+      try {
+        return JSON.parse(rawValue);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatFeedTimestamp(value) {
+      const parsed = Date.parse(value || "");
+      if (Number.isNaN(parsed)) {
+        return "Verified recently";
+      }
+
+      const deltaMs = Date.now() - parsed;
+      const deltaMinutes = Math.max(1, Math.round(deltaMs / 60000));
+      if (deltaMinutes < 60) {
+        return `${deltaMinutes}m ago`;
+      }
+
+      const deltaHours = Math.round(deltaMinutes / 60);
+      if (deltaHours < 48) {
+        return `${deltaHours}h ago`;
+      }
+
+      return new Date(parsed).toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    async function loadFeaturedFeed() {
+      if (!featuredFeedUrl) {
+        return;
+      }
+
+      try {
+        const response = await fetch(featuredFeedUrl, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Featured feed request failed with ${response.status}`);
+        }
+
+        const payload = await response.json();
+        featuredFeedItems = Array.isArray(payload.items) ? payload.items.slice(0, 6) : [];
+        renderFeed();
+      } catch (error) {
+        featuredFeedItems = [];
+      }
+    }
+
+    function startFeaturedFeedPolling() {
+      if (featuredFeedTimer) {
+        clearInterval(featuredFeedTimer);
+      }
+      loadFeaturedFeed();
+      featuredFeedTimer = setInterval(loadFeaturedFeed, FEATURED_FEED_REFRESH_MS);
+    }
+
+    function getTradeSignature(trade) {
+      if (!trade || typeof trade !== "object") {
+        return "";
+      }
+      const ts = Number(trade.ts) || 0;
+      const name = String(trade.name || "");
+      const action = String(trade.action || "");
+      const qty = Number(trade.qty) || 0;
+      const price = Number(trade.price) || 0;
+      const gain = trade.gain === null ? "null" : Number(trade.gain) || 0;
+      return `${ts}|${name}|${action}|${qty}|${price}|${gain}`;
+    }
+
+    function mergeTradeHistory(...sources) {
+      const merged = [];
+      const seen = new Set();
+
+      sources.forEach((source) => {
+        if (!Array.isArray(source)) {
+          return;
+        }
+
+        source.forEach((trade) => {
+          if (!trade || typeof trade !== "object") {
+            return;
+          }
+          if (typeof trade.name !== "string" || !trade.name) {
+            return;
+          }
+          const signature = getTradeSignature(trade);
+          if (!signature || seen.has(signature)) {
+            return;
+          }
+          seen.add(signature);
+          merged.push(trade);
+        });
+      });
+
+      merged.sort((left, right) => (Number(left.ts) || 0) - (Number(right.ts) || 0));
+      return merged.slice(-TRADE_HISTORY_LIMIT);
+    }
+
+    function loadPermanentTrades() {
+      const parsed = safeParseJson(localStorage.getItem(PERMANENT_TRADES_KEY));
+      return Array.isArray(parsed) ? parsed : [];
+    }
+
+    function savePermanentTrades(trades) {
+      try {
+        localStorage.setItem(PERMANENT_TRADES_KEY, JSON.stringify(Array.isArray(trades) ? trades.slice(-TRADE_HISTORY_LIMIT) : []));
+      } catch (error) {
+        /* ignore quota/storage write errors */
+      }
+    }
+
+    function saveState() {
+      const state = {
+        entertainers: entertainers.map(({ name, price, history, volumeHistory }) => ({ name, price, history, volumeHistory })),
+        portfolio,
+        newsFeed,
+        money,
+        tradeQuantities,
+        equityHistory,
+        marketFilters,
+        soundEnabled,
+        difficulty,
+        displaySettings,
+        exchangeScore,
+        userProfile,
+        watchlist: Array.from(watchlist),
+        priceAlerts,
+        limitOrders,
+        shortPositions,
+        tradeHistory,
+        leaderboard,
+        nextLimitOrderSeq
+      };
+
+      const serialized = JSON.stringify(state);
+      localStorage.setItem(STORAGE_KEY, serialized);
+      localStorage.setItem(STORAGE_BACKUP_KEY, serialized);
+      saveDisplaySettings();
+    }
+
+    function loadState() {
+      const primarySaved = localStorage.getItem(STORAGE_KEY);
+      const backupSaved = localStorage.getItem(STORAGE_BACKUP_KEY);
+      const parsedPrimary = safeParseJson(primarySaved);
+      const parsedBackup = safeParseJson(backupSaved);
+      const parsed = parsedPrimary || parsedBackup;
+
+      if (!parsed) {
+        newsFeed = ["Index live. Watch for momentum swings."];
+        tradeHistory = loadPermanentTrades();
+        displaySettings = loadDisplaySettings();
+        ensureEntertainerPhotos();
+        return;
+      }
+
+      try {
+        const base = cloneBaseEntertainers();
+        if (Array.isArray(parsed.entertainers) && parsed.entertainers.length === base.length) {
+          const savedByName = new Map(parsed.entertainers.map((entertainer) => [entertainer.name, entertainer]));
+          entertainers = base.map((entertainer) => {
+            const savedEntertainer = savedByName.get(entertainer.name);
+            const savedPrice = savedEntertainer && typeof savedEntertainer.price === "number"
+              ? savedEntertainer.price
+              : entertainer.price;
+            const history = savedEntertainer && Array.isArray(savedEntertainer.history) && savedEntertainer.history.length > 0
+              ? savedEntertainer.history.slice(-PRICE_HISTORY_LIMIT)
+              : [savedPrice];
+            const volumeHistory = savedEntertainer && Array.isArray(savedEntertainer.volumeHistory) && savedEntertainer.volumeHistory.length > 0
+              ? savedEntertainer.volumeHistory.slice(-PRICE_HISTORY_LIMIT)
+              : new Array(history.length).fill(0);
+            return {
+              ...entertainer,
+              price: savedPrice,
+              history,
+              volumeHistory
+            };
+          });
+        } else {
+          entertainers = base;
+        }
+        portfolio = parsed.portfolio && typeof parsed.portfolio === "object" ? parsed.portfolio : {};
+        newsFeed = Array.isArray(parsed.newsFeed) ? parsed.newsFeed : [];
+        money = typeof parsed.money === "number" ? parsed.money : STARTING_MONEY;
+        tradeQuantities = parsed.tradeQuantities && typeof parsed.tradeQuantities === "object" ? parsed.tradeQuantities : {};
+        equityHistory = Array.isArray(parsed.equityHistory) ? parsed.equityHistory.slice(-EQUITY_HISTORY_LIMIT) : [];
+        marketFilters = parsed.marketFilters && typeof parsed.marketFilters === "object"
+          ? {
+            sort: parsed.marketFilters.sort || "default",
+            search: parsed.marketFilters.search || "",
+            ownedOnly: Boolean(parsed.marketFilters.ownedOnly),
+            watchlistOnly: Boolean(parsed.marketFilters.watchlistOnly),
+            category: parsed.marketFilters.category || "all",
+            page: Math.max(1, Number(parsed.marketFilters.page) || 1)
+          }
+          : { sort: "default", search: "", ownedOnly: false, watchlistOnly: false, category: "all", page: 1 };
+        soundEnabled = typeof parsed.soundEnabled === "boolean" ? parsed.soundEnabled : false;
+        difficulty = parsed.difficulty && difficultySettings[parsed.difficulty] ? parsed.difficulty : "normal";
+        displaySettings = parsed.displaySettings ? sanitizeDisplaySettings(parsed.displaySettings) : loadDisplaySettings();
+        exchangeScore = typeof parsed.exchangeScore === "number" ? parsed.exchangeScore : 0;
+        userProfile = sanitizeUserProfile(parsed.userProfile);
+        watchlist = new Set(Array.isArray(parsed.watchlist) ? parsed.watchlist : []);
+        priceAlerts = parsed.priceAlerts && typeof parsed.priceAlerts === "object" ? parsed.priceAlerts : {};
+        limitOrders = Array.isArray(parsed.limitOrders) ? parsed.limitOrders : [];
+        shortPositions = parsed.shortPositions && typeof parsed.shortPositions === "object" ? parsed.shortPositions : {};
+        tradeHistory = mergeTradeHistory(Array.isArray(parsed.tradeHistory) ? parsed.tradeHistory : [], loadPermanentTrades());
+        savePermanentTrades(tradeHistory);
+        leaderboard = Array.isArray(parsed.leaderboard) ? parsed.leaderboard.slice(-20) : [];
+        nextLimitOrderSeq = typeof parsed.nextLimitOrderSeq === "number" ? parsed.nextLimitOrderSeq : 0;
+        ensureEntertainerPhotos();
+        applySoundState();
+      } catch (error) {
+        entertainers = cloneBaseEntertainers();
+        portfolio = {};
+        newsFeed = ["Saved data was reset after a load error."];
+        money = STARTING_MONEY;
+        tradeQuantities = {};
+        equityHistory = [];
+        marketFilters = { sort: "default", search: "", ownedOnly: false, watchlistOnly: false, category: "all", page: 1 };
+        soundEnabled = false;
+        difficulty = "normal";
+        displaySettings = loadDisplaySettings();
+        exchangeScore = 0;
+        userProfile = null;
+        nextLimitOrderSeq = 0;
+        tradeHistory = loadPermanentTrades();
+        ensureEntertainerPhotos();
+        applySoundState();
+      }
+    }
+
+    function getFilteredEntertainers() {
+      const search = marketFilters.search.trim().toLowerCase();
+      let list = entertainers.filter((entertainer) => {
+        const holding = portfolio[entertainer.name];
+        const matchesSearch = !search || entertainer.name.toLowerCase().includes(search) || entertainer.profile.toLowerCase().includes(search);
+        const matchesOwned = !marketFilters.ownedOnly || (holding && holding.shares > 0);
+        const matchesWatchlist = !marketFilters.watchlistOnly || watchlist.has(entertainer.name);
+        const matchesCategory = marketFilters.category === "all" || entertainer.category === marketFilters.category;
+        return matchesSearch && matchesOwned && matchesWatchlist && matchesCategory;
+      });
+
+      switch (marketFilters.sort) {
+        case "price-desc":
+          list = list.slice().sort((left, right) => right.price - left.price);
+          break;
+        case "price-asc":
+          list = list.slice().sort((left, right) => left.price - right.price);
+          break;
+        case "market-cap":
+          list = list.slice().sort((left, right) => getEntertainerMetrics(right).marketCap - getEntertainerMetrics(left).marketCap);
+          break;
+        case "volume":
+          list = list.slice().sort((left, right) => getEntertainerMetrics(right).volume24h - getEntertainerMetrics(left).volume24h);
+          break;
+        case "name-asc":
+          list = list.slice().sort((left, right) => left.name.localeCompare(right.name));
+          break;
+        case "owned":
+          list = list.slice().sort((left, right) => {
+            const leftOwned = portfolio[left.name]?.shares || 0;
+            const rightOwned = portfolio[right.name]?.shares || 0;
+            return rightOwned - leftOwned;
+          });
+          break;
+        case "popularity":
+          list = list.slice().sort((left, right) => (right.popularityScore || 0) - (left.popularityScore || 0));
+          break;
+        default:
+          list = list.slice().sort((left, right) => (right.popularityScore || 0) - (left.popularityScore || 0));
+          break;
+      }
+
+      return list;
+    }
+
+    function pushEquitySnapshot() {
+      const stats = calculatePortfolioStats();
+      equityHistory.push(Number(stats.netWorth.toFixed(2)));
+      if (equityHistory.length > EQUITY_HISTORY_LIMIT) {
+        equityHistory = equityHistory.slice(-EQUITY_HISTORY_LIMIT);
+      }
+    }
+
+    function getAudioContext() {
+      if (!audioContext) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          return null;
+        }
+        audioContext = new AudioContextClass();
+      }
+
+      return audioContext;
+    }
+
+    function applySoundState() {
+      if (!audioContext) {
+        return;
+      }
+
+      if (soundEnabled) {
+        if (audioContext.state === "suspended") {
+          audioContext.resume().catch(() => {});
+        }
+        return;
+      }
+
+      if (audioContext.state === "running") {
+        audioContext.suspend().catch(() => {});
+      }
+    }
+
+    function playTone(type) {
+      if (!soundEnabled) {
+        return;
+      }
+
+      const context = getAudioContext();
+      if (!context) {
+        return;
+      }
+
+      if (context.state === "suspended") {
+        context.resume().catch(() => {});
+      }
+
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const frequencies = {
+        buy: [440, 554.37],
+        sell: [392, 329.63],
+        event: [493.88, 523.25]
+      };
+      const [startFrequency, endFrequency] = frequencies[type] || frequencies.event;
+
+      oscillator.type = type === "sell" ? "triangle" : "sine";
+      oscillator.frequency.setValueAtTime(startFrequency, context.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(endFrequency, context.currentTime + 0.12);
+
+      gain.gain.setValueAtTime(0.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.035, context.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.18);
+
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.2);
+    }
+
+    function awardScore(delta) {
+      const multiplier = difficultySettings[difficulty].scoreMultiplier;
+      exchangeScore = Math.max(0, exchangeScore + Math.round(delta * multiplier));
+    }
+
+    function formatCompactNumber(value) {
+      const absValue = Math.abs(Number(value) || 0);
+      if (absValue >= 1000000000) {
+        return `${(value / 1000000000).toFixed(absValue >= 10000000000 ? 0 : 1)}B`;
+      }
+      if (absValue >= 1000000) {
+        return `${(value / 1000000).toFixed(absValue >= 10000000 ? 0 : 1)}M`;
+      }
+      if (absValue >= 1000) {
+        return `${(value / 1000).toFixed(absValue >= 100000 ? 0 : 1)}K`;
+      }
+      return `${Math.round(value)}`;
+    }
+
+    function formatCompactCurrency(value) {
+      return `$${formatCompactNumber(value)}`;
+    }
+
+    function calculateVolatilityPercent(entertainer) {
+      const history = Array.isArray(entertainer.history) ? entertainer.history.filter((value) => Number.isFinite(value) && value > 0) : [];
+      if (history.length < 3) {
+        return 0;
+      }
+
+      const returns = [];
+      for (let index = 1; index < history.length; index += 1) {
+        const previous = history[index - 1];
+        const current = history[index];
+        if (previous > 0) {
+          returns.push((current - previous) / previous);
+        }
+      }
+
+      if (returns.length < 2) {
+        return 0;
+      }
+
+      const meanReturn = returns.reduce((sum, value) => sum + value, 0) / returns.length;
+      const variance = returns.reduce((sum, value) => sum + Math.pow(value - meanReturn, 2), 0) / returns.length;
+      return Math.sqrt(variance) * 100;
+    }
+
+    function getEntertainerMetrics(entertainer) {
+      const circulatingShares = Math.max(1, Number(entertainer.circulatingShares) || 1);
+      const marketCap = entertainer.price * circulatingShares;
+      const since = Date.now() - (24 * 60 * 60 * 1000);
+      const recentTrades = tradeHistory.filter((trade) => trade.name === entertainer.name && Number(trade.ts) >= since);
+      const volume24h = recentTrades.reduce((sum, trade) => sum + ((trade.qty || 0) * (trade.price || 0)), 0);
+      const shareVolume24h = recentTrades.reduce((sum, trade) => sum + (trade.qty || 0), 0);
+      const turnover = shareVolume24h / circulatingShares;
+      const volatilityPct = calculateVolatilityPercent(entertainer);
+
+      const history = Array.isArray(entertainer.history) && entertainer.history.length > 1 ? entertainer.history : [entertainer.price];
+      const priceWindow = history.slice(-7);
+      const priceStart = priceWindow[0] || entertainer.price;
+      const priceEnd = priceWindow[priceWindow.length - 1] || entertainer.price;
+      const priceChangePct = priceStart > 0 ? ((priceEnd - priceStart) / priceStart) * 100 : 0;
+
+      const volumeHistory = Array.isArray(entertainer.volumeHistory) ? entertainer.volumeHistory : [];
+      const averageHistoricalVolume = volumeHistory.length > 0
+        ? volumeHistory.reduce((sum, value) => sum + value, 0) / volumeHistory.length
+        : 0;
+      const volumeRatio = averageHistoricalVolume > 0 ? shareVolume24h / averageHistoricalVolume : shareVolume24h > 0 ? 1.25 : 1;
+      const popularityDrift = entertainer.popularityBaseIndex > 0
+        ? ((entertainer.popularityScore / (entertainer.popularityBaseIndex * 100)) - 1) * 100
+        : 0;
+      const momentum = Math.max(-99, Math.min(99, Math.round((priceChangePct * 0.55) + ((volumeRatio - 1) * 22) + (popularityDrift * 0.23))));
+      const liquidityBase = Math.log10(1 + Math.max(1, volume24h)) * 12;
+      const floatSupport = Math.log10(circulatingShares) * 5.5;
+      const turnoverSupport = Math.min(18, turnover * 8500);
+      const liquidityScore = Math.max(18, Math.min(98, Math.round(liquidityBase + floatSupport + turnoverSupport)));
+
+      return {
+        circulatingShares,
+        marketCap,
+        volume24h,
+        shareVolume24h,
+        turnover,
+        volatilityPct,
+        momentum,
+        priceChangePct,
+        liquidityScore
+      };
+    }
+
+    function getTradeImpact(entertainer, quantity, direction) {
+      const metrics = getEntertainerMetrics(entertainer);
+      const safeQuantity = Math.max(1, Number(quantity) || 1);
+      const directionSign = direction === "sell" ? -1 : 1;
+      const orderPressure = 1 + ((safeQuantity - 1) * 0.32);
+      const liquidityModifier = 1.15 - (metrics.liquidityScore / 125);
+      const baseImpact = Math.max(0.012, 0.03 * liquidityModifier);
+      return directionSign * (baseImpact * orderPressure);
+    }
+
+    function recordPrice(entertainer, volumeDelta = 0) {
+      if (!Array.isArray(entertainer.history)) {
+        entertainer.history = [];
+      }
+      if (!Array.isArray(entertainer.volumeHistory)) {
+        entertainer.volumeHistory = [];
+      }
+
+      entertainer.history.push(Number(entertainer.price.toFixed(2)));
+      entertainer.volumeHistory.push(Math.max(0, Math.round(volumeDelta)));
+      if (entertainer.history.length > PRICE_HISTORY_LIMIT) {
+        entertainer.history = entertainer.history.slice(-PRICE_HISTORY_LIMIT);
+      }
+      if (entertainer.volumeHistory.length > PRICE_HISTORY_LIMIT) {
+        entertainer.volumeHistory = entertainer.volumeHistory.slice(-PRICE_HISTORY_LIMIT);
+      }
+    }
+
+    function renderMarket() {
+      const market = document.getElementById("market");
+      market.innerHTML = "";
+
+      let filteredEntertainers = getFilteredEntertainers();
+      if (
+        filteredEntertainers.length === 0 &&
+        entertainers.length > 0 &&
+        (marketFilters.search.trim() || marketFilters.ownedOnly || marketFilters.watchlistOnly || marketFilters.category !== "all")
+      ) {
+        marketFilters = {
+          ...marketFilters,
+          search: "",
+          ownedOnly: false,
+          watchlistOnly: false,
+          category: "all",
+          page: 1
+        };
+        saveState();
+        filteredEntertainers = getFilteredEntertainers();
+      }
+
+      const totalPages = Math.max(1, Math.ceil(filteredEntertainers.length / PAGE_SIZE));
+      marketFilters.page = Math.min(Math.max(1, marketFilters.page), totalPages);
+      const startIndex = (marketFilters.page - 1) * PAGE_SIZE;
+      const pageEntertainers = filteredEntertainers.slice(startIndex, startIndex + PAGE_SIZE);
+
+      pageEntertainers.forEach((entertainer) => {
+        const index = entertainers.findIndex((candidate) => candidate.name === entertainer.name);
+        const holding = portfolio[entertainer.name];
+        const sharesOwned = holding ? holding.shares : 0;
+        const isWatched = watchlist.has(entertainer.name);
+        const safeId = sanitizeId(entertainer.name);
+        const safeName = entertainer.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        const quantity = getQuantity(entertainer.name);
+        const volatilityLabel = getVolatility(entertainer);
+        const card = document.createElement("article");
+        card.className = "market-card";
+        card.setAttribute("data-entity", entertainer.name);
+        card.innerHTML = `
+          <div class="card-topline">
+            <button class="artist-avatar-button" type="button" onclick="openArtistPage('${safeName}')" aria-label="Open ${entertainer.name} profile">
+              ${getAvatarBadgeMarkup(entertainer.name, entertainer.category)}
+            </button>
+            <button class="ticker ticker-button" type="button" onclick="openArtistPage('${safeName}')">${entertainer.name}</button>
+            ${getCategoryBadgeMarkup(entertainer.category)}
+            <button class="watch-btn${isWatched ? " watched" : ""}" type="button" onclick="toggleWatch('${safeName}')" aria-label="${isWatched ? "Remove from" : "Add to"} watchlist: ${entertainer.name}" title="${isWatched ? "Remove from" : "Add to"} watchlist">★</button>
+            <span class="owned-tag">${sharesOwned} picks</span>
+          </div>
+          <div class="price-row">
+            <strong class="price">${formatCurrency(entertainer.price)}</strong>
+            <span class="vol-badge vol-${volatilityLabel}">${volatilityLabel.toUpperCase()}</span>
+          </div>
+          <div class="sparkline-wrap">
+            <canvas id="chart-${safeId}" class="mini-chart" aria-label="${entertainer.name} price history"></canvas>
+          </div>
+          <p class="profile">${entertainer.profile}</p>
+          <div class="trade-controls">
+            <label class="qty-label" for="qty-${safeId}">Qty</label>
+            <div class="qty-stepper">
+              <button class="qty-button" type="button" onclick="changeQuantity('${safeName}', -1)">-</button>
+              <input id="qty-${safeId}" class="qty-input" type="number" min="1" step="1" value="${quantity}" onchange="setTradeQuantity('${safeName}', this.value)">
+              <button class="qty-button" type="button" onclick="changeQuantity('${safeName}', 1)">+</button>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="buy" onclick="buy(${index})">Add</button>
+            <button class="sell" onclick="sell(${index})">Trim</button>
+            <button class="trade" onclick="openLimitModal('${safeName}')">Adjust</button>
+          </div>
+        `;
+        market.appendChild(card);
+      });
+
+      renderMarketPagination(totalPages, filteredEntertainers.length);
+      renderTickerTape();
+      renderCharts();
+    }
+
+    function renderFeaturedMarket() {
+      const featuredMarket = document.getElementById("featured-market");
+      if (!featuredMarket) {
+        return;
+      }
+
+      const featured = entertainers
+        .slice()
+        .sort((left, right) => (right.popularityScore || 0) - (left.popularityScore || 0))
+        .slice(0, 10);
+
+      featuredMarket.innerHTML = "";
+
+      featured.forEach((entertainer, orderIndex) => {
+        const index = entertainers.findIndex((candidate) => candidate.name === entertainer.name);
+        const isWatched = watchlist.has(entertainer.name);
+        const safeName = entertainer.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        const card = document.createElement("div");
+        card.className = "entertainer-card";
+        card.innerHTML = `
+          <div class="card-img" style="margin-bottom:10px;text-align:center;">
+            ${getAvatarBadgeMarkup(entertainer.name, entertainer.category, "artist-photo")}
+          </div>
+          <div class="card-content">
+            <div class="card-topline">
+              <h3 class="card-title">#${orderIndex + 1} ${entertainer.name}</h3>
+              ${getCategoryBadgeMarkup(entertainer.category)}
+              <button class="watch-btn${isWatched ? " watched" : ""}" type="button" onclick="toggleWatch('${safeName}')" aria-label="${isWatched ? "Remove from" : "Add to"} watchlist: ${entertainer.name}" title="${isWatched ? "Remove from" : "Add to"} watchlist">★</button>
+            </div>
+            <div class="card-meta">
+              <span class="card-price">Price: ${formatCurrency(entertainer.price)}</span><br>
+              <span class="card-popularity">Popularity: ${(entertainer.popularityScore || 0).toLocaleString()}</span>
+            </div>
+            <div class="card-actions entertainer-actions" style="margin-top:10px;display:flex;gap:8px;justify-content:center;">
+              <button class="buy" type="button" onclick="buy(${index})">Add</button>
+              <button class="sell" type="button" onclick="sell(${index})">Trim</button>
+              <button class="trade" type="button" onclick="openLimitModal('${safeName}')">Adjust</button>
+            </div>
+            <a class="card-link" href="#" onclick="openArtistPage('${safeName}'); return false;">View Profile</a>
+          </div>
+        `;
+        featuredMarket.appendChild(card);
+      });
+    }
+
+    function renderMarketPagination(totalPages, totalItems) {
+      const prev = document.getElementById("market-prev");
+      const next = document.getElementById("market-next");
+      const info = document.getElementById("market-page-info");
+
+      info.innerText = `Page ${marketFilters.page} of ${totalPages} (${totalItems} entertainers)`;
+      prev.disabled = marketFilters.page <= 1;
+      next.disabled = marketFilters.page >= totalPages;
+    }
+
+    function formatPageViewDate(date) {
+      const year = date.getUTCFullYear();
+      const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
+      const day = `${date.getUTCDate()}`.padStart(2, "0");
+      return `${year}${month}${day}`;
+    }
+
+    async function fetchPopularityScore(wikiTitle) {
+      const endDate = new Date();
+      endDate.setUTCDate(endDate.getUTCDate() - 1);
+      const startDate = new Date(endDate);
+      startDate.setUTCDate(startDate.getUTCDate() - 2);
+
+      const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/${encodeURIComponent(wikiTitle).replace(/%20/g, "_")}/daily/${formatPageViewDate(startDate)}/${formatPageViewDate(endDate)}`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          return 0;
+        }
+
+        const payload = await response.json();
+        if (!payload.items || payload.items.length === 0) {
+          return 0;
+        }
+
+        return payload.items[payload.items.length - 1].views || 0;
+      } catch (error) {
+        return 0;
+      }
+    }
+
+    async function refreshPopularityRankings() {
+      if (isRealtimeMode()) {
+        return;
+      }
+      const scores = await Promise.all(
+        entertainers.map(async (entertainer) => ({
+          name: entertainer.name,
+          score: await fetchPopularityScore(entertainer.wikiTitle || entertainer.name)
+        }))
+      );
+
+      const scoreMap = new Map(scores.map((item) => [item.name, item.score]));
+      entertainers = entertainers.map((entertainer) => ({
+        ...entertainer,
+        popularityLiveViews: scoreMap.get(entertainer.name) || 0,
+        popularityScore: computePopularityScore(
+          entertainer.popularityBaseIndex || getBasePopularityIndex(entertainer.name, entertainer.category),
+          scoreMap.get(entertainer.name) || 0
+        )
+      }));
+
+      renderMarket();
+      renderStats();
+    }
+
+    function renderPortfolio() {
+      const container = document.getElementById("portfolio");
+      const emptyState = document.getElementById("portfolio-empty");
+      container.innerHTML = "";
+
+      const holdings = entertainers
+        .map((entertainer) => ({ entertainer, holding: portfolio[entertainer.name] }))
+        .filter(({ holding }) => holding && holding.shares > 0);
+
+      emptyState.style.display = holdings.length === 0 ? "block" : "none";
+
+      holdings.forEach(({ entertainer, holding }) => {
+        const averageCost = holding.totalCost / holding.shares;
+        const marketValue = holding.shares * entertainer.price;
+        const gain = marketValue - holding.totalCost;
+        const card = document.createElement("article");
+        card.className = "portfolio-card";
+        card.innerHTML = `
+          <div class="portfolio-header">
+            <h3>${entertainer.name}</h3>
+            <span class="gain-pill ${gain >= 0 ? "up" : "down"}">${formatSignedCurrency(gain)}</span>
+          </div>
+          <div class="portfolio-metrics">
+            <div>
+              <span>Shares</span>
+              <strong>${holding.shares}</strong>
+            </div>
+            <div>
+              <span>Avg Cost</span>
+              <strong>${formatCurrency(averageCost)}</strong>
+            </div>
+            <div>
+              <span>Market Value</span>
+              <strong>${formatCurrency(marketValue)}</strong>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById("feed");
+      feed.innerHTML = "";
+
+      const featuredEntries = featuredFeedItems.slice(0, 3).map((item) => ({ kind: "featured", item }));
+      const activityEntries = newsFeed
+        .slice(-Math.max(0, 6 - featuredEntries.length))
+        .reverse()
+        .map((item) => ({ kind: "activity", item }));
+
+      [...featuredEntries, ...activityEntries].forEach((entry, index) => {
+        const card = document.createElement("article");
+        if (entry.kind === "featured") {
+          const item = entry.item;
+          card.className = "feed-card featured";
+          card.innerHTML = `
+            <div class="feed-card-head">
+              <div>
+                <p class="feed-card-title">${escapeHtml(item.headline)}</p>
+                <p class="feed-card-summary">${escapeHtml(item.summary || item.whyItMatters || `${item.entertainer} is drawing verified attention.`)}</p>
+              </div>
+            </div>
+            <div class="feed-card-meta">
+              <span>${escapeHtml(item.entertainer || "Featured update")}</span>
+              <span>${escapeHtml(item.source || "Verified source")}</span>
+              <span>${escapeHtml(formatFeedTimestamp(item.publishedAt))}</span>
+            </div>
+            ${item.sourceUrl ? `<a class="feed-link" href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">View source</a>` : ""}
+          `;
+        } else {
+          card.className = index === 0 && featuredEntries.length === 0 ? "feed-card featured" : "feed-card";
+          card.innerHTML = `<p>${escapeHtml(entry.item)}</p>`;
+        }
+        feed.appendChild(card);
+      });
+    }
+
+    function renderTickerTape() {
+      const ticker = document.getElementById("ticker-tape");
+      ticker.innerHTML = "";
+
+      const chips = entertainers.map((entertainer) => {
+        const holding = portfolio[entertainer.name];
+        const chip = document.createElement("span");
+        chip.className = "ticker-chip";
+        chip.innerHTML = `
+          <strong>${entertainer.name}</strong>
+          <span>${formatCurrency(entertainer.price)}</span>
+          <em>${holding && holding.shares > 0 ? `${holding.shares} held` : "watchlist"}</em>
+        `;
+        return chip;
+      });
+
+      const track = document.createElement("div");
+      track.className = "ticker-track";
+      [...chips, ...chips].forEach((chip) => {
+        track.appendChild(chip.cloneNode(true));
+      });
+
+      ticker.appendChild(track);
+    }
+
+    function renderCharts() {
+      entertainers.forEach((entertainer) => {
+        const canvasId = `chart-${sanitizeId(entertainer.name)}`;
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+          return;
+        }
+
+        const history = Array.isArray(entertainer.history) && entertainer.history.length > 0
+          ? entertainer.history
+          : [entertainer.price];
+
+        if (charts[canvasId]) {
+          charts[canvasId].data.labels = history.map((_, index) => index + 1);
+          charts[canvasId].data.datasets[0].data = history;
+          charts[canvasId].update();
+          return;
+        }
+
+        charts[canvasId] = new Chart(canvas, {
+          type: "line",
+          data: {
+            labels: history.map((_, index) => index + 1),
+            datasets: [{
+              data: history,
+              borderColor: "#7dd3fc",
+              backgroundColor: "rgba(125, 211, 252, 0.18)",
+              borderWidth: 2,
+              pointRadius: 0,
+              tension: 0.35,
+              fill: true
+            }]
+          },
+          options: {
+            animation: false,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false }
+            },
+            scales: {
+              x: { display: false },
+              y: { display: false }
+            },
+            elements: {
+              line: { capBezierPoints: true }
+            }
+          }
+        });
+      });
+
+      renderEquityChart();
+    }
+
+    function renderEquityChart() {
+      const canvas = document.getElementById("equity-chart");
+      if (!canvas) {
+        return;
+      }
+
+      const points = equityHistory.length > 0 ? equityHistory : [1000];
+      const canvasId = "equity-chart";
+
+      if (charts[canvasId]) {
+        charts[canvasId].data.labels = points.map((_, index) => index + 1);
+        charts[canvasId].data.datasets[0].data = points;
+        charts[canvasId].update();
+        return;
+      }
+
+      charts[canvasId] = new Chart(canvas, {
+        type: "line",
+        data: {
+          labels: points.map((_, index) => index + 1),
+          datasets: [{
+            data: points,
+            borderColor: "#f59e0b",
+            backgroundColor: "rgba(245, 158, 11, 0.14)",
+            borderWidth: 2.5,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          animation: false,
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+          },
+          scales: {
+            x: { display: false },
+            y: { display: false }
+          }
+        }
+      });
+    }
+
+    function pulseCard(name, type) {
+      const card = document.querySelector(`[data-entity="${name}"]`);
+      if (!card) {
+        return;
+      }
+
+      card.classList.remove("flash-buy", "flash-sell", "flash-event");
+      void card.offsetWidth;
+      card.classList.add(type);
+    }
+
+    function renderArtistPage(entertainer) {
+      const artistPhoto = document.getElementById("artist-photo");
+      artistPhoto.className = `artist-photo avatar-badge avatar-${entertainer.category || "creator"}`;
+      artistPhoto.textContent = getInitials(entertainer.name);
+      artistPhoto.setAttribute("role", "img");
+      artistPhoto.setAttribute("aria-label", `${entertainer.name} icon`);
+      document.getElementById("artist-name").innerText = entertainer.name;
+      document.getElementById("artist-category-row").innerHTML = getCategoryBadgeMarkup(entertainer.category);
+      document.getElementById("artist-bio").innerText = entertainer.bio;
+
+      const news = document.getElementById("artist-news");
+      news.innerHTML = "";
+      entertainer.news.forEach((item) => {
+        const newsItem = document.createElement("li");
+        newsItem.innerHTML = `
+          <strong>${item.badge || (item.kind === "coverage" || item.breaking ? "Coverage" : "Context")}: ${item.title}</strong>
+          <a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.source}</a>
+        `;
+        news.appendChild(newsItem);
+      });
+
+      const projects = document.getElementById("artist-projects");
+      projects.innerHTML = "";
+      entertainer.projects.forEach((project) => {
+        const item = document.createElement("li");
+        item.innerHTML = `<a href="${project.link}" target="_blank" rel="noopener noreferrer">${project.title}</a>`;
+        projects.appendChild(item);
+      });
+
+      const events = document.getElementById("artist-events");
+      events.innerHTML = "";
+      entertainer.upcomingEvents.forEach((event) => {
+        const item = document.createElement("li");
+        item.innerHTML = `<strong>${event.title}</strong><span>${event.date}</span>`;
+        events.appendChild(item);
+      });
+
+      const socials = document.getElementById("artist-socials");
+      socials.innerHTML = "";
+      entertainer.socials.forEach((social) => {
+        const item = document.createElement("li");
+        item.innerHTML = `<a href="${social.url}" target="_blank" rel="noopener noreferrer">${social.label}</a>`;
+        socials.appendChild(item);
+      });
+
+      const history = Array.isArray(entertainer.history) && entertainer.history.length > 0
+        ? entertainer.history
+        : [entertainer.price];
+      const metrics = getEntertainerMetrics(entertainer);
+      const volumeHistory = Array.isArray(entertainer.volumeHistory) && entertainer.volumeHistory.length === history.length
+        ? entertainer.volumeHistory
+        : new Array(history.length).fill(0);
+      const windowSize = artistTimeframe === "all" ? history.length : Math.max(2, Number(artistTimeframe) || history.length);
+      const chartHistory = history.slice(-windowSize);
+      const chartVolumeHistory = volumeHistory.slice(-windowSize);
+      const labels = chartHistory.map((_, index) => index + 1);
+      const movement = history.length > 1 ? entertainer.price - history[history.length - 2] : 0;
+      const averageVolume = volumeHistory.reduce((sum, value) => sum + value, 0) / Math.max(1, volumeHistory.length);
+      const chartKey = "artist-analytics-chart";
+
+      document.getElementById("artist-current-price").innerText = `Price: ${formatCurrency(entertainer.price)}`;
+      document.getElementById("artist-price-move").innerText = `Movement: ${formatSignedCurrency(movement)}`;
+      document.getElementById("artist-volume-24h").innerText = `Vol 24h: ${formatCompactCurrency(metrics.volume24h)}`;
+      document.getElementById("artist-market-cap").innerText = `MCap: ${formatCompactCurrency(metrics.marketCap)}`;
+      document.getElementById("artist-turnover").innerText = `Turnover: ${(metrics.turnover * 100).toFixed(2)}%`;
+      document.getElementById("artist-momentum").innerText = `Momentum: ${metrics.momentum >= 0 ? "+" : ""}${metrics.momentum}`;
+      document.getElementById("artist-liquidity").innerText = `Liq: ${metrics.liquidityScore} · Avg Vol ${Math.round(averageVolume)}`;
+
+      const moveNode = document.getElementById("artist-price-move");
+      moveNode.className = movement >= 0 ? "positive-text" : "negative-text";
+      const momentumNode = document.getElementById("artist-momentum");
+      momentumNode.className = metrics.momentum >= 0 ? "positive-text" : "negative-text";
+
+      if (charts[chartKey]) {
+        charts[chartKey].data.labels = labels;
+        charts[chartKey].data.datasets[0].data = chartHistory;
+        charts[chartKey].data.datasets[1].data = chartVolumeHistory;
+        charts[chartKey].update();
+        return;
+      }
+
+      const chartCanvas = document.getElementById("artist-analytics-chart");
+      if (!chartCanvas) {
+        return;
+      }
+
+      charts[chartKey] = new Chart(chartCanvas, {
+        data: {
+          labels,
+          datasets: [
+            {
+              type: "line",
+              label: "Price",
+              data: chartHistory,
+              borderColor: "#7dd3fc",
+              backgroundColor: "rgba(125, 211, 252, 0.2)",
+              borderWidth: 2,
+              pointRadius: 1.5,
+              tension: 0.3,
+              yAxisID: "yPrice"
+            },
+            {
+              type: "bar",
+              label: "Volume",
+              data: chartVolumeHistory,
+              backgroundColor: "rgba(245, 158, 11, 0.4)",
+              borderColor: "rgba(245, 158, 11, 0.8)",
+              borderWidth: 1,
+              yAxisID: "yVolume"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: "#cbd5e1"
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: "#94a3b8"
+              },
+              grid: {
+                color: "rgba(148, 163, 184, 0.1)"
+              }
+            },
+            yPrice: {
+              type: "linear",
+              position: "left",
+              ticks: {
+                color: "#7dd3fc",
+                callback: (value) => formatCurrency(Number(value))
+              },
+              grid: {
+                color: "rgba(148, 163, 184, 0.1)"
+              }
+            },
+            yVolume: {
+              type: "linear",
+              position: "right",
+              beginAtZero: true,
+              ticks: {
+                color: "#fbbf24"
+              },
+              grid: {
+                drawOnChartArea: false
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function openArtistPage(name) {
+      const entertainer = entertainers.find((candidate) => candidate.name === name);
+      if (!entertainer) {
+        return;
+      }
+
+      selectedArtist = name;
+      renderArtistPage(entertainer);
+      document.querySelector(".page-shell").setAttribute("hidden", "true");
+      document.getElementById("artist-page").removeAttribute("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function closeArtistPage() {
+      selectedArtist = null;
+      document.getElementById("artist-page").setAttribute("hidden", "true");
+      document.querySelector(".page-shell").removeAttribute("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setTradeQuantity(name, value) {
+      setQuantity(name, Number(value));
+      saveState();
+      renderMarket();
+    }
+
+    function changeQuantity(name, delta) {
+      const next = getQuantity(name) + delta;
+      setQuantity(name, next);
+      saveState();
+      renderMarket();
+    }
+
+    function renderStats() {
+      const stats = calculatePortfolioStats();
+      document.getElementById("money").innerText = formatCurrency(money);
+      document.getElementById("net-worth").innerText = formatCurrency(stats.netWorth);
+      document.getElementById("open-positions").innerText = stats.openPositions;
+      document.getElementById("portfolio-value").innerText = formatCurrency(stats.portfolioValue);
+
+      const gainNode = document.getElementById("portfolio-gain");
+      gainNode.innerText = formatSignedCurrency(stats.totalGain);
+      gainNode.className = stats.totalGain >= 0 ? "positive-text" : "negative-text";
+
+      document.getElementById("best-position").innerText = stats.bestPosition;
+
+      const firstEquity = equityHistory[0] || 1000;
+      document.getElementById("score-value").innerText = exchangeScore;
+      const equityDelta = stats.netWorth - firstEquity;
+      const equityChangeNode = document.getElementById("equity-change");
+      equityChangeNode.innerText = formatSignedCurrency(equityDelta);
+      equityChangeNode.className = equityDelta >= 0 ? "positive-text" : "negative-text";
+
+      document.getElementById("sound-toggle").innerText = `Sound: ${soundEnabled ? "On" : "Off"}`;
+      document.getElementById("difficulty-select").value = difficulty;
+      document.getElementById("theme-select").value = displaySettings.theme;
+      document.getElementById("layout-select").value = displaySettings.layout;
+      document.getElementById("density-select").value = displaySettings.density;
+      document.getElementById("ticker-speed-select").value = displaySettings.tickerSpeed;
+      document.getElementById("font-size-select").value = displaySettings.fontSize;
+      document.getElementById("brightness-select").value = displaySettings.brightness;
+      document.getElementById("sort-select").value = marketFilters.sort;
+      document.getElementById("search-input").value = marketFilters.search;
+      document.getElementById("owned-only").innerText = `Picked Only: ${marketFilters.ownedOnly ? "On" : "Off"}`;
+        document.getElementById("watchlist-only").innerText = `Watchlist: ${marketFilters.watchlistOnly ? "On" : "Off"}`;
+      document.querySelectorAll(".category-chip").forEach((chip) => {
+        chip.classList.toggle("active", chip.dataset.category === marketFilters.category);
+      });
+      applyDisplaySettings();
+    }
+
+    function buy(index) {
+      const entertainer = entertainers[index];
+      const quantity = getQuantity(entertainer.name);
+      if (isRealtimeMode()) {
+        const sent = sendRealtimeIntent("buy", { name: entertainer.name, quantity });
+        if (sent) {
+          newsFeed.push(`Submitted live add request: ${quantity}x ${entertainer.name}.`);
+          newsFeed = newsFeed.slice(-64);
+          scheduleUpdateUI();
+          return;
+        }
+      }
+      const orderCost = entertainer.price * quantity;
+      if (money < orderCost) {
+        alert("Not enough money!");
+        return;
+      }
+
+      const holding = getHolding(entertainer.name);
+      const priceImpact = getTradeImpact(entertainer, quantity, "buy");
+
+      for (let count = 0; count < quantity; count += 1) {
+        const purchasePrice = entertainer.price;
+        money -= purchasePrice;
+        holding.shares += 1;
+        holding.totalCost += purchasePrice;
+        entertainer.price *= (1 + priceImpact);
+        recordPrice(entertainer, 1);
+      }
+
+      newsFeed.push(`${entertainer.name} surged after your add was confirmed for ${quantity} pick${quantity > 1 ? "s" : ""}.`);
+      pulseCard(entertainer.name, "flash-buy");
+      playTone("buy");
+      awardScore(quantity * 12);
+      const buyPrice = entertainer.price / Math.pow(1 + priceImpact, quantity);
+      recordTrade(entertainer.name, "buy", quantity, buyPrice, null);
+      showTradeReceipt(entertainer.name, "buy", quantity, buyPrice, null);
+      checkPriceAlerts();
+      checkLimitOrders();
+      updateUI();
+    }
+
+    function sell(index) {
+      const entertainer = entertainers[index];
+      const holding = portfolio[entertainer.name];
+      if (!holding || holding.shares === 0) {
+        return;
+      }
+
+      const quantity = Math.min(getQuantity(entertainer.name), holding.shares);
+      if (isRealtimeMode()) {
+        const sent = sendRealtimeIntent("sell", { name: entertainer.name, quantity });
+        if (sent) {
+          newsFeed.push(`Submitted live trim request: ${quantity}x ${entertainer.name}.`);
+          newsFeed = newsFeed.slice(-64);
+          scheduleUpdateUI();
+          return;
+        }
+      }
+
+      const priceImpact = getTradeImpact(entertainer, quantity, "sell");
+
+      for (let count = 0; count < quantity; count += 1) {
+        const salePrice = entertainer.price;
+        const averageCost = holding.totalCost / holding.shares;
+        money += salePrice;
+        holding.shares -= 1;
+        holding.totalCost = Math.max(0, holding.totalCost - averageCost);
+        entertainer.price *= (1 + priceImpact);
+        recordPrice(entertainer, 1);
+      }
+
+      if (holding.shares === 0) {
+        holding.totalCost = 0;
+      }
+
+      newsFeed.push(`${entertainer.name} softened after your trim was confirmed for ${quantity} pick${quantity > 1 ? "s" : ""}.`);
+      pulseCard(entertainer.name, "flash-sell");
+      playTone("sell");
+      awardScore(quantity * 8);
+      const sellPrice = entertainer.price / Math.pow(1 + priceImpact, quantity);
+      const avgCostAtSell = holding.totalCost / Math.max(1, holding.shares + quantity);
+      const estimatedGain = (sellPrice - avgCostAtSell) * quantity;
+      recordTrade(entertainer.name, "sell", quantity, sellPrice, estimatedGain);
+      showTradeReceipt(entertainer.name, "sell", quantity, sellPrice, estimatedGain);
+      checkPriceAlerts();
+      checkLimitOrders();
+      updateUI();
+    }
+
+    function simulateMarketEvent() {
+      if (isRealtimeMode()) {
+        return;
+      }
+      const entertainer = entertainers[Math.floor(Math.random() * entertainers.length)];
+      const eventRoll = Math.random();
+      let change = 0;
+      let message = "";
+      const currentDifficulty = difficultySettings[difficulty];
+
+      if (eventRoll < 0.34) {
+        change = (Math.random() * currentDifficulty.max) + 4;
+        message = `${entertainer.name} jumped on a viral performance clip.`;
+      } else if (eventRoll < 0.67) {
+        change = -((Math.random() * Math.abs(currentDifficulty.min)) + 3);
+        message = `${entertainer.name} slipped after a rough press cycle.`;
+      } else {
+        change = (Math.random() * (currentDifficulty.max - currentDifficulty.min)) + currentDifficulty.min;
+        message = `${entertainer.name} swung on fresh attention chatter.`;
+      }
+
+      entertainer.price = Math.max(1, entertainer.price + change);
+      recordPrice(entertainer, Math.max(1, Math.round(Math.abs(change) * 2)));
+      newsFeed.push(
+        `Breaking: ${message} Move ${change >= 0 ? "up" : "down"} ${formatCurrency(Math.abs(change))}.`
+      );
+      pulseCard(entertainer.name, "flash-event");
+      playTone("event");
+      awardScore(Math.max(5, Math.round(Math.abs(change))));
+      checkPriceAlerts();
+      checkLimitOrders();
+      updateUI();
+    }
+
+    function updateUI() {
+      pushEquitySnapshot();
+      renderMarket();
+      renderFeaturedMarket();
+      renderPortfolio();
+      renderFeed();
+      renderUserProfile();
+      renderStats();
+      renderTrending();
+      renderTradeHistory();
+      renderWatchlistPanel();
+      renderLeaderboard();
+      renderShortPositions();
+      if (selectedArtist) {
+        const artist = entertainers.find((candidate) => candidate.name === selectedArtist);
+        if (artist) {
+          renderArtistPage(artist);
+        }
+      }
+      saveState();
+    }
+
+    function scrollToPageTop() {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    // ── Volatility ──────────────────────────────────────────────────────────
+    function getVolatility(entertainer) {
+      const history = Array.isArray(entertainer.history) ? entertainer.history : [entertainer.price];
+      if (history.length < 3) return "low";
+      const mean = history.reduce((s, v) => s + v, 0) / history.length;
+      const variance = history.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / history.length;
+      const pct = Math.sqrt(variance) / mean;
+      if (pct < 0.04) return "low";
+      if (pct < 0.1) return "med";
+      return "high";
+    }
+
+    // ── Watchlist ────────────────────────────────────────────────────────────
+    function toggleWatch(name) {
+      if (watchlist.has(name)) { watchlist.delete(name); } else { watchlist.add(name); }
+      saveState(); renderMarket(); renderWatchlistPanel(); renderStats();
+    }
+
+    function renderWatchlistPanel() {
+      const emptyEl = document.getElementById("watchlist-empty");
+      const listEl = document.getElementById("watchlist-panel-list");
+      if (!emptyEl || !listEl) return;
+      listEl.innerHTML = "";
+      if (watchlist.size === 0) { emptyEl.style.display = "block"; return; }
+      emptyEl.style.display = "none";
+      watchlist.forEach((name) => {
+        const entertainer = entertainers.find((e) => e.name === name);
+        if (!entertainer) return;
+        const safeN = name.replace(/'/g, "\\'");
+        const holding = portfolio[name];
+        const sharesOwned = holding ? holding.shares : 0;
+        const vol = getVolatility(entertainer);
+        const row = document.createElement("div");
+        row.className = "watchlist-row";
+        row.innerHTML = `
+          <span class="watchlist-name">${name}</span>
+          <span class="watchlist-price">${formatCurrency(entertainer.price)}</span>
+          <span class="vol-badge vol-${vol}">${vol.toUpperCase()}</span>
+          ${sharesOwned > 0 ? `<span class="owned-tag">${sharesOwned}</span>` : ""}
+          <button class="watch-btn watched" type="button" onclick="toggleWatch('${safeN}')" title="Remove">★</button>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    // ── Price Alerts ─────────────────────────────────────────────────────────
+    function openAlertModal(name) {
+      alertModalTarget = name;
+      const e = entertainers.find((x) => x.name === name);
+      document.getElementById("alert-modal-subtitle").innerText = `${name} — Current: ${formatCurrency(e ? e.price : 0)}`;
+      const existing = priceAlerts[name] || {};
+      document.getElementById("alert-above").value = existing.above || "";
+      document.getElementById("alert-below").value = existing.below || "";
+      openModal("alert-modal", "alert-above");
+    }
+
+    function closeAlertModal() {
+      closeModal("alert-modal");
+      alertModalTarget = null;
+    }
+
+    function checkPriceAlerts() {
+      entertainers.forEach((entertainer) => {
+        const alert = priceAlerts[entertainer.name];
+        if (!alert) return;
+        const keyAbove = `${entertainer.name}-above`;
+        const keyBelow = `${entertainer.name}-below`;
+        if (alert.above && entertainer.price >= alert.above && !firedAlerts.has(keyAbove)) {
+          firedAlerts.add(keyAbove);
+          triggerPriceAlert(entertainer.name, "above", alert.above, entertainer.price);
+        } else if (alert.above && entertainer.price < alert.above * 0.99) {
+          firedAlerts.delete(keyAbove);
+        }
+        if (alert.below && entertainer.price <= alert.below && !firedAlerts.has(keyBelow)) {
+          firedAlerts.add(keyBelow);
+          triggerPriceAlert(entertainer.name, "below", alert.below, entertainer.price);
+        } else if (alert.below && entertainer.price > alert.below * 1.01) {
+          firedAlerts.delete(keyBelow);
+        }
+      });
+    }
+
+    function triggerPriceAlert(name, direction, threshold, currentPrice) {
+      const msg = direction === "above"
+        ? `🔔 Alert: ${name} rose above ${formatCurrency(threshold)} — now ${formatCurrency(currentPrice)}`
+        : `🔔 Alert: ${name} fell below ${formatCurrency(threshold)} — now ${formatCurrency(currentPrice)}`;
+      newsFeed.push(msg);
+      if (newsFeed.length > 64) newsFeed = newsFeed.slice(-64);
+      playTone("event");
+      pulseCard(name, "flash-event");
+    }
+
+    // ── Adjustment Rules ──────────────────────────────────────────────────────
+    function openLimitModal(name) {
+      limitModalTarget = name;
+      const e = entertainers.find((x) => x.name === name);
+      document.getElementById("limit-modal-subtitle").innerText = `${name} — Current: ${formatCurrency(e ? e.price : 0)}`;
+      document.getElementById("limit-price").value = "";
+      document.getElementById("limit-qty").value = getQuantity(name);
+      renderLimitOrdersList();
+      openModal("limit-modal", "limit-action");
+    }
+
+    function closeLimitModal() {
+      closeModal("limit-modal");
+      limitModalTarget = null;
+    }
+
+    function renderLimitOrdersList() {
+      const container = document.getElementById("limit-orders-list");
+      const section = document.getElementById("limit-orders-section");
+      if (!container || !section) return;
+      const relevant = limitModalTarget ? limitOrders.filter((o) => o.name === limitModalTarget) : limitOrders;
+      section.style.display = relevant.length > 0 ? "block" : "none";
+      container.innerHTML = "";
+      relevant.forEach((order) => {
+        const row = document.createElement("div");
+        row.className = "limit-order-row";
+        row.innerHTML = `
+          <span class="limit-order-info">${formatTradeActionLabel(`limit-${order.action}`).replace(" RULE", "")} ${order.qty}× ${order.name} at ${formatCurrency(order.targetPrice)}</span>
+          <button class="ghost-button" type="button" onclick="cancelLimitOrder(${order.id})">Cancel</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function cancelLimitOrder(id) {
+      limitOrders = limitOrders.filter((o) => o.id !== id);
+      saveState(); renderLimitOrdersList(); renderMarket();
+    }
+
+    function checkLimitOrders() {
+      if (limitOrders.length === 0) return;
+      let executed = false;
+      limitOrders = limitOrders.filter((order) => {
+        const entertainer = entertainers.find((e) => e.name === order.name);
+        if (!entertainer) return false;
+        if (order.action === "buy" && entertainer.price <= order.targetPrice) {
+          const cost = entertainer.price * order.qty;
+          if (money >= cost) {
+            const holding = getHolding(entertainer.name);
+            const buyPrice = entertainer.price;
+            for (let i = 0; i < order.qty; i += 1) {
+              money -= entertainer.price; holding.shares += 1; holding.totalCost += entertainer.price;
+              entertainer.price *= 1.05; recordPrice(entertainer, 1);
+            }
+            newsFeed.push(`Add rule executed: ${order.qty}× ${order.name} at ~${formatCurrency(buyPrice)}.`);
+            recordTrade(order.name, "limit-buy", order.qty, buyPrice, null);
+            playTone("buy"); awardScore(order.qty * 10); executed = true; return false;
+          }
+        }
+        if (order.action === "sell") {
+          const holding = portfolio[order.name];
+          if (holding && holding.shares >= order.qty && entertainer.price >= order.targetPrice) {
+            const sellPrice = entertainer.price;
+            const avgCost = holding.totalCost / holding.shares;
+            const gain = (sellPrice - avgCost) * order.qty;
+            for (let i = 0; i < order.qty; i += 1) {
+              const averageCost = holding.totalCost / holding.shares;
+              money += entertainer.price; holding.shares -= 1;
+              holding.totalCost = Math.max(0, holding.totalCost - averageCost);
+              entertainer.price *= 0.95; recordPrice(entertainer, 1);
+            }
+            if (holding.shares === 0) holding.totalCost = 0;
+            newsFeed.push(`Trim rule executed: ${order.qty}× ${order.name} at ~${formatCurrency(sellPrice)}.`);
+            recordTrade(order.name, "limit-sell", order.qty, sellPrice, gain);
+            playTone("sell"); awardScore(order.qty * 8); executed = true; return false;
+          }
+        }
+        return true;
+      });
+      if (executed) updateUI();
+    }
+
+    // ── Short Selling ────────────────────────────────────────────────────────
+    function shortSell(index) {
+      const entertainer = entertainers[index];
+      const quantity = getQuantity(entertainer.name);
+      const collateralNeeded = entertainer.price * quantity * 1.1;
+      if (money < collateralNeeded) {
+        alert(`Need ${formatCurrency(collateralNeeded)} in margin to short ${quantity} share${quantity > 1 ? "s" : ""}.`);
+        return;
+      }
+      if (!shortPositions[entertainer.name]) shortPositions[entertainer.name] = { shares: 0, entryPrice: 0, collateral: 0 };
+      const pos = shortPositions[entertainer.name];
+      const newShares = pos.shares + quantity;
+      pos.entryPrice = ((pos.entryPrice * pos.shares) + (entertainer.price * quantity)) / newShares;
+      pos.shares = newShares; pos.collateral += collateralNeeded; money -= collateralNeeded;
+      entertainer.price = Math.max(1, entertainer.price * 0.97);
+      recordPrice(entertainer, quantity);
+      newsFeed.push(`You shorted ${quantity} share${quantity > 1 ? "s" : ""} of ${entertainer.name} at ${formatCurrency(pos.entryPrice)}.`);
+      pulseCard(entertainer.name, "flash-sell"); playTone("sell"); awardScore(quantity * 6);
+      recordTrade(entertainer.name, "short", quantity, pos.entryPrice, null);
+      updateUI();
+    }
+
+    function coverShort(index) {
+      const entertainer = entertainers[index];
+      const pos = shortPositions[entertainer.name];
+      if (!pos || pos.shares === 0) return;
+      const quantity = Math.min(getQuantity(entertainer.name), pos.shares);
+      const collateralPerShare = pos.collateral / pos.shares;
+      const gain = (pos.entryPrice - entertainer.price) * quantity;
+      const returned = collateralPerShare * quantity + gain;
+      money = Math.max(0, money + returned);
+      pos.shares -= quantity; pos.collateral -= collateralPerShare * quantity;
+      if (pos.shares === 0) { pos.collateral = 0; pos.entryPrice = 0; }
+      entertainer.price = Math.max(1, entertainer.price * 1.02);
+      recordPrice(entertainer, quantity);
+      const gainText = gain >= 0 ? `Gained ${formatCurrency(gain)}` : `Lost ${formatCurrency(Math.abs(gain))}`;
+      newsFeed.push(`Covered ${quantity} short on ${entertainer.name}. ${gainText}.`);
+      pulseCard(entertainer.name, gain >= 0 ? "flash-buy" : "flash-sell");
+      playTone(gain >= 0 ? "buy" : "sell");
+      awardScore(Math.max(5, Math.round(Math.abs(gain) * 0.5)));
+      recordTrade(entertainer.name, "cover", quantity, entertainer.price, gain);
+      showTradeReceipt(entertainer.name, "cover", quantity, entertainer.price, gain);
+      updateUI();
+    }
+
+    function renderShortPositions() {
+      const wrap = document.getElementById("shorts-wrap");
+      const list = document.getElementById("shorts-list");
+      if (!wrap || !list) return;
+      const activeShorts = Object.entries(shortPositions).filter(([, pos]) => pos.shares > 0);
+      if (activeShorts.length === 0) { wrap.setAttribute("hidden", "true"); return; }
+      wrap.removeAttribute("hidden"); list.innerHTML = "";
+      activeShorts.forEach(([name, pos]) => {
+        const entertainer = entertainers.find((e) => e.name === name);
+        if (!entertainer) return;
+        const pnl = (pos.entryPrice - entertainer.price) * pos.shares;
+        const card = document.createElement("article");
+        card.className = "portfolio-card";
+        card.innerHTML = `
+          <div class="portfolio-header">
+            <h3>${name} <span class="short-label">SHORT</span></h3>
+            <span class="gain-pill ${pnl >= 0 ? "up" : "down"}">${formatSignedCurrency(pnl)}</span>
+          </div>
+          <div class="portfolio-metrics">
+            <div><span>Shares</span><strong>${pos.shares}</strong></div>
+            <div><span>Entry</span><strong>${formatCurrency(pos.entryPrice)}</strong></div>
+            <div><span>Current</span><strong>${formatCurrency(entertainer.price)}</strong></div>
+          </div>`;
+        list.appendChild(card);
+      });
+    }
+
+    // ── Trade History ────────────────────────────────────────────────────────
+    function recordTrade(name, action, qty, price, gain) {
+      const entry = {
+        ts: Date.now(),
+        name,
+        action,
+        qty,
+        price: Number(price.toFixed(2)),
+        gain: gain !== null ? Number(gain.toFixed(2)) : null
+      };
+      tradeHistory = mergeTradeHistory(tradeHistory, [entry]);
+      savePermanentTrades(tradeHistory);
+    }
+
+    function formatTradeActionLabel(action) {
+      switch (action) {
+        case "buy":
+          return "ADD";
+        case "sell":
+          return "TRIM";
+        case "limit-buy":
+          return "ADD RULE";
+        case "limit-sell":
+          return "TRIM RULE";
+        case "short":
+          return "SHORT";
+        case "cover":
+          return "COVER";
+        default:
+          return String(action || "ACTION").replace(/-/g, " ").toUpperCase();
+      }
+    }
+
+    function renderTradeHistory() {
+      const emptyEl = document.getElementById("trade-history-empty");
+      const listEl = document.getElementById("trade-history");
+      if (!emptyEl || !listEl) return;
+      if (tradeHistory.length === 0) { emptyEl.style.display = "block"; listEl.innerHTML = ""; return; }
+      emptyEl.style.display = "none";
+      const recent = tradeHistory.slice(-15).reverse();
+      listEl.innerHTML = "";
+      recent.forEach((trade) => {
+        const row = document.createElement("div");
+        row.className = "trade-history-row";
+        const time = new Date(trade.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const isPositive = trade.action === "buy" || trade.action === "limit-buy" || trade.action === "cover";
+        const gainText = trade.gain !== null ? ` · ${formatSignedCurrency(trade.gain)}` : "";
+        row.innerHTML = `
+          <span class="trade-time">${time}</span>
+          <span class="trade-name">${trade.name}</span>
+          <span class="trade-action ${isPositive ? "buy-text" : "sell-text"}">${formatTradeActionLabel(trade.action)}</span>
+          <span class="trade-detail">${trade.qty}× ${formatCurrency(trade.price)}${gainText}</span>`;
+        listEl.appendChild(row);
+      });
+    }
+
+    // ── Trending ─────────────────────────────────────────────────────────────
+    function renderTrending() {
+      const listEl = document.getElementById("trending-list");
+      if (!listEl) return;
+      const movers = entertainers
+        .filter((e) => Array.isArray(e.history) && e.history.length >= 2)
+        .map((e) => {
+          const first = e.history[0]; const last = e.history[e.history.length - 1];
+          const change = last - first; const pct = first > 0 ? (change / first) * 100 : 0;
+          return { name: e.name, price: e.price, change, pct };
+        })
+        .sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct))
+        .slice(0, 7);
+      listEl.innerHTML = "";
+      if (movers.length === 0) { listEl.innerHTML = `<div class="empty-state">Prices haven't moved yet.</div>`; return; }
+      movers.forEach((mover, idx) => {
+        const row = document.createElement("div");
+        row.className = "trending-row";
+        row.innerHTML = `
+          <span class="trending-rank">#${idx + 1}</span>
+          <span class="trending-name">${mover.name}</span>
+          <span class="trending-price">${formatCurrency(mover.price)}</span>
+          <span class="gain-pill ${mover.change >= 0 ? "up" : "down"}">${mover.change >= 0 ? "+" : ""}${mover.pct.toFixed(1)}%</span>`;
+        listEl.appendChild(row);
+      });
+    }
+
+    // ── Leaderboard ──────────────────────────────────────────────────────────
+    function getBestTradeText() {
+      const sells = tradeHistory.filter((t) => t.gain !== null && t.gain > 0);
+      if (sells.length === 0) return "No profitable trades yet";
+      const best = sells.reduce((a, b) => (b.gain > a.gain ? b : a), sells[0]);
+      return `${best.name} +${formatCurrency(best.gain)}`;
+    }
+
+    function buildLeaderboard() {
+      leaderboard = leaderboard.filter((e) => typeof e.score === "number" && e.name);
+      if (userProfile) {
+        const idx = leaderboard.findIndex((e) => e.isLocal);
+        const entry = { name: userProfile.name, score: exchangeScore, isLocal: true, bestTrade: getBestTradeText() };
+        if (idx !== -1) leaderboard[idx] = entry; else leaderboard.push(entry);
+      }
+    }
+
+    function renderLeaderboard() {
+      buildLeaderboard();
+      const listEl = document.getElementById("leaderboard-list");
+      if (!listEl) return;
+      const fallback = { name: userProfile ? userProfile.name : "You (no profile)", score: exchangeScore, isLocal: true, bestTrade: getBestTradeText() };
+      const sorted = [...leaderboard].sort((a, b) => b.score - a.score).slice(0, 10);
+      const hasLocal = sorted.some((e) => e.isLocal);
+      const display = hasLocal ? sorted : [fallback, ...sorted.slice(0, 9)];
+      listEl.innerHTML = "";
+      display.forEach((entry, idx) => {
+        const row = document.createElement("div");
+        row.className = `leaderboard-row${entry.isLocal ? " leaderboard-local" : ""}`;
+        row.innerHTML = `
+          <span class="leaderboard-rank">#${idx + 1}</span>
+          <span class="leaderboard-name">${entry.name}${entry.isLocal ? " (you)" : ""}</span>
+          <span class="leaderboard-score">${entry.score.toLocaleString()} pts</span>`;
+        listEl.appendChild(row);
+      });
+    }
+
+    // ── Trade Receipt ────────────────────────────────────────────────────────
+    function showTradeReceipt(name, action, qty, price, gain) {
+      receiptData = { name, action, qty, price, gain };
+      const toast = document.getElementById("receipt-toast");
+      const textEl = document.getElementById("receipt-text");
+      const gainText = gain !== null ? ` · ${formatSignedCurrency(gain)}` : "";
+      textEl.innerHTML = `<strong>${formatTradeActionLabel(action)}</strong> ${qty}× <strong>${name}</strong> @ ${formatCurrency(price)}${gainText}`;
+      toast.removeAttribute("hidden");
+      clearTimeout(showTradeReceipt._timer);
+      showTradeReceipt._timer = setTimeout(dismissReceipt, 6000);
+    }
+
+    function dismissReceipt() {
+      document.getElementById("receipt-toast").setAttribute("hidden", "true");
+      receiptData = null;
+    }
+
+    async function shareReceipt() {
+      if (!receiptData) return;
+      const { name, action, qty, price, gain } = receiptData;
+      const gainText = gain !== null ? ` · ${formatSignedCurrency(gain)}` : "";
+      const text = `${formatTradeActionLabel(action)} ${qty}× ${name} @ ${formatCurrency(price)}${gainText} — Entertainers Exchange`;
+      let shared = false;
+      try { if (navigator.share) { await navigator.share({ title: "Activity Receipt", text }); shared = true; } } catch (err) { /* ignored */ }
+      if (!shared) {
+        try {
+          await navigator.clipboard.writeText(text);
+          const btn = document.getElementById("receipt-share-btn");
+          if (btn) { btn.innerText = "Copied!"; setTimeout(() => { btn.innerText = "Share Receipt"; }, 1500); }
+        } catch (err) { alert(text); }
+      }
+    }
+
+    // ── Reset ────────────────────────────────────────────────────────────────
+    function openResetModal() { openModal("reset-modal", "reset-cancel-btn"); }
+    function closeResetModal() { closeModal("reset-modal"); }
+
+    function executeReset() {
+      entertainers = cloneBaseEntertainers();
+      entertainers.forEach((e) => { e.history = [e.price]; e.volumeHistory = [0]; });
+      portfolio = {}; money = STARTING_MONEY; tradeQuantities = {}; equityHistory = [STARTING_MONEY];
+      shortPositions = {}; tradeHistory = []; limitOrders = [];
+      watchlist = new Set(); priceAlerts = {}; firedAlerts = new Set();
+      newsFeed = ["Index reset. Fresh start, clean slate."]; exchangeScore = 0;
+      nextLimitOrderSeq = 0;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_BACKUP_KEY);
+      localStorage.removeItem(PERMANENT_TRADES_KEY);
+      Object.keys(charts).forEach((id) => { if (id !== "equity-chart") { try { charts[id].destroy(); } catch (e) { /* ignore */ } delete charts[id]; } });
+      closeResetModal(); dismissReceipt(); updateUI();
+    }
+
+    // ── Profile Stats ────────────────────────────────────────────────────────
+    function getProfileStats() {
+      const stats = calculatePortfolioStats();
+      const totalRealizedGain = tradeHistory.filter((t) => t.gain !== null).reduce((sum, t) => sum + t.gain, 0);
+      return { score: exchangeScore, netWorth: stats.netWorth, bestTrade: getBestTradeText(), totalRealizedGain, tradeCount: tradeHistory.length };
+    }
+
+    function getProfileProgress(profile, liveStats) {
+      const sourceStats = liveStats || getProfileStats();
+      const score = Number(profile && typeof profile.score === "number" ? profile.score : sourceStats.score) || 0;
+      const tradeCount = Number(profile && typeof profile.tradeCount === "number" ? profile.tradeCount : sourceStats.tradeCount) || 0;
+      const totalRealizedGain = Number(profile && typeof profile.totalRealizedGain === "number" ? profile.totalRealizedGain : sourceStats.totalRealizedGain) || 0;
+
+      let tier = "Rookie";
+      let frame = "rookie";
+      if (score >= 2500) {
+        tier = "Icon";
+        frame = "icon";
+      } else if (score >= 1200) {
+        tier = "Headliner";
+        frame = "headliner";
+      } else if (score >= 500) {
+        tier = "Booker";
+        frame = "booker";
+      } else if (score >= 150) {
+        tier = "Scout";
+        frame = "scout";
+      }
+
+      const badges = [];
+      if (tradeCount >= 1) badges.push("First Booking");
+      if (tradeCount >= 10) badges.push("Active Booker");
+      if (score >= 500) badges.push("Stage Climber");
+      if (totalRealizedGain >= 100) badges.push("Profit Pulse");
+      if (score >= 1200) badges.push("Marquee Maker");
+      if (tradeCount >= 40 || score >= 2500) badges.push("Sellout Status");
+
+      const unlocks = ["Starter Frame"];
+      if (score >= 150) unlocks.push("Spotlight Frame");
+      if (tradeCount >= 8) unlocks.push("Neon Nameplate");
+      if (score >= 500) unlocks.push("Gold Marquee Border");
+      if (totalRealizedGain >= 250) unlocks.push("Victory Glow");
+      if (score >= 2500) unlocks.push("Icon Crown");
+
+      return { tier, frame, badges, unlocks };
+    }
+
+    if (!enforcePrivateAccess()) {
+      throw new Error("Unauthorized access: missing private access token.");
+    }
+
+    document.getElementById("sound-toggle").addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      applySoundState();
+      saveState();
+      renderStats();
+    });
+    document.getElementById("difficulty-select").addEventListener("change", (event) => {
+      difficulty = event.target.value;
+      saveState();
+      renderStats();
+    });
+    document.getElementById("theme-select").addEventListener("change", (event) => {
+      displaySettings.theme = event.target.value;
+      applyDisplaySettings();
+      saveState();
+    });
+    document.getElementById("layout-select").addEventListener("change", (event) => {
+      displaySettings.layout = event.target.value;
+      applyDisplaySettings();
+      saveState();
+    });
+    document.getElementById("density-select").addEventListener("change", (event) => {
+      displaySettings.density = event.target.value;
+      applyDisplaySettings();
+      saveState();
+    });
+    document.getElementById("ticker-speed-select").addEventListener("change", (event) => {
+      displaySettings.tickerSpeed = event.target.value;
+      applyDisplaySettings();
+      saveState();
+    });
+    document.getElementById("font-size-select").addEventListener("change", (event) => {
+      displaySettings.fontSize = event.target.value;
+      applyDisplaySettings();
+      saveState();
+    });
+    document.getElementById("brightness-select").addEventListener("change", (event) => {
+      displaySettings.brightness = event.target.value;
+      applyDisplaySettings();
+      saveState();
+    });
+    document.getElementById("sort-select").addEventListener("change", (event) => {
+      marketFilters.sort = event.target.value;
+      marketFilters.page = 1;
+      saveState();
+      renderMarket();
+    });
+    document.getElementById("search-input").addEventListener("input", (event) => {
+      marketFilters.search = event.target.value;
+      marketFilters.page = 1;
+      saveState();
+      renderMarket();
+    });
+    document.getElementById("owned-only").addEventListener("click", () => {
+      marketFilters.ownedOnly = !marketFilters.ownedOnly;
+      marketFilters.page = 1;
+      saveState();
+      renderMarket();
+      renderStats();
+    });
+    document.querySelectorAll(".category-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        marketFilters.category = chip.dataset.category;
+        marketFilters.page = 1;
+        saveState();
+        renderMarket();
+        renderStats();
+      });
+    });
+    document.getElementById("market-prev").addEventListener("click", () => {
+      marketFilters.page = Math.max(1, marketFilters.page - 1);
+      saveState();
+      renderMarket();
+      scrollToPageTop();
+    });
+    document.getElementById("market-next").addEventListener("click", () => {
+      marketFilters.page += 1;
+      saveState();
+      renderMarket();
+      scrollToPageTop();
+    });
+    document.getElementById("profile-create-top").addEventListener("click", openProfileModal);
+    document.getElementById("profile-create-button").addEventListener("click", openProfileModal);
+    document.getElementById("profile-modal-close").addEventListener("click", closeProfileModal);
+    document.getElementById("profile-skip").addEventListener("click", skipProfileCreation);
+    document.getElementById("profile-cancel").addEventListener("click", closeProfileModal);
+    document.getElementById("profile-copy-link").addEventListener("click", () => {
+      copyProfileShareLink();
+    });
+    document.getElementById("pro-waitlist-btn").addEventListener("click", joinProWaitlist);
+    document.getElementById("profile-modal").addEventListener("click", (event) => {
+      if (event.target.id === "profile-modal") {
+        closeProfileModal();
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        if (!document.getElementById("profile-modal").hasAttribute("hidden")) { closeProfileModal(); return; }
+        if (!document.getElementById("alert-modal").hasAttribute("hidden")) { closeAlertModal(); return; }
+        if (!document.getElementById("limit-modal").hasAttribute("hidden")) { closeLimitModal(); return; }
+        if (!document.getElementById("reset-modal").hasAttribute("hidden")) { closeResetModal(); return; }
+        return;
+      }
+      if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA" || event.target.tagName === "SELECT") return;
+      if ((event.key === "b" || event.key === "B") && focusedEntity) {
+        const focusedIdx = entertainers.findIndex((e) => e.name === focusedEntity);
+        if (focusedIdx !== -1) buy(focusedIdx);
+      }
+      if ((event.key === "s" || event.key === "S") && focusedEntity) {
+        const focusedIdx = entertainers.findIndex((e) => e.name === focusedEntity);
+        if (focusedIdx !== -1) sell(focusedIdx);
+      }
+    });
+    document.getElementById("profile-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const rawProfile = {
+        name: document.getElementById("profile-form-name").value,
+        bio: document.getElementById("profile-form-bio").value,
+        links: parseProfileLinks(document.getElementById("profile-form-links").value),
+        message: document.getElementById("profile-form-message").value
+      };
+
+      const safeProfile = sanitizeUserProfile(rawProfile);
+      if (!safeProfile) {
+        alert("Please provide a name and bio to save your profile.");
+        return;
+      }
+
+      const livePsStats = getProfileStats();
+      userProfile = {
+        ...safeProfile,
+        score: livePsStats.score,
+        tradeCount: livePsStats.tradeCount,
+        bestTrade: livePsStats.bestTrade,
+        totalRealizedGain: livePsStats.totalRealizedGain
+      };
+      newsFeed.push(`${safeProfile.name} updated their community profile.`);
+      if (newsFeed.length > 64) {
+        newsFeed = newsFeed.slice(-64);
+      }
+      window.history.replaceState({}, "", buildShareProfileUrl(userProfile));
+      renderUserProfile();
+      renderFeed();
+      saveState();
+      closeProfileModal();
+    });
+    document.getElementById("artist-timeframe").addEventListener("change", (event) => {
+      artistTimeframe = event.target.value;
+      if (!selectedArtist) return;
+      const artist = entertainers.find((candidate) => candidate.name === selectedArtist);
+      if (artist) renderArtistPage(artist);
+    });
+    document.getElementById("artist-back").addEventListener("click", closeArtistPage);
+    loadState();
+    renderProWaitlistButton();
+    applySoundState();
+        document.getElementById("watchlist-only").addEventListener("click", () => {
+          marketFilters.watchlistOnly = !marketFilters.watchlistOnly;
+          marketFilters.page = 1;
+          saveState(); renderMarket(); renderStats();
+        });
+        document.getElementById("reset-from-settings").addEventListener("click", openResetModal);
+        document.getElementById("alert-modal-close").addEventListener("click", closeAlertModal);
+        document.getElementById("alert-modal").addEventListener("click", (e) => { if (e.target.id === "alert-modal") closeAlertModal(); });
+        document.getElementById("alert-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!alertModalTarget) return;
+          const above = parseFloat(document.getElementById("alert-above").value) || null;
+          const below = parseFloat(document.getElementById("alert-below").value) || null;
+          priceAlerts[alertModalTarget] = { above, below };
+          newsFeed.push(`Trend alert set for ${alertModalTarget}.`);
+          if (newsFeed.length > 64) newsFeed = newsFeed.slice(-64);
+          saveState(); renderMarket(); renderFeed(); closeAlertModal();
+        });
+        document.getElementById("alert-clear").addEventListener("click", () => {
+          if (!alertModalTarget) return;
+          delete priceAlerts[alertModalTarget];
+          firedAlerts.delete(`${alertModalTarget}-above`);
+          firedAlerts.delete(`${alertModalTarget}-below`);
+          saveState(); renderMarket(); closeAlertModal();
+        });
+        document.getElementById("limit-modal-close").addEventListener("click", closeLimitModal);
+        document.getElementById("limit-modal").addEventListener("click", (e) => { if (e.target.id === "limit-modal") closeLimitModal(); });
+        document.getElementById("limit-cancel").addEventListener("click", closeLimitModal);
+        document.getElementById("limit-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!limitModalTarget) return;
+          const action = document.getElementById("limit-action").value;
+          const price = parseFloat(document.getElementById("limit-price").value);
+          const qty = Math.max(1, parseInt(document.getElementById("limit-qty").value, 10));
+          if (!Number.isFinite(price) || price <= 0) return;
+          if (isRealtimeMode()) {
+            const sent = sendRealtimeIntent("limit-order", { name: limitModalTarget, action, targetPrice: price, qty });
+            if (sent) {
+              newsFeed.push(`Saved a live ${action} adjustment rule for ${limitModalTarget}.`);
+              if (newsFeed.length > 64) newsFeed = newsFeed.slice(-64);
+              renderFeed();
+              closeLimitModal();
+              return;
+            }
+          }
+          limitOrders.push({ id: getNextLimitOrderId(), name: limitModalTarget, action, targetPrice: price, qty });
+          newsFeed.push(`${action === "buy" ? "Add" : "Trim"} rule saved for ${limitModalTarget} at ${formatCurrency(price)}.`);
+          if (newsFeed.length > 64) newsFeed = newsFeed.slice(-64);
+          saveState(); renderFeed(); renderLimitOrdersList();
+        });
+        document.getElementById("reset-modal-close").addEventListener("click", closeResetModal);
+        document.getElementById("reset-modal").addEventListener("click", (e) => { if (e.target.id === "reset-modal") closeResetModal(); });
+        document.getElementById("reset-cancel-btn").addEventListener("click", closeResetModal);
+        document.getElementById("reset-confirm-btn").addEventListener("click", executeReset);
+        document.getElementById("receipt-share-btn").addEventListener("click", shareReceipt);
+        document.getElementById("receipt-dismiss-btn").addEventListener("click", dismissReceipt);
+        window.addEventListener("resize", applyMobilePortfolioPreference);
+        window.addEventListener("beforeunload", () => {
+          if (realtimeReconnectTimer) {
+            clearTimeout(realtimeReconnectTimer);
+            realtimeReconnectTimer = null;
+          }
+          if (realtimeSocket && realtimeSocket.readyState <= WebSocket.OPEN) {
+            try { realtimeSocket.close(); } catch (error) { /* ignore */ }
+          }
+        });
+        window.addEventListener("storage", (event) => {
+          if (event.key !== STORAGE_KEY || !event.newValue) {
+            return;
+          }
+          try {
+            const incoming = JSON.parse(event.newValue);
+            if (typeof incoming.soundEnabled === "boolean") {
+              soundEnabled = incoming.soundEnabled;
+              applySoundState();
+              renderStats();
+            }
+          } catch (error) {
+            /* ignore malformed storage updates */
+          }
+        });
+      document.addEventListener("keydown", handleModalFocusTrap);
+    parseRealtimeConfig();
+    startFeaturedFeedPolling();
+    applyMobilePortfolioPreference();
+    applyProfileFromUrl();
+    entertainers.forEach((entertainer) => {
+      if (!Array.isArray(entertainer.history) || entertainer.history.length === 0) {
+        entertainer.history = [entertainer.price];
+      }
+      if (!Array.isArray(entertainer.volumeHistory) || entertainer.volumeHistory.length !== entertainer.history.length) {
+        entertainer.volumeHistory = new Array(entertainer.history.length).fill(0);
+      }
+    });
+    if (equityHistory.length === 0) {
+      equityHistory = [STARTING_MONEY];
+    }
+    updateUI();
+    if (isRealtimeMode()) {
+      connectRealtime();
+    } else {
+      refreshPopularityRankings();
+      setInterval(refreshPopularityRankings, POPULARITY_REFRESH_MS);
+      setInterval(simulateMarketEvent, MARKET_EVENT_INTERVAL_MS);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adele – Entertainers Exchange</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../theme.js" defer></script>
+  <script>
+    const match = window.location.pathname.match(/profile(\d+)\.html$/);
+    const id = match ? Number(match[1]) : 0;
+    window.location.replace(id ? `../profile.html?id=${id}` : "../index.html");
+  </script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <h1>Adele</h1>
+        <p class="hero-text">Grammy-winning singer-songwriter.</p>
+      </div>
+    </header>
+    <main>
+      <div class="artist-detail-card">
+        <div class="artist-hero">
+          <img src="../images/placeholder.svg" alt="Adele" class="artist-photo">
+          <div>
+            <h2>Price: $125</h2>
+            <h3>Popularity: 88</h3>
+            <p><strong>Projects:</strong> 30, 25, 21</p>
+            <p><strong>Upcoming:</strong> Las Vegas Residency</p>
+            <div>
+              <a href="https://instagram.com/adele" target="_blank">Instagram</a> |
+              <a href="https://x.com/Adele" target="_blank">X</a> |
+              <a href="https://youtube.com/@Adele" target="_blank">YouTube</a>
+            </div>
+          </div>
+        </div>
+        <div class="artist-bio">
+          <p>Adele is a Grammy-winning singer-songwriter.</p>
+        </div>
+        <div class="artist-analytics">
+          <h3>Price History</h3>
+          <p>[100, 105, 110, 115, 120, 125, 125]</p>
+        </div>
+      </div>
+      <a href="../index.html" class="card-link" style="margin-top:2em;display:inline-block;">&larr; Back to Home</a>
+    </main>
+  </div>
+</body>
+</html>

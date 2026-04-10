@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ed Sheeran – Entertainers Exchange</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../theme.js" defer></script>
+  <script>
+    const match = window.location.pathname.match(/profile(\d+)\.html$/);
+    const id = match ? Number(match[1]) : 0;
+    window.location.replace(id ? `../profile.html?id=${id}` : "../index.html");
+  </script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <h1>Ed Sheeran</h1>
+        <p class="hero-text">Chart-topping singer-songwriter.</p>
+      </div>
+    </header>
+    <main>
+      <div class="artist-detail-card">
+        <div class="artist-hero">
+          <img src="../images/placeholder.svg" alt="Ed Sheeran" class="artist-photo">
+          <div>
+            <h2>Price: $118</h2>
+            <h3>Popularity: 92</h3>
+            <p><strong>Projects:</strong> =, Divide, Multiply</p>
+            <p><strong>Upcoming:</strong> Mathematics Tour 2026</p>
+            <div>
+              <a href="https://instagram.com/teddysphotos" target="_blank">Instagram</a> |
+              <a href="https://x.com/edsheeran" target="_blank">X</a> |
+              <a href="https://youtube.com/@EdSheeran" target="_blank">YouTube</a>
+            </div>
+          </div>
+        </div>
+        <div class="artist-bio">
+          <p>Ed Sheeran is a chart-topping singer-songwriter.</p>
+        </div>
+        <div class="artist-analytics">
+          <h3>Price History</h3>
+          <p>[95, 98, 100, 105, 110, 115, 118]</p>
+        </div>
+      </div>
+      <a href="../index.html" class="card-link" style="margin-top:2em;display:inline-block;">&larr; Back to Home</a>
+    </main>
+  </div>
+</body>
+</html>

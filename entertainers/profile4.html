@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyoncé – Entertainers Exchange</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../theme.js" defer></script>
+  <script>
+    const match = window.location.pathname.match(/profile(\d+)\.html$/);
+    const id = match ? Number(match[1]) : 0;
+    window.location.replace(id ? `../profile.html?id=${id}` : "../index.html");
+  </script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <h1>Beyoncé</h1>
+        <p class="hero-text">Award-winning singer, songwriter, and actress.</p>
+      </div>
+    </header>
+    <main>
+      <div class="artist-detail-card">
+        <div class="artist-hero">
+          <img src="../images/placeholder.svg" alt="Beyoncé" class="artist-photo">
+          <div>
+            <h2>Price: $140</h2>
+            <h3>Popularity: 97</h3>
+            <p><strong>Projects:</strong> Renaissance, Lemonade, B'Day</p>
+            <p><strong>Upcoming:</strong> World Tour 2026</p>
+            <div>
+              <a href="https://instagram.com/beyonce" target="_blank">Instagram</a> |
+              <a href="https://x.com/Beyonce" target="_blank">X</a> |
+              <a href="https://youtube.com/@Beyonce" target="_blank">YouTube</a>
+            </div>
+          </div>
+        </div>
+        <div class="artist-bio">
+          <p>Beyoncé is an award-winning singer, songwriter, and actress.</p>
+        </div>
+        <div class="artist-analytics">
+          <h3>Price History</h3>
+          <p>[120, 125, 130, 135, 140, 142, 140]</p>
+        </div>
+      </div>
+      <a href="../index.html" class="card-link" style="margin-top:2em;display:inline-block;">&larr; Back to Home</a>
+    </main>
+  </div>
+</body>
+</html>

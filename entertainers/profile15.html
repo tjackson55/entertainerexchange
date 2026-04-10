@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chris Hemsworth – Entertainers Exchange</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../theme.js" defer></script>
+  <script>
+    const match = window.location.pathname.match(/profile(\d+)\.html$/);
+    const id = match ? Number(match[1]) : 0;
+    window.location.replace(id ? `../profile.html?id=${id}` : "../index.html");
+  </script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <h1>Chris Hemsworth</h1>
+        <p class="hero-text">Actor best known as Thor.</p>
+      </div>
+    </header>
+    <main>
+      <div class="artist-detail-card">
+        <div class="artist-hero">
+          <img src="../images/placeholder.svg" alt="Chris Hemsworth" class="artist-photo">
+          <div>
+            <h2>Price: $120</h2>
+            <h3>Popularity: 90</h3>
+            <p><strong>Projects:</strong> Thor, Extraction, Rush</p>
+            <p><strong>Upcoming:</strong> Thor 5</p>
+            <div>
+              <a href="https://instagram.com/chrishemsworth" target="_blank">Instagram</a> |
+              <a href="https://x.com/chrishemsworth" target="_blank">X</a> |
+              <a href="https://youtube.com/@ChrisHemsworth" target="_blank">YouTube</a>
+            </div>
+          </div>
+        </div>
+        <div class="artist-bio">
+          <p>Chris Hemsworth is an actor best known as Thor.</p>
+        </div>
+        <div class="artist-analytics">
+          <h3>Price History</h3>
+          <p>[90, 95, 100, 105, 110, 115, 120]</p>
+        </div>
+      </div>
+      <a href="../index.html" class="card-link" style="margin-top:2em;display:inline-block;">&larr; Back to Home</a>
+    </main>
+  </div>
+</body>
+</html>

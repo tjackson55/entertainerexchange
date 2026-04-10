@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internal Feed Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body {
+      min-height: 100vh;
+    }
+
+    .admin-shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 72px;
+      display: grid;
+      gap: 24px;
+    }
+
+    .admin-header {
+      display: grid;
+      gap: 10px;
+    }
+
+    .admin-kicker {
+      margin: 0;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+    }
+
+    .admin-header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      line-height: 0.95;
+    }
+
+    .admin-header p {
+      margin: 0;
+      max-width: 72ch;
+      color: var(--muted);
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .admin-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 24px 48px rgba(2, 6, 23, 0.18);
+    }
+
+    .admin-panel h2,
+    .admin-panel h3 {
+      margin: 0;
+    }
+
+    .admin-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .admin-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+
+    .admin-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .admin-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .admin-field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .admin-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .admin-field label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .admin-field input,
+    .admin-field textarea,
+    .admin-field select {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(15, 23, 42, 0.28);
+      color: var(--text);
+      padding: 12px 14px;
+      font: inherit;
+    }
+
+    .admin-field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .admin-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .admin-check input {
+      width: auto;
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .admin-status {
+      margin: 0;
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .admin-status.error {
+      color: #fca5a5;
+    }
+
+    .admin-status.success {
+      color: #86efac;
+    }
+
+    .admin-status.warning {
+      color: #fde68a;
+    }
+
+    .admin-inline-note {
+      margin: -4px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .admin-inline-note strong {
+      color: var(--text);
+    }
+
+    .trusted-source-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .trusted-source-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.14);
+      color: var(--text);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .admin-columns {
+      display: grid;
+      gap: 18px;
+    }
+
+    .news-column {
+      display: grid;
+      gap: 12px;
+    }
+
+    .news-column-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .news-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.14);
+      color: var(--text);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+    }
+
+    .news-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .news-card {
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      background: var(--panel-strong);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .news-card h4 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .news-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .news-card.is-editing {
+      border-color: rgba(125, 211, 252, 0.4);
+      box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.22), 0 24px 40px rgba(2, 6, 23, 0.18);
+    }
+
+    .news-meta,
+    .news-tags,
+    .news-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .news-meta span,
+    .news-tags span {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .news-meta span {
+      background: rgba(15, 23, 42, 0.28);
+      color: var(--muted);
+    }
+
+    .news-tags .tag-accent {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fde68a;
+    }
+
+    .news-tags .tag-pin {
+      background: rgba(34, 197, 94, 0.16);
+      color: #bbf7d0;
+    }
+
+    .news-link {
+      color: var(--accent-2);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .news-link:hover,
+    .news-link:focus-visible {
+      color: var(--text);
+    }
+
+    .news-empty {
+      border-radius: 18px;
+      border: 1px dashed rgba(148, 163, 184, 0.22);
+      padding: 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .admin-footer {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1040px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .admin-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-shell {
+        width: min(100% - 20px, 1240px);
+        padding-top: 28px;
+      }
+
+      .admin-panel {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body data-theme="ocean" data-layout="balanced" data-density="comfortable" data-font-size="medium" data-brightness="normal">
+  <main class="admin-shell">
+    <header class="admin-header">
+      <p class="admin-kicker">Internal Feed Admin</p>
+      <h1>Approve only what is timely, accurate, and worth showing.</h1>
+      <p>Use this screen to draft featured updates, review pending items, and keep the homepage feed tightly curated. Nothing appears on the site until it is approved.</p>
+    </header>
+
+    <section class="admin-grid">
+      <article class="admin-panel">
+        <div class="admin-panel-head">
+          <div>
+            <h2>Create Draft</h2>
+            <p class="admin-note">Submit a high-confidence item first, then approve it when you want it live.</p>
+          </div>
+        </div>
+
+        <form id="draft-form" class="admin-form">
+          <input id="editing-item-id" name="editingItemId" type="hidden">
+          <div class="admin-form-grid">
+            <div class="admin-field">
+              <label for="entertainer">Entertainer</label>
+              <input id="entertainer" name="entertainer" type="text" required placeholder="Zendaya">
+            </div>
+            <div class="admin-field">
+              <label for="source">Source</label>
+              <input id="source" name="source" type="text" list="source-options" required placeholder="Variety">
+            </div>
+            <div class="admin-field full">
+              <label for="headline">Headline</label>
+              <input id="headline" name="headline" type="text" required placeholder="Verified update that explains the momentum move">
+            </div>
+            <div class="admin-field full">
+              <label for="summary">Summary</label>
+              <textarea id="summary" name="summary" placeholder="Short explanation of what happened and why it matters."></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="source-url">Source URL</label>
+              <input id="source-url" name="sourceUrl" type="url" placeholder="https://example.com/story">
+            </div>
+            <div class="admin-field">
+              <label for="published-at">Published At</label>
+              <input id="published-at" name="publishedAt" type="datetime-local">
+            </div>
+            <div class="admin-field">
+              <label for="tag">Tag</label>
+              <select id="tag" name="tag">
+                <option value="release">Release</option>
+                <option value="casting">Casting</option>
+                <option value="tour">Tour</option>
+                <option value="award">Award</option>
+                <option value="appearance">Appearance</option>
+                <option value="production">Production</option>
+                <option value="creator">Creator</option>
+                <option value="update">Update</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="confidence">Confidence</label>
+              <input id="confidence" name="confidence" type="number" min="0" max="1" step="0.01" value="0.9">
+            </div>
+            <div class="admin-field full">
+              <label for="why-it-matters">Why It Matters</label>
+              <textarea id="why-it-matters" name="whyItMatters" placeholder="Brief reason this deserves to be in the featured feed."></textarea>
+            </div>
+          </div>
+
+          <p id="validation-hint" class="admin-inline-note">Use a traceable source URL and a concise why-it-matters note for every item.</p>
+
+          <label class="admin-check" for="pinned">
+            <input id="pinned" name="pinned" type="checkbox">
+            Pin this item so it stays on top even after the normal freshness window.
+          </label>
+
+          <div class="admin-actions">
+            <button id="submit-button" class="featured-nav-link featured-nav-button" type="submit">Save Draft</button>
+            <button id="cancel-edit-button" class="ghost-button" type="button" hidden>Cancel Edit</button>
+            <button id="refresh-button" class="ghost-button" type="button">Refresh Queue</button>
+          </div>
+          <p id="form-status" class="admin-status" aria-live="polite"></p>
+        </form>
+
+        <datalist id="source-options"></datalist>
+        <div id="trusted-sources" class="trusted-source-list"></div>
+      </article>
+
+      <section class="admin-columns">
+        <article class="admin-panel">
+          <div class="admin-panel-head">
+            <div>
+              <h3>Pending Review</h3>
+              <p class="admin-note">Only approved items reach the homepage feed.</p>
+            </div>
+            <span id="pending-count" class="news-count">0</span>
+          </div>
+          <div id="pending-list" class="news-list"></div>
+        </article>
+
+        <article class="admin-panel">
+          <div class="admin-panel-head">
+            <div>
+              <h3>Approved</h3>
+              <p class="admin-note">These items are eligible for the live featured feed.</p>
+            </div>
+            <span id="approved-count" class="news-count">0</span>
+          </div>
+          <div id="approved-list" class="news-list"></div>
+        </article>
+
+        <article class="admin-panel">
+          <div class="admin-panel-head">
+            <div>
+              <h3>Rejected</h3>
+              <p class="admin-note">Keep a record of items you chose not to publish.</p>
+            </div>
+            <span id="rejected-count" class="news-count">0</span>
+          </div>
+          <div id="rejected-list" class="news-list"></div>
+        </article>
+      </section>
+    </section>
+
+    <p class="admin-footer">Homepage feed: <a class="news-link" href="/index.html" target="_blank" rel="noopener noreferrer">open Entertainers Exchange</a></p>
+  </main>
+
+  <script>
+    const draftForm = document.getElementById("draft-form");
+    const formStatus = document.getElementById("form-status");
+    const refreshButton = document.getElementById("refresh-button");
+    const cancelEditButton = document.getElementById("cancel-edit-button");
+    const submitButton = document.getElementById("submit-button");
+    const editingItemIdInput = document.getElementById("editing-item-id");
+    const sourceOptions = document.getElementById("source-options");
+    const trustedSourcesWrap = document.getElementById("trusted-sources");
+    const validationHint = document.getElementById("validation-hint");
+    const lists = {
+      pending: document.getElementById("pending-list"),
+      approved: document.getElementById("approved-list"),
+      rejected: document.getElementById("rejected-list")
+    };
+    const counters = {
+      pending: document.getElementById("pending-count"),
+      approved: document.getElementById("approved-count"),
+      rejected: document.getElementById("rejected-count")
+    };
+    let currentEditId = "";
+    let allItems = [];
+    let trustedSources = [];
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatDate(value) {
+      const parsed = Date.parse(value || "");
+      if (Number.isNaN(parsed)) {
+        return "Unknown time";
+      }
+      return new Date(parsed).toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function toDatetimeLocalValue(value) {
+      const parsed = Date.parse(value || "");
+      if (Number.isNaN(parsed)) {
+        return "";
+      }
+      const date = new Date(parsed);
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 16);
+    }
+
+    function setStatus(message, type = "") {
+      formStatus.textContent = message;
+      formStatus.className = `admin-status ${type}`.trim();
+    }
+
+    function resetForm() {
+      currentEditId = "";
+      editingItemIdInput.value = "";
+      draftForm.reset();
+      document.getElementById("confidence").value = "0.9";
+      document.getElementById("tag").value = "release";
+      document.getElementById("published-at").value = toDatetimeLocalValue(new Date().toISOString());
+      submitButton.textContent = "Save Draft";
+      cancelEditButton.hidden = true;
+      document.querySelectorAll(".news-card.is-editing").forEach((card) => card.classList.remove("is-editing"));
+      renderValidationHint();
+    }
+
+    function setEditMode(item) {
+      currentEditId = item.id;
+      editingItemIdInput.value = item.id;
+      document.getElementById("entertainer").value = item.entertainer || "";
+      document.getElementById("source").value = item.source || "";
+      document.getElementById("headline").value = item.headline || "";
+      document.getElementById("summary").value = item.summary || "";
+      document.getElementById("source-url").value = item.sourceUrl || "";
+      document.getElementById("published-at").value = toDatetimeLocalValue(item.publishedAt);
+      document.getElementById("tag").value = item.tag || "update";
+      document.getElementById("confidence").value = Number(item.confidence || 0.75).toFixed(2);
+      document.getElementById("why-it-matters").value = item.whyItMatters || "";
+      document.getElementById("pinned").checked = Boolean(item.pinned);
+      submitButton.textContent = "Update Item";
+      cancelEditButton.hidden = false;
+      document.querySelectorAll(".news-card.is-editing").forEach((card) => card.classList.remove("is-editing"));
+      const currentCard = document.querySelector(`[data-item-id="${CSS.escape(item.id)}"]`);
+      if (currentCard) {
+        currentCard.classList.add("is-editing");
+        currentCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      setStatus(`Editing ${item.headline}.`, "warning");
+      renderValidationHint();
+    }
+
+    function renderTrustedSources() {
+      sourceOptions.innerHTML = trustedSources
+        .map((source) => `<option value="${escapeHtml(source.name)}"></option>`)
+        .join("");
+      trustedSourcesWrap.innerHTML = trustedSources
+        .map((source) => `<span class="trusted-source-chip">${escapeHtml(source.name)}</span>`)
+        .join("");
+    }
+
+    function renderValidationHint() {
+      const sourceValue = String(document.getElementById("source").value || "").trim();
+      const confidenceValue = Number(document.getElementById("confidence").value || 0);
+      const sourceUrlValue = String(document.getElementById("source-url").value || "").trim();
+      const whyValue = String(document.getElementById("why-it-matters").value || "").trim();
+      const trustedNames = new Set(trustedSources.map((source) => source.name));
+
+      if (!sourceUrlValue) {
+        validationHint.innerHTML = "<strong>Required:</strong> add a source URL so every item has a traceable origin.";
+        return;
+      }
+      if (!whyValue) {
+        validationHint.innerHTML = "<strong>Required:</strong> add a short why-it-matters note before saving.";
+        return;
+      }
+      if (sourceValue && !trustedNames.has(sourceValue) && confidenceValue < 0.85) {
+        validationHint.innerHTML = "<strong>Guardrail:</strong> unlisted sources need confidence of at least 0.85.";
+        return;
+      }
+      if (confidenceValue < 0.7) {
+        validationHint.innerHTML = "<strong>Note:</strong> low-confidence items can be saved as drafts but should not be approved yet.";
+        return;
+      }
+      validationHint.innerHTML = "Using a traceable source URL and a clear why-it-matters note keeps the homepage feed timely and trustworthy.";
+    }
+
+    function validatePayload(payload) {
+      if (!payload.sourceUrl) {
+        return "Source URL is required.";
+      }
+      if (!payload.whyItMatters) {
+        return "Why It Matters is required.";
+      }
+      if (payload.headline.length < 12) {
+        return "Headline should be at least 12 characters.";
+      }
+      const trustedNames = new Set(trustedSources.map((source) => source.name));
+      if (payload.source && !trustedNames.has(payload.source) && payload.confidence < 0.85) {
+        return "Unlisted sources need confidence of at least 0.85.";
+      }
+      return "";
+    }
+
+    function normalizeDraftPayload(formData) {
+      const publishedValue = formData.get("publishedAt");
+      return {
+        entertainer: String(formData.get("entertainer") || "").trim(),
+        source: String(formData.get("source") || "").trim(),
+        headline: String(formData.get("headline") || "").trim(),
+        summary: String(formData.get("summary") || "").trim(),
+        sourceUrl: String(formData.get("sourceUrl") || "").trim(),
+        publishedAt: publishedValue ? new Date(String(publishedValue)).toISOString() : new Date().toISOString(),
+        tag: String(formData.get("tag") || "update").trim(),
+        confidence: Number(formData.get("confidence") || 0.75),
+        whyItMatters: String(formData.get("whyItMatters") || "").trim(),
+        pinned: formData.get("pinned") === "on"
+      };
+    }
+
+    async function requestJson(url, options = {}) {
+      const response = await fetch(url, {
+        headers: { "Content-Type": "application/json" },
+        ...options
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || `Request failed with ${response.status}`);
+      }
+      return payload;
+    }
+
+    async function updateItem(item, patch) {
+      await requestJson(`/api/admin/featured-news/${encodeURIComponent(item.id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ ...item, ...patch })
+      });
+      await loadLists();
+    }
+
+    async function changeStatus(itemId, action) {
+      await requestJson(`/api/admin/featured-news/${encodeURIComponent(itemId)}/${action}`, {
+        method: "POST"
+      });
+      await loadLists();
+    }
+
+    function renderCard(item, column) {
+      const card = document.createElement("article");
+      card.className = "news-card";
+      card.dataset.itemId = item.id;
+      card.innerHTML = `
+        <div class="news-meta">
+          <span>${escapeHtml(item.entertainer || "Unknown entertainer")}</span>
+          <span>${escapeHtml(item.source || "Unknown source")}</span>
+          <span>${escapeHtml(formatDate(item.publishedAt))}</span>
+        </div>
+        <div>
+          <h4>${escapeHtml(item.headline || "Untitled item")}</h4>
+          <p>${escapeHtml(item.summary || item.whyItMatters || "No summary provided.")}</p>
+        </div>
+        <div class="news-tags">
+          <span class="tag-accent">${escapeHtml(item.tag || "update")}</span>
+          <span>Confidence ${escapeHtml(Number(item.confidence || 0).toFixed(2))}</span>
+          ${item.pinned ? '<span class="tag-pin">Pinned</span>' : ""}
+        </div>
+        ${item.sourceUrl ? `<a class="news-link" href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">Open source</a>` : ""}
+        <div class="news-actions"></div>
+      `;
+
+      const actionWrap = card.querySelector(".news-actions");
+
+  const editButton = document.createElement("button");
+  editButton.type = "button";
+  editButton.className = "ghost-button";
+  editButton.textContent = "Edit";
+  editButton.addEventListener("click", () => setEditMode(item));
+  actionWrap.appendChild(editButton);
+
+      if (column === "pending") {
+        const approveButton = document.createElement("button");
+        approveButton.type = "button";
+        approveButton.className = "featured-nav-link featured-nav-button";
+        approveButton.textContent = "Approve";
+        approveButton.addEventListener("click", async () => {
+          approveButton.disabled = true;
+          try {
+            await changeStatus(item.id, "approve");
+          } catch (error) {
+            setStatus(error.message, "error");
+          }
+        });
+        actionWrap.appendChild(approveButton);
+
+        const rejectButton = document.createElement("button");
+        rejectButton.type = "button";
+        rejectButton.className = "ghost-button";
+        rejectButton.textContent = "Reject";
+        rejectButton.addEventListener("click", async () => {
+          rejectButton.disabled = true;
+          try {
+            await changeStatus(item.id, "reject");
+          } catch (error) {
+            setStatus(error.message, "error");
+          }
+        });
+        actionWrap.appendChild(rejectButton);
+      }
+
+      if (column === "approved") {
+        const pinButton = document.createElement("button");
+        pinButton.type = "button";
+        pinButton.className = "ghost-button";
+        pinButton.textContent = item.pinned ? "Unpin" : "Pin";
+        pinButton.addEventListener("click", async () => {
+          pinButton.disabled = true;
+          try {
+            await updateItem(item, { pinned: !item.pinned });
+          } catch (error) {
+            setStatus(error.message, "error");
+          }
+        });
+        actionWrap.appendChild(pinButton);
+
+        const moveToPendingButton = document.createElement("button");
+        moveToPendingButton.type = "button";
+        moveToPendingButton.className = "ghost-button";
+        moveToPendingButton.textContent = "Move To Pending";
+        moveToPendingButton.addEventListener("click", async () => {
+          moveToPendingButton.disabled = true;
+          try {
+            await updateItem(item, { status: "pending" });
+          } catch (error) {
+            setStatus(error.message, "error");
+          }
+        });
+        actionWrap.appendChild(moveToPendingButton);
+      }
+
+      if (column === "rejected") {
+        const reopenButton = document.createElement("button");
+        reopenButton.type = "button";
+        reopenButton.className = "ghost-button";
+        reopenButton.textContent = "Reopen";
+        reopenButton.addEventListener("click", async () => {
+          reopenButton.disabled = true;
+          try {
+            await updateItem(item, { status: "pending" });
+          } catch (error) {
+            setStatus(error.message, "error");
+          }
+        });
+        actionWrap.appendChild(reopenButton);
+      }
+
+      return card;
+    }
+
+    function renderColumn(items, column) {
+      const target = lists[column];
+      const counter = counters[column];
+      target.innerHTML = "";
+      counter.textContent = String(items.length);
+
+      if (items.length === 0) {
+        target.innerHTML = `<div class="news-empty">No ${column} items right now.</div>`;
+        return;
+      }
+
+      items.forEach((item) => {
+        target.appendChild(renderCard(item, column));
+      });
+    }
+
+    async function loadLists() {
+      try {
+        const payload = await requestJson("/api/admin/featured-news");
+        const items = Array.isArray(payload.items) ? payload.items : [];
+        allItems = items;
+        trustedSources = Array.isArray(payload.sources) ? payload.sources : [];
+        renderTrustedSources();
+        renderColumn(items.filter((item) => item.status === "pending"), "pending");
+        renderColumn(items.filter((item) => item.status === "approved"), "approved");
+        renderColumn(items.filter((item) => item.status === "rejected"), "rejected");
+        if (currentEditId) {
+          const refreshedItem = allItems.find((item) => item.id === currentEditId);
+          if (!refreshedItem) {
+            resetForm();
+          } else {
+            document.querySelectorAll(".news-card.is-editing").forEach((card) => card.classList.remove("is-editing"));
+            const currentCard = document.querySelector(`[data-item-id="${CSS.escape(currentEditId)}"]`);
+            if (currentCard) {
+              currentCard.classList.add("is-editing");
+            }
+          }
+        }
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    }
+
+    draftForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = normalizeDraftPayload(new FormData(draftForm));
+      const validationError = validatePayload(payload);
+      if (validationError) {
+        setStatus(validationError, "error");
+        return;
+      }
+
+      const existingItem = allItems.find((item) => item.id === currentEditId);
+      setStatus(currentEditId ? "Updating item..." : "Saving draft...");
+
+      try {
+        if (currentEditId && existingItem) {
+          await requestJson(`/api/admin/featured-news/${encodeURIComponent(currentEditId)}`, {
+            method: "PATCH",
+            body: JSON.stringify({ ...existingItem, ...payload })
+          });
+          setStatus("Item updated.", "success");
+        } else {
+          await requestJson("/api/admin/featured-news", {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          setStatus("Draft saved to the review queue.", "success");
+        }
+        resetForm();
+        await loadLists();
+      } catch (error) {
+        setStatus(error.message, "error");
+      }
+    });
+
+    cancelEditButton.addEventListener("click", () => {
+      resetForm();
+      setStatus("Edit cancelled.", "warning");
+    });
+
+    refreshButton.addEventListener("click", () => {
+      setStatus("Refreshing review queue...");
+      loadLists().then(() => setStatus("Review queue refreshed.", "success")).catch((error) => {
+        setStatus(error.message, "error");
+      });
+    });
+
+    ["source", "source-url", "confidence", "why-it-matters", "headline"].forEach((fieldId) => {
+      document.getElementById(fieldId).addEventListener("input", renderValidationHint);
+    });
+
+    resetForm();
+    loadLists();
+  </script>
+</body>
+</html>

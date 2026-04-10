@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entertainers Exchange – Entertainers 31-50</title>
+  <link rel="stylesheet" href="style.css">
+    <script src="theme.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <h1>Entertainers 31–50</h1>
+        <p class="hero-text">Browse the next set of entertainers in the fantasy index.</p>
+      </div>
+    </header>
+    <main>
+      <section class="hero-board page-balance-board" aria-label="Account summary">
+        <div class="hero-metric">
+          <span>Credits</span>
+          <strong id="money">$1500.00</strong>
+        </div>
+        <div class="hero-metric">
+          <span>Roster Value</span>
+          <strong id="net-worth">$1500.00</strong>
+        </div>
+        <div class="hero-metric">
+          <span>Active Picks</span>
+          <strong id="open-positions">0</strong>
+        </div>
+      </section>
+      <p id="page-feedback" class="section-note section-note-center">Selections on this page update the same fantasy profile used on the homepage.</p>
+      <div id="entertainers-31-50" class="featured-market-grid"></div>
+      <div class="featured-links">
+        <a href="index.html" class="featured-nav-link">&larr; Back to Top 10</a>
+        <a href="entertainers-11-30.html" class="featured-nav-link">Previous: Entertainers 11-30</a>
+      </div>
+    </main>
+  </div>
+  <footer class="site-footer" role="contentinfo">
+    <p class="site-footer-copy">Fantasy entertainment index for trend tracking and editorial-style analysis. No real ownership, cash-out, or entertainer endorsement is implied.</p>
+    <nav class="site-footer-links" aria-label="Legal and site links">
+      <a href="disclaimer.html">Disclaimer</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </footer>
+  <script>
+    (function() {
+      const fallbackCards = [
+        "Chris Hemsworth", "Scarlett Johansson", "Cillian Murphy", "Millie Bobby Brown", "Emma Stone",
+        "Lionel Messi", "Cristiano Ronaldo", "LeBron James", "Stephen Curry", "Kylian Mbappe",
+        "Erling Haaland", "Novak Djokovic", "Coco Gauff", "Max Verstappen", "Simone Biles",
+        "Patrick Mahomes", "Shohei Ohtani", "Virat Kohli", "Giannis Antetokounmpo", "Lewis Hamilton"
+      ];
+
+      function initials(name) {
+        return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase();
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        const grid = document.getElementById("entertainers-31-50");
+        if (!grid || grid.children.length > 0) {
+          return;
+        }
+
+        grid.innerHTML = fallbackCards.map((name, index) => `
+          <div class="entertainer-card">
+            <div class="card-img" style="margin-bottom:10px;text-align:center;">
+              <span class="artist-photo avatar-badge avatar-athlete" aria-hidden="true">${initials(name)}</span>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">#${index + 31} ${name}</h3>
+              <div class="card-meta">
+                <span class="card-price">Index preview</span>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      });
+    }());
+  </script>
+  <script src="shared-catalog.js"></script>
+  <script src="data.js"></script>
+</body>
+</html>
