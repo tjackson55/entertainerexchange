@@ -1398,11 +1398,66 @@
       return JSON.parse(new TextDecoder().decode(bytes));
     }
 
-    function buildShareProfileUrl(profile) {
-      const baseUrl = window.location.origin && window.location.origin !== "null"
+    function buildBaseShareUrl() {
+      return window.location.origin && window.location.origin !== "null"
         ? `${window.location.origin}${window.location.pathname}`
         : window.location.pathname;
-      return `${baseUrl}?profile=${encodeURIComponent(encodeProfilePayload(profile))}`;
+    }
+
+    function buildShareProfileUrl(profile) {
+      return `${buildBaseShareUrl()}?profile=${encodeURIComponent(encodeProfilePayload(profile))}`;
+    }
+
+    function sanitizeReceiptPayload(rawReceipt) {
+      const safe = rawReceipt && typeof rawReceipt === "object" ? rawReceipt : {};
+      const allowedActions = new Set(["buy", "sell", "cover", "limit-buy", "limit-sell", "short"]);
+      const name = typeof safe.name === "string" ? safe.name.trim().slice(0, 60) : "";
+      const action = allowedActions.has(safe.action) ? safe.action : "buy";
+      const qty = Math.max(1, Math.min(999, Number.parseInt(safe.qty, 10) || 1));
+      const price = Number.isFinite(Number(safe.price)) ? Math.max(0.01, Number(safe.price)) : 0;
+      const gain = safe.gain === null || safe.gain === undefined
+        ? null
+        : (Number.isFinite(Number(safe.gain)) ? Number(safe.gain) : null);
+      const sharedAt = typeof safe.sharedAt === "string" ? safe.sharedAt : iso_now();
+
+      if (!name || !price) {
+        return null;
+      }
+
+      return { name, action, qty, price, gain, sharedAt };
+    }
+
+    function buildReceiptShareUrl(receipt) {
+      const safeReceipt = sanitizeReceiptPayload(receipt);
+      if (!safeReceipt) {
+        return buildBaseShareUrl();
+      }
+      return `${buildBaseShareUrl()}?receipt=${encodeURIComponent(encodeProfilePayload(safeReceipt))}`;
+    }
+
+    function getReceiptFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const payload = params.get("receipt");
+      if (!payload) {
+        return null;
+      }
+
+      try {
+        return sanitizeReceiptPayload(decodeProfilePayload(payload));
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function clearReceiptFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has("receipt")) {
+        return;
+      }
+      params.delete("receipt");
+      const nextQuery = params.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+      window.history.replaceState(window.history.state, "", nextUrl);
     }
 
     function getNextLimitOrderId() {
@@ -3398,19 +3453,28 @@
     }
 
     // ── Trade Receipt ────────────────────────────────────────────────────────
-    function showTradeReceipt(name, action, qty, price, gain) {
-      receiptData = { name, action, qty, price, gain };
+    function showTradeReceipt(name, action, qty, price, gain, options = {}) {
+      const safeReceipt = sanitizeReceiptPayload({ name, action, qty, price, gain, sharedAt: options.sharedAt || iso_now() });
+      if (!safeReceipt) {
+        return;
+      }
+      receiptData = { ...safeReceipt, fromSharedLink: Boolean(options.fromSharedLink) };
       const toast = document.getElementById("receipt-toast");
       const textEl = document.getElementById("receipt-text");
-      const gainText = gain !== null ? ` · ${formatSignedCurrency(gain)}` : "";
-      textEl.innerHTML = `<strong>${formatTradeActionLabel(action)}</strong> ${qty}× <strong>${name}</strong> @ ${formatCurrency(price)}${gainText}`;
+      const gainText = safeReceipt.gain !== null ? ` · ${formatSignedCurrency(safeReceipt.gain)}` : "";
+      textEl.innerHTML = `<strong>${formatTradeActionLabel(safeReceipt.action)}</strong> ${safeReceipt.qty}× <strong>${safeReceipt.name}</strong> @ ${formatCurrency(safeReceipt.price)}${gainText}`;
       toast.removeAttribute("hidden");
       clearTimeout(showTradeReceipt._timer);
-      showTradeReceipt._timer = setTimeout(dismissReceipt, 6000);
+      if (options.autoDismiss !== false) {
+        showTradeReceipt._timer = setTimeout(dismissReceipt, 6000);
+      }
     }
 
     function dismissReceipt() {
       document.getElementById("receipt-toast").setAttribute("hidden", "true");
+      if (receiptData && receiptData.fromSharedLink) {
+        clearReceiptFromUrl();
+      }
       receiptData = null;
     }
 
@@ -3419,15 +3483,28 @@
       const { name, action, qty, price, gain } = receiptData;
       const gainText = gain !== null ? ` · ${formatSignedCurrency(gain)}` : "";
       const text = `${formatTradeActionLabel(action)} ${qty}× ${name} @ ${formatCurrency(price)}${gainText} — Entertainers Exchange`;
+      const url = buildReceiptShareUrl(receiptData);
       let shared = false;
-      try { if (navigator.share) { await navigator.share({ title: "Activity Receipt", text }); shared = true; } } catch (err) { /* ignored */ }
+      try { if (navigator.share) { await navigator.share({ title: "Activity Receipt", text, url }); shared = true; } } catch (err) { /* ignored */ }
       if (!shared) {
         try {
-          await navigator.clipboard.writeText(text);
+          await navigator.clipboard.writeText(url);
           const btn = document.getElementById("receipt-share-btn");
-          if (btn) { btn.innerText = "Copied!"; setTimeout(() => { btn.innerText = "Share Receipt"; }, 1500); }
-        } catch (err) { alert(text); }
+          if (btn) { btn.innerText = "Link Copied!"; setTimeout(() => { btn.innerText = "Share Receipt"; }, 1500); }
+        } catch (err) { alert(`${text}\n\n${url}`); }
       }
+    }
+
+    function applyReceiptFromUrl() {
+      const sharedReceipt = getReceiptFromUrl();
+      if (!sharedReceipt) {
+        return;
+      }
+      showTradeReceipt(sharedReceipt.name, sharedReceipt.action, sharedReceipt.qty, sharedReceipt.price, sharedReceipt.gain, {
+        autoDismiss: false,
+        fromSharedLink: true,
+        sharedAt: sharedReceipt.sharedAt,
+      });
     }
 
     // ── Reset ────────────────────────────────────────────────────────────────
@@ -3755,6 +3832,7 @@
       equityHistory = [STARTING_MONEY];
     }
     updateUI();
+    applyReceiptFromUrl();
     syncArtistPageFromLocation("auto");
     if (isRealtimeMode()) {
       connectRealtime();
