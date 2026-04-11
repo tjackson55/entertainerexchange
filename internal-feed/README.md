@@ -46,9 +46,42 @@ http://127.0.0.1:8787/internal-feed/admin.html
 - `GET /api/admin/featured-news`
 - `GET /api/admin/featured-news?status=pending`
 - `POST /api/admin/featured-news`
+- `POST /api/admin/featured-news/auto-draft`
 - `POST /api/admin/featured-news/:id/approve`
 - `POST /api/admin/featured-news/:id/reject`
 - `PATCH /api/admin/featured-news/:id`
+
+## Local auto-draft worker
+
+This repo now includes a local-only draft generator that pulls recent stories from trusted RSS feeds, matches them against entertainers already in the catalog, and adds new items as `pending` only.
+
+What it does:
+
+- reads trusted feeds from Variety and Deadline
+- matches headlines to entertainers already in `entertainers/entertainer_list.json`
+- generates short internal summaries and `whyItMatters` text
+- writes new items into the review queue as `pending`
+- never auto-approves or pins items
+
+Run it directly:
+
+```bash
+python3 internal-feed/auto_draft.py
+```
+
+Dry run without writing:
+
+```bash
+python3 internal-feed/auto_draft.py --dry-run
+```
+
+From the admin screen, use the new `Generate Drafts` button to run the same local-only workflow through the server.
+
+Notes:
+
+- it needs an internet connection to reach the trusted RSS feeds
+- it skips likely duplicates based on source URL and entertainer/headline/source combinations
+- it only creates drafts for entertainers already present in the site catalog
 
 ### Example draft item
 

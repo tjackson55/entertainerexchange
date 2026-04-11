@@ -9,6 +9,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from auto_draft import generate_drafts
+
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -300,6 +302,27 @@ class FeedHandler(BaseHTTPRequestHandler):
             store["items"].append(next_item)
             write_store(store)
             self.send_json(HTTPStatus.CREATED, {"item": next_item})
+            return
+
+        if parsed.path == "/api/admin/featured-news/auto-draft":
+            payload = self.read_json_body()
+            if payload is None:
+                return
+            store = read_store()
+            limit = max(1, min(12, int(payload.get("limit", 6))))
+            drafts, warnings = generate_drafts(store, limit=limit)
+            if drafts:
+                store["items"].extend(drafts)
+                write_store(store)
+            self.send_json(
+                HTTPStatus.OK,
+                {
+                    "items": drafts,
+                    "created": len(drafts),
+                    "warnings": warnings,
+                    "message": "No new drafts were created." if not drafts else f"Created {len(drafts)} pending draft(s).",
+                },
+            )
             return
 
         segments = [segment for segment in parsed.path.split("/") if segment]

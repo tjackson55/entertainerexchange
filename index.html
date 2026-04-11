@@ -1009,6 +1009,7 @@
     let portfolioMovedForMobile = false;
     let portfolioOriginalParent = null;
     let portfolioOriginalNextSibling = null;
+    let artistRouteFromUi = false;
 
     const difficultySettings = {
       easy: { min: -6, max: 8, scoreMultiplier: 0.8 },
@@ -2743,7 +2744,21 @@
       });
     }
 
-    function openArtistPage(name) {
+    function buildArtistHash(name) {
+      return `#artist=${encodeURIComponent(name)}`;
+    }
+
+    function getArtistFromHash() {
+      const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
+      if (!hash) {
+        return null;
+      }
+
+      const params = new URLSearchParams(hash);
+      return params.get("artist");
+    }
+
+    function showArtistPage(name, scrollBehavior = "smooth") {
       const entertainer = entertainers.find((candidate) => candidate.name === name);
       if (!entertainer) {
         return;
@@ -2753,14 +2768,62 @@
       renderArtistPage(entertainer);
       document.querySelector(".page-shell").setAttribute("hidden", "true");
       document.getElementById("artist-page").removeAttribute("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: scrollBehavior });
     }
 
-    function closeArtistPage() {
+    function hideArtistPage(scrollBehavior = "smooth") {
       selectedArtist = null;
       document.getElementById("artist-page").setAttribute("hidden", "true");
       document.querySelector(".page-shell").removeAttribute("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: scrollBehavior });
+    }
+
+    function syncArtistPageFromLocation(scrollBehavior = "auto") {
+      const artistName = getArtistFromHash();
+      if (!artistName) {
+        artistRouteFromUi = false;
+        hideArtistPage(scrollBehavior);
+        return;
+      }
+
+      const entertainer = entertainers.find((candidate) => candidate.name === artistName);
+      if (!entertainer) {
+        artistRouteFromUi = false;
+        hideArtistPage(scrollBehavior);
+        return;
+      }
+
+      showArtistPage(entertainer.name, scrollBehavior);
+    }
+
+    function openArtistPage(name) {
+      const entertainer = entertainers.find((candidate) => candidate.name === name);
+      if (!entertainer) {
+        return;
+      }
+
+      const nextHash = buildArtistHash(entertainer.name);
+      if (window.location.hash !== nextHash) {
+        artistRouteFromUi = true;
+        window.location.hash = nextHash;
+        return;
+      }
+
+      showArtistPage(entertainer.name);
+    }
+
+    function closeArtistPage() {
+      if (getArtistFromHash()) {
+        if (artistRouteFromUi) {
+          artistRouteFromUi = false;
+          window.history.back();
+          return;
+        }
+
+        window.history.replaceState(window.history.state, "", `${window.location.pathname}${window.location.search}`);
+      }
+
+      hideArtistPage();
     }
 
     function setTradeQuantity(name, value) {
@@ -3670,6 +3733,7 @@
             /* ignore malformed storage updates */
           }
         });
+        window.addEventListener("hashchange", () => syncArtistPageFromLocation("auto"));
       document.addEventListener("keydown", handleModalFocusTrap);
     parseRealtimeConfig();
     startFeaturedFeedPolling();
@@ -3687,6 +3751,7 @@
       equityHistory = [STARTING_MONEY];
     }
     updateUI();
+    syncArtistPageFromLocation("auto");
     if (isRealtimeMode()) {
       connectRealtime();
     } else {

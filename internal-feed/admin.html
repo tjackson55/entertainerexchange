@@ -486,6 +486,13 @@
     let allItems = [];
     let trustedSources = [];
 
+    const autoDraftButton = document.createElement("button");
+    autoDraftButton.type = "button";
+    autoDraftButton.id = "auto-draft-button";
+    autoDraftButton.className = "ghost-button";
+    autoDraftButton.textContent = "Generate Drafts";
+    refreshButton.insertAdjacentElement("afterend", autoDraftButton);
+
     function escapeHtml(value) {
       return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -654,6 +661,19 @@
         method: "POST"
       });
       await loadLists();
+    }
+
+    async function runAutoDraft() {
+      const payload = await requestJson("/api/admin/featured-news/auto-draft", {
+        method: "POST",
+        body: JSON.stringify({ limit: 6 })
+      });
+      await loadLists();
+      if (Array.isArray(payload.warnings) && payload.warnings.length > 0) {
+        setStatus(`${payload.message} ${payload.warnings.join(" | ")}`, payload.created > 0 ? "warning" : "error");
+        return;
+      }
+      setStatus(payload.message || "Draft generation finished.", payload.created > 0 ? "success" : "warning");
     }
 
     function renderCard(item, column) {
@@ -853,6 +873,18 @@
       loadLists().then(() => setStatus("Review queue refreshed.", "success")).catch((error) => {
         setStatus(error.message, "error");
       });
+    });
+
+    autoDraftButton.addEventListener("click", async () => {
+      autoDraftButton.disabled = true;
+      setStatus("Generating pending drafts from trusted feeds...");
+      try {
+        await runAutoDraft();
+      } catch (error) {
+        setStatus(error.message, "error");
+      } finally {
+        autoDraftButton.disabled = false;
+      }
     });
 
     ["source", "source-url", "confidence", "why-it-matters", "headline"].forEach((fieldId) => {

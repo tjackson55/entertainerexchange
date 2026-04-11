@@ -2537,15 +2537,15 @@ body[data-theme="paper"] .community-link-field span {
 
 @media (max-width: 960px) and (orientation: landscape) {
   .layout-grid {
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .market-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -2573,8 +2573,18 @@ body[data-theme="paper"] .community-link-field span {
   }
 
   .page-shell {
-    width: min(100% - 20px, 100%);
+    width: 100%;
+    padding-inline: 14px;
     padding-top: 20px;
+  }
+
+  .layout-grid {
+    row-gap: 14px;
+  }
+
+  .side-stack {
+    padding-right: 0;
+    gap: 12px;
   }
 
   .market-grid {
@@ -2652,6 +2662,7 @@ body[data-theme="paper"] .community-link-field span {
     font-size: 0.83rem;
     line-height: 1.35;
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -2714,6 +2725,7 @@ body[data-theme="paper"] .community-link-field span {
   .artist-sections {
     grid-template-columns: 1fr;
   }
+}
 
 
 @media (max-width: 430px) {
@@ -2761,6 +2773,7 @@ body[data-theme="paper"] .community-link-field span {
     font-size: 0.76rem;
     line-height: 1.28;
     margin-bottom: 8px;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
   }
 
@@ -2800,7 +2813,7 @@ body[data-theme="paper"] .community-link-field span {
     font-size: 0.72rem;
     border-radius: 12px;
   }
-}
+
   .artist-analytics-head {
     flex-direction: column;
   }

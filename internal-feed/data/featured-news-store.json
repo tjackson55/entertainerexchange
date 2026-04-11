@@ -61,11 +61,29 @@
       "publishedAt": "2026-04-08T20:00:00.000Z",
       "tag": "creator",
       "confidence": 0.62,
-      "status": "pending",
+      "status": "approved",
       "pinned": false,
       "whyItMatters": "Example review-queue item for internal testing.",
       "createdAt": "2026-04-08T20:01:00.000Z",
-      "updatedAt": "2026-04-08T20:01:00.000Z"
+      "updatedAt": "2026-04-10T04:53:23.335738Z",
+      "reviewedAt": "2026-04-10T04:53:23.335738Z"
+    },
+    {
+      "id": "e0a5cc47-3411-4df2-a689-32e17ed3b535",
+      "entertainer": "Lady Gaga",
+      "headline": "Lady Gaga and Doechii Release New Single, \u2018Runway\u2019",
+      "summary": "Variety surfaced a release-related update for Lady Gaga, giving audiences a concrete reason to pay attention now.",
+      "source": "Variety",
+      "sourceUrl": "https://variety.com/2026/film/news/lady-gaga-doechii-single-runway-devil-wears-prada-1236713028/",
+      "publishedAt": "2026-04-10T05:07:07.608218Z",
+      "tag": "release",
+      "confidence": 0.91,
+      "status": "approved",
+      "pinned": false,
+      "whyItMatters": "Release timing updates often create a direct short-term momentum trigger.",
+      "createdAt": "2026-04-10T05:07:07.608344Z",
+      "updatedAt": "2026-04-10T05:07:20.404529Z",
+      "reviewedAt": "2026-04-10T05:07:20.404529Z"
     }
   ]
 }
