@@ -557,7 +557,7 @@
       function renderFeaturedCard(item, index) {
         const safeName = item.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
         return `
-          <div class="entertainer-card">
+          <div class="entertainer-card" data-entity="${item.name}">
             <div class="card-img" style="margin-bottom:10px;text-align:center;">
               <span class="artist-photo avatar-badge avatar-${item.category}" aria-hidden="true">${initials(item.name)}</span>
             </div>
@@ -2830,6 +2830,24 @@
       window.scrollTo({ top: 0, behavior: scrollBehavior });
     }
 
+    function flashActionButtons(name, action) {
+      const selector = `[data-entity="${CSS.escape(name)}"] .${action}`;
+      document.querySelectorAll(selector).forEach((button) => {
+        if (!(button instanceof HTMLButtonElement) || button.dataset.feedbackActive === "true") {
+          return;
+        }
+        button.dataset.feedbackActive = "true";
+        const originalText = button.innerText;
+        button.classList.add("action-feedback");
+        button.innerText = action === "buy" ? "Added" : "Trimmed";
+        window.setTimeout(() => {
+          button.classList.remove("action-feedback");
+          button.innerText = originalText;
+          delete button.dataset.feedbackActive;
+        }, 700);
+      });
+    }
+
     function hideArtistPage(scrollBehavior = "smooth") {
       selectedArtist = null;
       document.getElementById("artist-page").setAttribute("hidden", "true");
@@ -2968,6 +2986,7 @@
 
       newsFeed.push(`${entertainer.name} surged after your add was confirmed for ${quantity} pick${quantity > 1 ? "s" : ""}.`);
       pulseCard(entertainer.name, "flash-buy");
+      flashActionButtons(entertainer.name, "buy");
       playTone("buy");
       awardScore(quantity * 12);
       const buyPrice = entertainer.price / Math.pow(1 + priceImpact, quantity);
@@ -3014,6 +3033,7 @@
 
       newsFeed.push(`${entertainer.name} softened after your trim was confirmed for ${quantity} pick${quantity > 1 ? "s" : ""}.`);
       pulseCard(entertainer.name, "flash-sell");
+      flashActionButtons(entertainer.name, "sell");
       playTone("sell");
       awardScore(quantity * 8);
       const sellPrice = entertainer.price / Math.pow(1 + priceImpact, quantity);
@@ -3078,6 +3098,14 @@
         if (artist) {
           renderArtistPage(artist);
         }
+      }
+      if (receiptData) {
+        const activeReceipt = { ...receiptData };
+        showTradeReceipt(activeReceipt.name, activeReceipt.action, activeReceipt.qty, activeReceipt.price, activeReceipt.gain, {
+          autoDismiss: !activeReceipt.fromSharedLink,
+          fromSharedLink: Boolean(activeReceipt.fromSharedLink),
+          sharedAt: activeReceipt.sharedAt,
+        });
       }
       saveState();
     }
