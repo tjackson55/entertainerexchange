@@ -224,6 +224,9 @@ def sanitize_item_input(payload: dict, existing: dict | None = None) -> dict:
     if not entertainer or not headline or not source:
         return {"error": "entertainer, headline, and source are required."}
 
+    status = sanitize_status(payload.get("status"), current.get("status", "pending"))
+    pinned = bool(payload.get("pinned", current.get("pinned", False))) if status == "approved" else False
+
     return {
         "id": current.get("id", str(uuid.uuid4())),
         "entertainer": entertainer,
@@ -234,8 +237,8 @@ def sanitize_item_input(payload: dict, existing: dict | None = None) -> dict:
         "publishedAt": sanitize_iso_date(payload.get("publishedAt") or current.get("publishedAt")),
         "tag": sanitize_text(payload.get("tag"), current.get("tag", "update")),
         "confidence": sanitize_confidence(payload.get("confidence"), current.get("confidence", 0.75)),
-        "status": sanitize_status(payload.get("status"), current.get("status", "pending")),
-        "pinned": bool(payload.get("pinned", current.get("pinned", False))),
+        "status": status,
+        "pinned": pinned,
         "whyItMatters": sanitize_text(payload.get("whyItMatters"), current.get("whyItMatters", "")),
         "createdAt": current.get("createdAt", iso_now()),
         "updatedAt": iso_now(),
@@ -335,6 +338,8 @@ class FeedHandler(BaseHTTPRequestHandler):
                 self.send_json(HTTPStatus.NOT_FOUND, {"error": "Item not found."})
                 return
             item["status"] = "approved" if action == "approve" else "rejected"
+            if item["status"] != "approved":
+                item["pinned"] = False
             item["reviewedAt"] = iso_now()
             item["updatedAt"] = item["reviewedAt"]
             write_store(store)

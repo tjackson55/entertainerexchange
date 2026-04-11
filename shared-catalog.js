@@ -1018,5 +1018,73 @@ window.ENTERTAINERS_EXCHANGE_CATALOG = [
       youtube: "https://youtube.com/results?search_query=Addison+Rae"
     },
     history: [97, 100, 103, 105, 107, 109, 110]
+  },
+  {
+    id: 61,
+    name: "Lil Wayne",
+    category: "musician",
+    wikiTitle: "Lil Wayne",
+    price: 136,
+    popularity: 96,
+    bio: "Influential rapper with a deep catalog and long-running cultural impact.",
+    projects: ["Tha Carter III", "Tha Carter V", "Young Money"],
+    upcoming: ["Festival Appearances 2026"],
+    socials: {
+      instagram: "https://instagram.com/liltunechi",
+      x: "https://x.com/LilTunechi",
+      youtube: "https://youtube.com/results?search_query=Lil+Wayne"
+    },
+    history: [122, 125, 128, 131, 133, 135, 136]
+  },
+  {
+    id: 62,
+    name: "Kobe Bryant",
+    category: "athlete",
+    wikiTitle: "Kobe Bryant",
+    price: 141,
+    popularity: 98,
+    bio: "NBA icon whose legacy still commands worldwide fan attention.",
+    projects: ["Los Angeles Lakers", "Mamba Mentality", "Dear Basketball"],
+    upcoming: ["Legacy Tributes 2026"],
+    socials: {
+      instagram: "https://instagram.com/kobebryant",
+      x: "https://x.com/kobebryant",
+      youtube: "https://youtube.com/results?search_query=Kobe+Bryant"
+    },
+    history: [128, 131, 134, 137, 139, 140, 141]
+  },
+  {
+    id: 63,
+    name: "Kevin Durant",
+    category: "athlete",
+    wikiTitle: "Kevin Durant",
+    price: 131,
+    popularity: 94,
+    bio: "NBA superstar with elite scoring reputation and constant basketball visibility.",
+    projects: ["Phoenix Suns", "Team USA", "Boardroom"],
+    upcoming: ["NBA Season 2026"],
+    socials: {
+      instagram: "https://instagram.com/easymoneysniper",
+      x: "https://x.com/KDTrey5",
+      youtube: "https://youtube.com/results?search_query=Kevin+Durant"
+    },
+    history: [118, 121, 124, 126, 128, 130, 131]
+  },
+  {
+    id: 64,
+    name: "Allen Iverson",
+    category: "athlete",
+    wikiTitle: "Allen Iverson",
+    price: 123,
+    popularity: 91,
+    bio: "Basketball Hall of Famer known for style, scoring, and enduring fan interest.",
+    projects: ["Philadelphia 76ers", "Reebok Answer", "Hall of Fame"],
+    upcoming: ["Legacy Events 2026"],
+    socials: {
+      instagram: "https://instagram.com/theofficialai3",
+      x: "https://x.com/alleniverson",
+      youtube: "https://youtube.com/results?search_query=Allen+Iverson"
+    },
+    history: [110, 113, 116, 118, 120, 122, 123]
   }
 ];

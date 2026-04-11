@@ -49,5 +49,9 @@
   {"name": "Harry Styles", "profession": "Musician/Actor", "bio": "English singer, songwriter, and actor, former member of One Direction.", "image": "harry_styles.jpg"},
   {"name": "Margot Robbie", "profession": "Actress", "bio": "Australian actress and producer, known for roles in The Wolf of Wall Street and Barbie.", "image": "margot_robbie.jpg"},
   {"name": "Timothée Chalamet", "profession": "Actor", "bio": "American actor, known for Call Me by Your Name and Dune.", "image": "timothee_chalamet.jpg"},
-  {"name": "Kendall Jenner", "profession": "Model/TV Personality", "bio": "American model, media personality, and socialite.", "image": "kendall_jenner.jpg"}
+  {"name": "Kendall Jenner", "profession": "Model/TV Personality", "bio": "American model, media personality, and socialite.", "image": "kendall_jenner.jpg"},
+  {"name": "Lil Wayne", "profession": "Rapper", "bio": "American rapper known for the Tha Carter series and his influence on modern hip-hop.", "image": "lil_wayne.jpg"},
+  {"name": "Kobe Bryant", "profession": "Athlete", "bio": "American basketball legend remembered for his Lakers career, championships, and global legacy.", "image": "kobe_bryant.jpg"},
+  {"name": "Kevin Durant", "profession": "Athlete", "bio": "American basketball star known for elite scoring, championships, and international recognition.", "image": "kevin_durant.jpg"},
+  {"name": "Allen Iverson", "profession": "Athlete", "bio": "American basketball Hall of Famer known for scoring, style, and cultural impact.", "image": "allen_iverson.jpg"}
 ]
