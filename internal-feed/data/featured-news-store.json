@@ -24,14 +24,14 @@
       "summary": "Official updates signaled another round of added dates, keeping attention elevated this week.",
       "source": "Official Announcement",
       "sourceUrl": "https://www.taylorswift.com/",
-      "publishedAt": "2026-04-08T14:30:00.000Z",
+      "publishedAt": "2026-04-08T14:30:00Z",
       "tag": "tour",
       "confidence": 0.97,
       "status": "approved",
-      "pinned": true,
+      "pinned": false,
       "whyItMatters": "Major live-event demand tends to reinforce short-term momentum.",
       "createdAt": "2026-04-08T14:35:00.000Z",
-      "updatedAt": "2026-04-08T14:35:00.000Z",
+      "updatedAt": "2026-04-11T00:55:58.172894Z",
       "reviewedAt": "2026-04-08T14:36:00.000Z"
     },
     {
@@ -82,8 +82,25 @@
       "pinned": false,
       "whyItMatters": "Release timing updates often create a direct short-term momentum trigger.",
       "createdAt": "2026-04-10T05:07:07.608344Z",
-      "updatedAt": "2026-04-10T05:07:20.404529Z",
-      "reviewedAt": "2026-04-10T05:07:20.404529Z"
+      "updatedAt": "2026-04-11T00:56:08.403138Z",
+      "reviewedAt": "2026-04-11T00:56:08.403138Z"
+    },
+    {
+      "id": "6d4a3834-a138-466e-87c9-90577b5658c8",
+      "entertainer": "Justin Bieber",
+      "headline": "Coachella 2026: How To Watch Sabrina Carpenter, Justin Bieber, Karol G & More",
+      "summary": "Deadline reported a live-event update tied to Justin Bieber, keeping this musician in active conversation.",
+      "source": "Deadline",
+      "sourceUrl": "https://deadline.com/2026/04/coachella-2026-how-to-watch-livestreams-1236788018/",
+      "publishedAt": "2026-04-11T00:56:56.689337Z",
+      "tag": "tour",
+      "confidence": 0.89,
+      "status": "approved",
+      "pinned": false,
+      "whyItMatters": "Live-event news often creates an immediate and understandable attention catalyst.",
+      "createdAt": "2026-04-11T00:56:56.689502Z",
+      "updatedAt": "2026-04-11T00:57:31.780673Z",
+      "reviewedAt": "2026-04-11T00:57:10.383673Z"
     }
   ]
 }

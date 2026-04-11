@@ -24,8 +24,45 @@ DEFAULT_LIMIT = 6
 DEFAULT_LOOKBACK_HOURS = 96
 
 FEED_SOURCES = (
-    {"id": "variety", "name": "Variety", "url": "https://variety.com/feed/", "trust": "high", "confidence": 0.91},
-    {"id": "deadline", "name": "Deadline", "url": "https://deadline.com/feed/", "trust": "high", "confidence": 0.89},
+    {
+        "id": "variety",
+        "name": "Variety",
+        "url": "https://variety.com/feed/",
+        "trust": "high",
+        "confidence": 0.91,
+        "preferred_url_fragments": ("/music/", "/film/", "/tv/", "/digital/", "/awards/"),
+    },
+    {
+        "id": "deadline",
+        "name": "Deadline",
+        "url": "https://deadline.com/feed/",
+        "trust": "high",
+        "confidence": 0.89,
+        "preferred_url_fragments": ("/music/", "/film/", "/tv/", "/awards/"),
+    },
+)
+
+REJECT_HEADLINE_PATTERNS = (
+    "box office",
+    "review",
+    "recap",
+    "photos",
+    "gallery",
+    "best dressed",
+    "what to know",
+    "everything to know",
+    "explained",
+    "live blog",
+    "interview:",
+    "podcast:",
+    "trailer",
+)
+
+REJECT_DESCRIPTION_PATTERNS = (
+    "sign up for",
+    "subscribe",
+    "newsletter",
+    "read more",
 )
 
 TAG_RULES = (
@@ -81,6 +118,11 @@ def strip_html(value: str) -> str:
 
 def dedupe_key(value: str) -> str:
     return normalize_text(value)
+
+
+def contains_any(text: str, patterns: tuple[str, ...]) -> bool:
+    haystack = normalize_text(text)
+    return any(normalize_text(pattern) in haystack for pattern in patterns)
 
 
 def infer_tag(text: str, profession: str = "") -> str:
@@ -148,6 +190,37 @@ def match_entertainer(text: str, entertainers: Iterable[Entertainer]) -> Enterta
             if best_match is None or len(entertainer.normalized_name) > len(best_match.normalized_name):
                 best_match = entertainer
     return best_match
+
+
+def preferred_source_path(entry: dict, source: dict) -> bool:
+    link = str(entry.get("link") or "")
+    fragments = tuple(source.get("preferred_url_fragments") or ())
+    if not fragments:
+        return True
+    return any(fragment in link for fragment in fragments)
+
+
+def is_high_signal_entry(entry: dict, source: dict, entertainer: Entertainer) -> bool:
+    title = str(entry.get("title") or "").strip()
+    description = str(entry.get("description") or "").strip()
+    if len(title) < 18:
+        return False
+    if contains_any(title, REJECT_HEADLINE_PATTERNS):
+        return False
+    if contains_any(description, REJECT_DESCRIPTION_PATTERNS):
+        return False
+    if not preferred_source_path(entry, source):
+        return False
+
+    normalized_title = normalize_text(title)
+    entertainer_name = entertainer.normalized_name
+    if entertainer_name not in normalized_title:
+        return False
+
+    tag = infer_tag(f"{title} {description}", entertainer.profession)
+    if tag == "update" and len(description) < 40:
+        return False
+    return True
 
 
 def fetch_feed_xml(url: str) -> bytes:
@@ -259,6 +332,8 @@ def generate_drafts(store: dict, limit: int = DEFAULT_LIMIT, lookback_hours: int
                 entertainers,
             )
             if entertainer is None:
+                continue
+            if not is_high_signal_entry(entry, source, entertainer):
                 continue
 
             url_key = f"url:{dedupe_key(entry['link'])}"

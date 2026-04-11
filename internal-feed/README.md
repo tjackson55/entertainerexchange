@@ -62,6 +62,7 @@ What it does:
 - generates short internal summaries and `whyItMatters` text
 - writes new items into the review queue as `pending`
 - never auto-approves or pins items
+- skips generic roundup, gallery, recap, and weak one-line feed items
 
 Run it directly:
 
@@ -82,6 +83,7 @@ Notes:
 - it needs an internet connection to reach the trusted RSS feeds
 - it skips likely duplicates based on source URL and entertainer/headline/source combinations
 - it only creates drafts for entertainers already present in the site catalog
+- it prefers entertainment-story URLs over generic feed clutter when scanning source feeds
 
 ### Example draft item
 

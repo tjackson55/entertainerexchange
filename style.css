@@ -2544,6 +2544,36 @@ body[data-theme="paper"] .community-link-field span {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .market-card {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .market-card .card-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .market-card .buy,
+  .market-card .sell,
+  .market-card .trade {
+    min-width: 0;
+    padding: 8px 0;
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+
+  .market-card .qty-button {
+    width: 28px;
+    height: 28px;
+  }
+
+  .market-card .qty-input {
+    width: 44px;
+    padding: 5px;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
