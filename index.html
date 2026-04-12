@@ -715,6 +715,122 @@
       return `https://news.google.com/search?q=${encodeURIComponent(name)}`;
     }
 
+    function getWebSearchUrl(query) {
+      return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    function getSpotifySearchUrl(query) {
+      return `https://open.spotify.com/search/${encodeURIComponent(query)}`;
+    }
+
+    function getAppleMusicSearchUrl(query) {
+      return `https://music.apple.com/us/search?term=${encodeURIComponent(query)}`;
+    }
+
+    function getSongkickSearchUrl(query) {
+      return `https://www.songkick.com/search?query=${encodeURIComponent(query)}`;
+    }
+
+    function getTicketmasterSearchUrl(query) {
+      return `https://www.ticketmaster.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    function getImdbSearchUrl(query) {
+      return `https://www.imdb.com/find/?q=${encodeURIComponent(query)}&ref_=nv_sr_sm`;
+    }
+
+    function getTmdbSearchUrl(query) {
+      return `https://www.themoviedb.org/search?query=${encodeURIComponent(query)}`;
+    }
+
+    function getEspnSearchUrl(query) {
+      return `https://www.espn.com/search/_/q/${encodeURIComponent(query)}`;
+    }
+
+    function getVarietySearchUrl(query) {
+      return `https://variety.com/?s=${encodeURIComponent(query)}`;
+    }
+
+    function getDeadlineSearchUrl(query) {
+      return `https://deadline.com/?s=${encodeURIComponent(query)}`;
+    }
+
+    function getProjectLink(entry, title) {
+      const query = `${entry.name} ${title}`;
+      switch (entry.category) {
+        case "musician":
+          return getSpotifySearchUrl(query);
+        case "actor":
+        case "tv":
+          return getImdbSearchUrl(query);
+        case "athlete":
+          return getEspnSearchUrl(query);
+        case "comedian":
+        case "creator":
+          return getYouTubeSearchUrl(query);
+        default:
+          return getWebSearchUrl(query);
+      }
+    }
+
+    function getUpcomingEventLink(entry, title) {
+      const query = `${entry.name} ${title}`;
+      switch (entry.category) {
+        case "musician":
+          return getSongkickSearchUrl(query);
+        case "actor":
+        case "tv":
+          return getDeadlineSearchUrl(query);
+        case "athlete":
+          return getEspnSearchUrl(query);
+        case "comedian":
+        case "creator":
+          return getTicketmasterSearchUrl(query);
+        default:
+          return getWebSearchUrl(query);
+      }
+    }
+
+    function getProjectSources(entry) {
+      switch (entry.category) {
+        case "musician":
+          return [
+            { title: "Spotify Catalog", link: getSpotifySearchUrl(entry.name) },
+            { title: "Apple Music Releases", link: getAppleMusicSearchUrl(entry.name) }
+          ];
+        case "actor":
+        case "tv":
+          return [
+            { title: "IMDb Credits", link: getImdbSearchUrl(entry.name) },
+            { title: "TMDb Titles", link: getTmdbSearchUrl(entry.name) }
+          ];
+        case "athlete":
+          return [
+            { title: "ESPN Coverage", link: getEspnSearchUrl(entry.name) },
+            { title: "Current Results", link: getWebSearchUrl(`${entry.name} stats schedule`) }
+          ];
+        case "comedian":
+        case "creator":
+          return [
+            { title: "YouTube Coverage", link: getYouTubeSearchUrl(entry.name) },
+            { title: "Current Search Results", link: getWebSearchUrl(`${entry.name} latest projects`) }
+          ];
+        default:
+          return [
+            { title: "Current Coverage", link: getNewsUrl(entry.name) },
+            { title: "Profile Reference", link: getWikiUrl(entry.wikiTitle) }
+          ];
+      }
+    }
+
+    function getNewsSources(entry) {
+      return [
+        { kind: "coverage", badge: "Coverage", title: `${entry.name} in current coverage`, source: "Google News", url: getNewsUrl(entry.name) },
+        { kind: "trade", badge: "Trade", title: `${entry.name} in entertainment trade coverage`, source: "Variety", url: getVarietySearchUrl(entry.name) },
+        { kind: "trade", badge: "Trade", title: `${entry.name} in industry headline coverage`, source: "Deadline", url: getDeadlineSearchUrl(entry.name) }
+      ];
+    }
+
     function getYouTubeSearchUrl(name) {
       return `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}`;
     }
@@ -904,6 +1020,10 @@
       const upcomingTitles = Array.isArray(entry.upcoming) && entry.upcoming.length > 0
         ? entry.upcoming
         : ["Media Appearance", "Fan Engagement Event"];
+      const catalogProjects = Array.isArray(entry.projects) && entry.projects.length > 0
+        ? entry.projects.slice(0, 3).map((title) => ({ title, link: getProjectLink(entry, title) }))
+        : [];
+      const projectSources = getProjectSources(entry);
       const socialLinks = entry.socials && typeof entry.socials === "object"
         ? [
           { label: "Instagram", url: entry.socials.instagram || `https://www.instagram.com/${slugify(entry.name).replace(/-/g, "")}/` },
@@ -932,20 +1052,14 @@
         profile: profileByCategory[entry.category],
         photo: getEntertainerPhoto(entry.name, entry.category),
         bio: entry.bio || `${entry.name} is one of the most followed names in ${bioCategoryContext[entry.category] || "entertainment"}, with strong audience engagement and sustained public attention.`,
-        projects: [
-          { title: "Wikipedia Profile", link: getWikiUrl(entry.wikiTitle) },
-          { title: "Current Coverage", link: getNewsUrl(entry.name) },
-          { title: "Video Highlights", link: getYouTubeSearchUrl(entry.name) }
-        ],
+        projects: [...catalogProjects, ...projectSources].slice(0, 5),
         upcomingEvents: upcomingTitles.map((title, eventIndex) => ({
           title,
-          date: eventIndex % 2 === 0 ? "2026-07-10" : "2026-08-22"
+          date: eventIndex % 2 === 0 ? "2026-07-10" : "2026-08-22",
+          link: getUpcomingEventLink(entry, title)
         })),
         socials: socialLinks,
-        news: [
-          { kind: "coverage", badge: "Coverage", title: `${entry.name} in current coverage and search interest`, source: "Google News", url: getNewsUrl(entry.name) },
-          { kind: "context", badge: "Context", title: `${entry.name} profile and career background`, source: "Wikipedia", url: getWikiUrl(entry.wikiTitle) }
-        ],
+        news: getNewsSources(entry),
         history: priceHistory,
         volumeHistory: new Array(priceHistory.length).fill(0)
       };
@@ -1012,7 +1126,9 @@
     let realtimeEnabled = false;
     let realtimeWsUrl = "";
     let featuredFeedUrl = "/api/featured-news";
+    let profileEnrichmentUrl = "/api/profile-enrichment";
     let featuredFeedTimer = null;
+    const profileEnrichmentCache = new Map();
     let mobilePortfolioFirstEnabled = false;
     let portfolioMovedForMobile = false;
     let portfolioOriginalParent = null;
@@ -1039,6 +1155,7 @@
       realtimeEnabled = params.get("realtime") === "1";
       realtimeWsUrl = params.get("ws") || "";
       featuredFeedUrl = params.get("newsApi") || "/api/featured-news";
+      profileEnrichmentUrl = params.get("profileApi") || "/api/profile-enrichment";
       mobilePortfolioFirstEnabled = params.get("mportfolio") === "1";
     }
 
@@ -1296,6 +1413,73 @@
         socials: entertainer.socials.map((social) => ({ ...social })),
         news: entertainer.news.map((item) => ({ ...item }))
       }));
+    }
+
+    function mergeUniqueProfileItems(primaryItems, fallbackItems, keyName = "title") {
+      const merged = [];
+      const seen = new Set();
+
+      [...(primaryItems || []), ...(fallbackItems || [])].forEach((item) => {
+        if (!item || typeof item !== "object") {
+          return;
+        }
+        const rawKey = typeof item[keyName] === "string" && item[keyName].trim()
+          ? item[keyName].trim().toLowerCase()
+          : JSON.stringify(item);
+        if (seen.has(rawKey)) {
+          return;
+        }
+        seen.add(rawKey);
+        merged.push(item);
+      });
+
+      return merged;
+    }
+
+    function getDisplayEntertainer(entertainer) {
+      const enrichment = profileEnrichmentCache.get(entertainer.name);
+      if (!enrichment) {
+        return entertainer;
+      }
+
+      return {
+        ...entertainer,
+        projects: mergeUniqueProfileItems(enrichment.projects, entertainer.projects),
+        upcomingEvents: mergeUniqueProfileItems(enrichment.upcomingEvents, entertainer.upcomingEvents),
+        news: mergeUniqueProfileItems(enrichment.news, entertainer.news)
+      };
+    }
+
+    async function loadProfileEnrichment(entertainer) {
+      if (!profileEnrichmentUrl || profileEnrichmentCache.has(entertainer.name) || typeof fetch !== "function") {
+        return;
+      }
+
+      const url = `${profileEnrichmentUrl}?name=${encodeURIComponent(entertainer.name)}&category=${encodeURIComponent(entertainer.category || "creator")}`;
+
+      try {
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json();
+        profileEnrichmentCache.set(entertainer.name, {
+          projects: Array.isArray(payload.projects) ? payload.projects : [],
+          upcomingEvents: Array.isArray(payload.upcomingEvents) ? payload.upcomingEvents : [],
+          news: Array.isArray(payload.news) ? payload.news : [],
+          generatedAt: payload.generatedAt || null
+        });
+
+        if (selectedArtist === entertainer.name) {
+          const activeEntertainer = entertainers.find((candidate) => candidate.name === entertainer.name);
+          if (activeEntertainer) {
+            renderArtistPage(activeEntertainer);
+          }
+        }
+      } catch (error) {
+        /* ignore enrichment fetch failures */
+      }
     }
 
     function renderEntertainerNews(entertainer) {
@@ -2650,54 +2834,57 @@
     }
 
     function renderArtistPage(entertainer) {
+      const displayEntertainer = getDisplayEntertainer(entertainer);
       const artistPhoto = document.getElementById("artist-photo");
-      artistPhoto.className = `artist-photo avatar-badge avatar-${entertainer.category || "creator"}`;
-      artistPhoto.textContent = getInitials(entertainer.name);
+      artistPhoto.className = `artist-photo avatar-badge avatar-${displayEntertainer.category || "creator"}`;
+      artistPhoto.textContent = getInitials(displayEntertainer.name);
       artistPhoto.setAttribute("role", "img");
-      artistPhoto.setAttribute("aria-label", `${entertainer.name} icon`);
-      document.getElementById("artist-name").innerText = entertainer.name;
-      document.getElementById("artist-category-row").innerHTML = getCategoryBadgeMarkup(entertainer.category);
-      document.getElementById("artist-bio").innerText = entertainer.bio;
+      artistPhoto.setAttribute("aria-label", `${displayEntertainer.name} icon`);
+      document.getElementById("artist-name").innerText = displayEntertainer.name;
+      document.getElementById("artist-category-row").innerHTML = getCategoryBadgeMarkup(displayEntertainer.category);
+      document.getElementById("artist-bio").innerText = displayEntertainer.bio;
 
       const news = document.getElementById("artist-news");
       news.innerHTML = "";
-      entertainer.news.forEach((item) => {
+      displayEntertainer.news.forEach((item) => {
         const newsItem = document.createElement("li");
         newsItem.innerHTML = `
-          <strong>${item.badge || (item.kind === "coverage" || item.breaking ? "Coverage" : "Context")}: ${item.title}</strong>
-          <a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.source}</a>
+          <strong>${escapeHtml(item.badge || (item.kind === "coverage" || item.breaking ? "Coverage" : "Context"))}: ${escapeHtml(item.title || "Current coverage")}</strong>
+          <a href="${escapeHtml(item.url || "#")}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.source || "Source")}</a>
         `;
         news.appendChild(newsItem);
       });
 
       const projects = document.getElementById("artist-projects");
       projects.innerHTML = "";
-      entertainer.projects.forEach((project) => {
+      displayEntertainer.projects.forEach((project) => {
         const item = document.createElement("li");
-        item.innerHTML = `<a href="${project.link}" target="_blank" rel="noopener noreferrer">${project.title}</a>`;
+        item.innerHTML = `<a href="${escapeHtml(project.link || "#")}" target="_blank" rel="noopener noreferrer">${escapeHtml(project.title || "Project source")}</a>`;
         projects.appendChild(item);
       });
 
       const events = document.getElementById("artist-events");
       events.innerHTML = "";
-      entertainer.upcomingEvents.forEach((event) => {
+      displayEntertainer.upcomingEvents.forEach((event) => {
         const item = document.createElement("li");
-        item.innerHTML = `<strong>${event.title}</strong><span>${event.date}</span>`;
+        item.innerHTML = event.link
+          ? `<strong><a href="${escapeHtml(event.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(event.title || "Upcoming event")}</a></strong><span>${escapeHtml(event.date || "Current")}</span>`
+          : `<strong>${escapeHtml(event.title || "Upcoming event")}</strong><span>${escapeHtml(event.date || "Current")}</span>`;
         events.appendChild(item);
       });
 
       const socials = document.getElementById("artist-socials");
       socials.innerHTML = "";
-      entertainer.socials.forEach((social) => {
+      displayEntertainer.socials.forEach((social) => {
         const item = document.createElement("li");
-        item.innerHTML = `<a href="${social.url}" target="_blank" rel="noopener noreferrer">${social.label}</a>`;
+        item.innerHTML = `<a href="${escapeHtml(social.url || "#")}" target="_blank" rel="noopener noreferrer">${escapeHtml(social.label || "Link")}</a>`;
         socials.appendChild(item);
       });
 
-      const history = Array.isArray(entertainer.history) && entertainer.history.length > 0
-        ? entertainer.history
-        : [entertainer.price];
-      const metrics = getEntertainerMetrics(entertainer);
+      const history = Array.isArray(displayEntertainer.history) && displayEntertainer.history.length > 0
+        ? displayEntertainer.history
+        : [displayEntertainer.price];
+      const metrics = getEntertainerMetrics(displayEntertainer);
       const volumeHistory = Array.isArray(entertainer.volumeHistory) && entertainer.volumeHistory.length === history.length
         ? entertainer.volumeHistory
         : new Array(history.length).fill(0);
@@ -2829,6 +3016,7 @@
 
       selectedArtist = name;
       renderArtistPage(entertainer);
+      loadProfileEnrichment(entertainer);
       document.querySelector(".page-shell").setAttribute("hidden", "true");
       document.getElementById("artist-page").removeAttribute("hidden");
       window.scrollTo({ top: 0, behavior: scrollBehavior });

@@ -40,6 +40,7 @@ http://127.0.0.1:8787/internal-feed/admin.html
 ### Public feed
 
 - `GET /api/featured-news`
+- `GET /api/profile-enrichment?name=Taylor%20Swift&category=musician`
 
 ### Internal review endpoints
 
@@ -102,3 +103,32 @@ Notes:
 ```
 
 Items stay out of the homepage feed until approved.
+
+## Local profile enrichment
+
+The Python server now also exposes a local-only profile enrichment endpoint for the artist detail page.
+
+What it does:
+
+- pulls current headlines from Google News RSS for a specific entertainer
+- extracts likely live projects and upcoming event labels from current headlines
+- adds category-aware source links for music, film, TV, sports, creator coverage, and live event lookup
+- uses Apple Music search to improve recent music project links for musicians
+- keeps the public GitHub Pages site static while richer profile sourcing works when you run the local server
+
+Endpoint:
+
+```text
+GET /api/profile-enrichment?name=Taylor%20Swift&category=musician
+```
+
+Response shape:
+
+```json
+{
+  "projects": [{ "title": "Midnights", "link": "https://...", "source": "Apple Music" }],
+  "upcomingEvents": [{ "title": "Taylor Swift live dates", "date": "Live lookup", "link": "https://...", "source": "Songkick" }],
+  "news": [{ "badge": "Coverage", "title": "Current headline", "source": "Google News", "url": "https://..." }],
+  "generatedAt": "2026-04-11T18:00:00Z"
+}
+```

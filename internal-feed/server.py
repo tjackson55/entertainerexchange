@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from auto_draft import generate_drafts
+from profile_enrichment import build_profile_enrichment
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -283,6 +284,16 @@ class FeedHandler(BaseHTTPRequestHandler):
             status = query.get("status", [None])[0]
             items = store["items"] if status is None else [item for item in store["items"] if item.get("status") == status]
             self.send_json(HTTPStatus.OK, {"items": sort_featured(items), "sources": store.get("sources", [])})
+            return
+
+        if parsed.path == "/api/profile-enrichment":
+            name = sanitize_text(query.get("name", [""])[0])
+            category = sanitize_text(query.get("category", ["creator"])[0], "creator")
+            if not name:
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "name query parameter is required."})
+                return
+            payload = build_profile_enrichment(name, category)
+            self.send_json(HTTPStatus.OK, payload)
             return
 
         self.serve_static(parsed.path)
