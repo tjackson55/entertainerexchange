@@ -755,6 +755,14 @@
       return `https://deadline.com/?s=${encodeURIComponent(query)}`;
     }
 
+    function getBillboardSearchUrl(query) {
+      return `https://www.billboard.com/?s=${encodeURIComponent(query)}`;
+    }
+
+    function getRollingStoneSearchUrl(query) {
+      return `https://www.rollingstone.com/search/${encodeURIComponent(query)}/`;
+    }
+
     function getProjectLink(entry, title) {
       const query = `${entry.name} ${title}`;
       switch (entry.category) {
@@ -1483,6 +1491,105 @@
       };
     }
 
+    async function fetchPublicMusicProjects(name) {
+      if (typeof fetch !== "function") {
+        return [];
+      }
+
+      try {
+        const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(name)}&entity=album&limit=6`, {
+          cache: "no-store"
+        });
+        if (!response.ok) {
+          return [];
+        }
+
+        const payload = await response.json();
+        if (!payload || !Array.isArray(payload.results)) {
+          return [];
+        }
+
+        return payload.results
+          .filter((item) => item && typeof item.collectionName === "string" && typeof item.collectionViewUrl === "string")
+          .filter((item) => !item.artistName || item.artistName.toLowerCase().includes(name.toLowerCase()))
+          .slice(0, 4)
+          .map((item) => ({
+            title: item.collectionName,
+            link: item.collectionViewUrl,
+            source: "Apple Music",
+            mode: "fallback"
+          }));
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function getPublicFallbackNews(entry) {
+      switch (entry.category) {
+        case "musician":
+          return [
+            { kind: "trade", badge: "Trade", title: `${entry.name} in Billboard coverage`, source: "Billboard", url: getBillboardSearchUrl(entry.name), mode: "fallback" },
+            { kind: "trade", badge: "Trade", title: `${entry.name} in Rolling Stone coverage`, source: "Rolling Stone", url: getRollingStoneSearchUrl(entry.name), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} official music updates`, source: "Google News", url: getNewsUrl(`${entry.name} music release tour`), mode: "fallback" }
+          ];
+        case "actor":
+        case "tv":
+          return [
+            { kind: "trade", badge: "Trade", title: `${entry.name} in Variety coverage`, source: "Variety", url: getVarietySearchUrl(entry.name), mode: "fallback" },
+            { kind: "trade", badge: "Trade", title: `${entry.name} in Deadline coverage`, source: "Deadline", url: getDeadlineSearchUrl(entry.name), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} on IMDb`, source: "IMDb", url: getImdbSearchUrl(entry.name), mode: "fallback" }
+          ];
+        case "athlete":
+          return [
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} in ESPN coverage`, source: "ESPN", url: getEspnSearchUrl(entry.name), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} current results and schedule`, source: "Google", url: getWebSearchUrl(`${entry.name} stats schedule`), mode: "fallback" }
+          ];
+        default:
+          return [
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} in current coverage`, source: "Google News", url: getNewsUrl(entry.name), mode: "fallback" },
+            { kind: "trade", badge: "Trade", title: `${entry.name} in Variety coverage`, source: "Variety", url: getVarietySearchUrl(entry.name), mode: "fallback" }
+          ];
+      }
+    }
+
+    function getPublicFallbackEvents(entry) {
+      switch (entry.category) {
+        case "musician":
+          return [
+            { title: `${entry.name} live dates`, date: "Live lookup", link: getSongkickSearchUrl(entry.name), source: "Songkick", mode: "fallback" },
+            { title: `${entry.name} tickets`, date: "Live lookup", link: getTicketmasterSearchUrl(entry.name), source: "Ticketmaster", mode: "fallback" }
+          ];
+        case "athlete":
+          return [
+            { title: `${entry.name} upcoming schedule`, date: "Live lookup", link: getEspnSearchUrl(entry.name), source: "ESPN", mode: "fallback" }
+          ];
+        default:
+          return [
+            { title: `${entry.name} upcoming appearances`, date: "Live lookup", link: getWebSearchUrl(`${entry.name} upcoming appearances`), source: "Google", mode: "fallback" }
+          ];
+      }
+    }
+
+    async function buildPublicProfileEnrichment(entertainer) {
+      const musicProjects = entertainer.category === "musician"
+        ? await fetchPublicMusicProjects(entertainer.name)
+        : [];
+
+      const fallbackProjects = getProjectSources(entertainer).map((project) => ({
+        ...project,
+        source: project.source || project.title,
+        mode: "fallback"
+      }));
+
+      return {
+        projects: mergeUniqueProfileItems(musicProjects, fallbackProjects).slice(0, 5),
+        upcomingEvents: mergeUniqueProfileItems(getPublicFallbackEvents(entertainer), entertainer.upcomingEvents).slice(0, 4),
+        news: mergeUniqueProfileItems(getPublicFallbackNews(entertainer), entertainer.news).slice(0, 4),
+        generatedAt: new Date().toISOString(),
+        mode: "fallback"
+      };
+    }
+
     async function loadProfileEnrichment(entertainer) {
       if (!profileEnrichmentUrl || profileEnrichmentCache.has(entertainer.name) || typeof fetch !== "function") {
         return;
@@ -1492,26 +1599,35 @@
 
       try {
         const response = await fetch(url, { cache: "no-store" });
-        if (!response.ok) {
+        if (response.ok) {
+          const payload = await response.json();
+          profileEnrichmentCache.set(entertainer.name, {
+            projects: Array.isArray(payload.projects) ? payload.projects : [],
+            upcomingEvents: Array.isArray(payload.upcomingEvents) ? payload.upcomingEvents : [],
+            news: Array.isArray(payload.news) ? payload.news : [],
+            generatedAt: payload.generatedAt || null
+          });
+
+          if (selectedArtist === entertainer.name) {
+            const activeEntertainer = entertainers.find((candidate) => candidate.name === entertainer.name);
+            if (activeEntertainer) {
+              renderArtistPage(activeEntertainer);
+            }
+          }
           return;
         }
-
-        const payload = await response.json();
-        profileEnrichmentCache.set(entertainer.name, {
-          projects: Array.isArray(payload.projects) ? payload.projects : [],
-          upcomingEvents: Array.isArray(payload.upcomingEvents) ? payload.upcomingEvents : [],
-          news: Array.isArray(payload.news) ? payload.news : [],
-          generatedAt: payload.generatedAt || null
-        });
-
-        if (selectedArtist === entertainer.name) {
-          const activeEntertainer = entertainers.find((candidate) => candidate.name === entertainer.name);
-          if (activeEntertainer) {
-            renderArtistPage(activeEntertainer);
-          }
-        }
       } catch (error) {
-        /* ignore enrichment fetch failures */
+        /* ignore endpoint fetch failures and fall back to public enrichment below */
+      }
+
+      const fallbackPayload = await buildPublicProfileEnrichment(entertainer);
+      profileEnrichmentCache.set(entertainer.name, fallbackPayload);
+
+      if (selectedArtist === entertainer.name) {
+        const activeEntertainer = entertainers.find((candidate) => candidate.name === entertainer.name);
+        if (activeEntertainer) {
+          renderArtistPage(activeEntertainer);
+        }
       }
     }
 

@@ -116,6 +116,8 @@ What it does:
 - uses Apple Music search to improve recent music project links for musicians
 - keeps the public GitHub Pages site static while richer profile sourcing works when you run the local server
 
+When the local endpoint is not available, the deployed static site now falls back to client-side public-safe enrichment links for projects, events, and news sources. The local Python endpoint still provides the richer live path.
+
 Endpoint:
 
 ```text
