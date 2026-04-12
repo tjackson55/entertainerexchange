@@ -2881,8 +2881,11 @@
       news.innerHTML = "";
       displayEntertainer.news.forEach((item) => {
         const newsItem = document.createElement("li");
+        const badgeLabel = item.mode === "fallback"
+          ? `${item.badge || (item.kind === "coverage" || item.breaking ? "Coverage" : "Context")} Fallback`
+          : `${item.badge || (item.kind === "coverage" || item.breaking ? "Coverage" : "Context")} Live`;
         newsItem.innerHTML = `
-          <strong>${escapeHtml(item.badge || (item.kind === "coverage" || item.breaking ? "Coverage" : "Context"))}: ${escapeHtml(item.title || "Current coverage")}</strong>
+          <strong>${escapeHtml(badgeLabel)}: ${escapeHtml(item.title || "Current coverage")}</strong>
           <a href="${escapeHtml(item.url || "#")}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.source || "Source")}</a>
         `;
         news.appendChild(newsItem);

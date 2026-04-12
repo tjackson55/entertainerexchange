@@ -339,24 +339,28 @@ def _fallback_news_sources(name: str, category: str) -> list[dict]:
     encoded_name = quote_plus(name)
     if category == "musician":
         return [
-            {"kind": "trade", "badge": "Trade", "title": f"{name} in Billboard coverage", "source": "Billboard", "url": f"https://www.billboard.com/?s={encoded_name}", "publishedAt": None},
-            {"kind": "trade", "badge": "Trade", "title": f"{name} in Rolling Stone coverage", "source": "Rolling Stone", "url": f"https://www.rollingstone.com/search/{encoded_name}/", "publishedAt": None},
-            {"kind": "coverage", "badge": "Coverage", "title": f"{name} official music updates", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}+music+release+tour", "publishedAt": None},
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Billboard coverage", "source": "Billboard", "url": f"https://www.billboard.com/?s={encoded_name}", "publishedAt": None, "mode": "fallback"},
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Rolling Stone coverage", "source": "Rolling Stone", "url": f"https://www.rollingstone.com/search/{encoded_name}/", "publishedAt": None, "mode": "fallback"},
+            {"kind": "coverage", "badge": "Coverage", "title": f"{name} official music updates", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}+music+release+tour", "publishedAt": None, "mode": "fallback"},
         ]
     if category in {"actor", "tv"}:
         return [
-            {"kind": "trade", "badge": "Trade", "title": f"{name} in Variety coverage", "source": "Variety", "url": f"https://variety.com/?s={encoded_name}", "publishedAt": None},
-            {"kind": "trade", "badge": "Trade", "title": f"{name} in Deadline coverage", "source": "Deadline", "url": f"https://deadline.com/?s={encoded_name}", "publishedAt": None},
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Variety coverage", "source": "Variety", "url": f"https://variety.com/?s={encoded_name}", "publishedAt": None, "mode": "fallback"},
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Deadline coverage", "source": "Deadline", "url": f"https://deadline.com/?s={encoded_name}", "publishedAt": None, "mode": "fallback"},
         ]
     if category == "athlete":
         return [
-            {"kind": "coverage", "badge": "Coverage", "title": f"{name} in ESPN coverage", "source": "ESPN", "url": f"https://www.espn.com/search/_/q/{encoded_name}", "publishedAt": None},
-            {"kind": "coverage", "badge": "Coverage", "title": f"{name} in current sports coverage", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}", "publishedAt": None},
+            {"kind": "coverage", "badge": "Coverage", "title": f"{name} in ESPN coverage", "source": "ESPN", "url": f"https://www.espn.com/search/_/q/{encoded_name}", "publishedAt": None, "mode": "fallback"},
+            {"kind": "coverage", "badge": "Coverage", "title": f"{name} in current sports coverage", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}", "publishedAt": None, "mode": "fallback"},
         ]
     return [
-        {"kind": "coverage", "badge": "Coverage", "title": f"{name} in current coverage", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}", "publishedAt": None},
-        {"kind": "trade", "badge": "Trade", "title": f"{name} in Variety coverage", "source": "Variety", "url": f"https://variety.com/?s={encoded_name}", "publishedAt": None},
+        {"kind": "coverage", "badge": "Coverage", "title": f"{name} in current coverage", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}", "publishedAt": None, "mode": "fallback"},
+        {"kind": "trade", "badge": "Trade", "title": f"{name} in Variety coverage", "source": "Variety", "url": f"https://variety.com/?s={encoded_name}", "publishedAt": None, "mode": "fallback"},
     ]
+
+
+def _merge_news_items(primary: list[dict], secondary: list[dict]) -> list[dict]:
+    return _dedupe_by_title([*(primary or []), *(secondary or [])])
 
 
 def build_profile_enrichment(name: str, category: str) -> dict:
@@ -374,12 +378,13 @@ def build_profile_enrichment(name: str, category: str) -> dict:
             "source": item["source"],
             "url": item["url"],
             "publishedAt": item.get("publishedAt"),
+            "mode": "live",
         }
         for item in headlines[:MAX_NEWS_ITEMS]
     ]
     fallback_news = _fallback_news_sources(cleaned_name, cleaned_category)
     if len(news) < MAX_NEWS_ITEMS:
-        news = _dedupe_by_title(news + fallback_news)[:MAX_NEWS_ITEMS]
+        news = _merge_news_items(news, fallback_news)[:MAX_NEWS_ITEMS]
     elif cleaned_category == "musician":
         live_strength = [
             item for item in news
@@ -387,7 +392,18 @@ def build_profile_enrichment(name: str, category: str) -> dict:
             and _normalize_source(item.get("source")) in CATEGORY_PREFERRED_SOURCES.get(cleaned_category, set())
         ]
         if len(live_strength) < 2:
-            news = _dedupe_by_title(live_strength + fallback_news + news)[:MAX_NEWS_ITEMS]
+            news = _merge_news_items(_merge_news_items(live_strength, fallback_news), [])[:MAX_NEWS_ITEMS]
+
+    strong_news = [
+        item for item in news
+        if item.get("mode") == "fallback"
+        or (
+            not _is_noise_headline(str(item.get("title", "")), item.get("source"))
+            and _is_strong_news_item(str(item.get("title", "")), cleaned_category, item.get("source"))
+        )
+    ]
+    if len(strong_news) >= 3:
+        news = strong_news[:MAX_NEWS_ITEMS]
 
     extracted_projects, extracted_events = _extract_candidate_labels(cleaned_name, cleaned_category, headlines)
     music_projects = _music_projects(cleaned_name) if cleaned_category == "musician" else []
