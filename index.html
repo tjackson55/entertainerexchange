@@ -1457,6 +1457,8 @@
         imdb: 6,
         songkick: 7,
         ticketmaster: 8,
+        youtube: 12,
+        google: 18,
         "google news": 20,
         "people.com": 30,
         "vogue.com": category === "musician" ? 28 : 12,
@@ -1471,6 +1473,47 @@
       }
 
       return priority;
+    }
+
+    function getPublicFallbackProjects(entry) {
+      switch (entry.category) {
+        case "musician":
+          return [
+            { title: "Spotify Catalog", link: getSpotifySearchUrl(entry.name), source: "Spotify", mode: "fallback" },
+            { title: "Apple Music Releases", link: getAppleMusicSearchUrl(entry.name), source: "Apple Music", mode: "fallback" }
+          ];
+        case "actor":
+        case "tv":
+          return [
+            { title: "IMDb Credits", link: getImdbSearchUrl(entry.name), source: "IMDb", mode: "fallback" },
+            { title: "TMDb Titles", link: getTmdbSearchUrl(entry.name), source: "TMDb", mode: "fallback" },
+            { title: "Trade Coverage", link: getVarietySearchUrl(entry.name), source: "Variety", mode: "fallback" }
+          ];
+        case "athlete":
+          return [
+            { title: "ESPN Player Coverage", link: getEspnSearchUrl(entry.name), source: "ESPN", mode: "fallback" },
+            { title: "Game Highlights", link: getYouTubeSearchUrl(`${entry.name} highlights`), source: "YouTube", mode: "fallback" },
+            { title: "Stats and Schedule", link: getWebSearchUrl(`${entry.name} stats schedule`), source: "Google", mode: "fallback" }
+          ];
+        case "comedian":
+          return [
+            { title: "Stand-Up Clips", link: getYouTubeSearchUrl(`${entry.name} stand up`), source: "YouTube", mode: "fallback" },
+            { title: "Tour and Special Coverage", link: getNewsUrl(`${entry.name} comedy special tour`), source: "Google News", mode: "fallback" },
+            { title: "Current Search Results", link: getWebSearchUrl(`${entry.name} comedy special`), source: "Google", mode: "fallback" }
+          ];
+        case "creator":
+          return [
+            { title: "YouTube Videos", link: getYouTubeSearchUrl(entry.name), source: "YouTube", mode: "fallback" },
+            { title: "Current Launches", link: getNewsUrl(`${entry.name} launch collab video`), source: "Google News", mode: "fallback" },
+            { title: "Latest Projects", link: getWebSearchUrl(`${entry.name} latest projects`), source: "Google", mode: "fallback" }
+          ];
+        default:
+          return getProjectSources(entry).map((project) => ({
+            ...project,
+            source: project.source || project.title,
+            mode: "fallback"
+          }));
+      }
     }
 
     function getDisplayEntertainer(entertainer) {
@@ -1542,7 +1585,20 @@
         case "athlete":
           return [
             { kind: "coverage", badge: "Coverage", title: `${entry.name} in ESPN coverage`, source: "ESPN", url: getEspnSearchUrl(entry.name), mode: "fallback" },
-            { kind: "coverage", badge: "Coverage", title: `${entry.name} current results and schedule`, source: "Google", url: getWebSearchUrl(`${entry.name} stats schedule`), mode: "fallback" }
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} current results and schedule`, source: "Google", url: getWebSearchUrl(`${entry.name} stats schedule`), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} highlights and analysis`, source: "YouTube", url: getYouTubeSearchUrl(`${entry.name} highlights interview`), mode: "fallback" }
+          ];
+        case "comedian":
+          return [
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} comedy special and tour coverage`, source: "Google News", url: getNewsUrl(`${entry.name} comedy special tour`), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} stand-up clips`, source: "YouTube", url: getYouTubeSearchUrl(`${entry.name} stand up`), mode: "fallback" },
+            { kind: "trade", badge: "Trade", title: `${entry.name} in Variety coverage`, source: "Variety", url: getVarietySearchUrl(entry.name), mode: "fallback" }
+          ];
+        case "creator":
+          return [
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} latest videos and launches`, source: "YouTube", url: getYouTubeSearchUrl(`${entry.name} latest video`), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} current creator coverage`, source: "Google News", url: getNewsUrl(`${entry.name} launch collab video`), mode: "fallback" },
+            { kind: "trade", badge: "Trade", title: `${entry.name} in Variety coverage`, source: "Variety", url: getVarietySearchUrl(entry.name), mode: "fallback" }
           ];
         default:
           return [
@@ -1561,7 +1617,18 @@
           ];
         case "athlete":
           return [
-            { title: `${entry.name} upcoming schedule`, date: "Live lookup", link: getEspnSearchUrl(entry.name), source: "ESPN", mode: "fallback" }
+            { title: `${entry.name} upcoming schedule`, date: "Live lookup", link: getEspnSearchUrl(entry.name), source: "ESPN", mode: "fallback" },
+            { title: `${entry.name} ticket and event search`, date: "Live lookup", link: getWebSearchUrl(`${entry.name} tickets schedule`), source: "Google", mode: "fallback" }
+          ];
+        case "comedian":
+          return [
+            { title: `${entry.name} tour dates`, date: "Live lookup", link: getTicketmasterSearchUrl(`${entry.name} comedy`), source: "Ticketmaster", mode: "fallback" },
+            { title: `${entry.name} festival appearances`, date: "Live lookup", link: getWebSearchUrl(`${entry.name} comedy festival appearances`), source: "Google", mode: "fallback" }
+          ];
+        case "creator":
+          return [
+            { title: `${entry.name} upcoming appearances`, date: "Live lookup", link: getWebSearchUrl(`${entry.name} upcoming appearances`), source: "Google", mode: "fallback" },
+            { title: `${entry.name} live events and panels`, date: "Live lookup", link: getNewsUrl(`${entry.name} panel live event`), source: "Google News", mode: "fallback" }
           ];
         default:
           return [
@@ -1575,11 +1642,7 @@
         ? await fetchPublicMusicProjects(entertainer.name)
         : [];
 
-      const fallbackProjects = getProjectSources(entertainer).map((project) => ({
-        ...project,
-        source: project.source || project.title,
-        mode: "fallback"
-      }));
+      const fallbackProjects = getPublicFallbackProjects(entertainer);
 
       return {
         projects: mergeUniqueProfileItems(musicProjects, fallbackProjects).slice(0, 5),
