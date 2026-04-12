@@ -41,7 +41,7 @@
           <strong id="money">$1500.00</strong>
         </div>
         <div class="hero-metric">
-          <span>Roster Value</span>
+            <span>Net Worth</span>
           <strong id="net-worth">$1500.00</strong>
         </div>
         <div class="hero-metric">
@@ -188,17 +188,21 @@
               <p class="section-kicker">Your roster</p>
               <h2>Fantasy Roster</h2>
             </div>
-            <p class="section-note">Track roster value, session movement, and which entertainers are driving your score.</p>
+            <p class="section-note">Credits are your cash, holdings value tracks open picks, and realized profit only lands after you trim or sell.</p>
           </div>
 
           <div class="stats-grid">
             <article class="stat-card">
-              <span class="stat-label">Roster Value</span>
+              <span class="stat-label">Holdings Value</span>
               <strong id="portfolio-value">$0.00</strong>
             </article>
             <article class="stat-card">
-              <span class="stat-label">Session Change</span>
+              <span class="stat-label">Unrealized P/L</span>
               <strong id="portfolio-gain">$0.00</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Realized P/L</span>
+              <strong id="realized-gain">$0.00</strong>
             </article>
             <article class="stat-card">
               <span class="stat-label">Top Pick</span>
@@ -2918,6 +2922,10 @@
 
     function renderStats() {
       const stats = calculatePortfolioStats();
+      const totalRealizedGain = tradeHistory
+        .filter((trade) => trade.gain !== null)
+        .reduce((sum, trade) => sum + trade.gain, 0);
+
       document.getElementById("money").innerText = formatCurrency(money);
       document.getElementById("net-worth").innerText = formatCurrency(stats.netWorth);
       document.getElementById("open-positions").innerText = stats.openPositions;
@@ -2926,6 +2934,10 @@
       const gainNode = document.getElementById("portfolio-gain");
       gainNode.innerText = formatSignedCurrency(stats.totalGain);
       gainNode.className = stats.totalGain >= 0 ? "positive-text" : "negative-text";
+
+      const realizedGainNode = document.getElementById("realized-gain");
+      realizedGainNode.innerText = formatSignedCurrency(totalRealizedGain);
+      realizedGainNode.className = totalRealizedGain >= 0 ? "positive-text" : "negative-text";
 
       document.getElementById("best-position").innerText = stats.bestPosition;
 
