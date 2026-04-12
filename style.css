@@ -2316,6 +2316,49 @@ body[data-theme="paper"] .community-link-field span {
   line-height: 1.6;
 }
 
+.artist-action-strip {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.artist-position-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.artist-position-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(2, 6, 23, 0.3);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.artist-profile-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.artist-profile-actions .buy,
+.artist-profile-actions .sell,
+.artist-profile-actions .trade {
+  width: 100%;
+}
+
+.artist-profile-actions .sell:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: saturate(0.75);
+}
+
 .artist-category-row {
   margin-top: 8px;
 }
@@ -2755,6 +2798,10 @@ body[data-theme="paper"] .community-link-field span {
   }
 
   .artist-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .artist-profile-actions {
     grid-template-columns: 1fr;
   }
 

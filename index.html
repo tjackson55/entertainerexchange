@@ -340,7 +340,7 @@
   <section id="artist-page" class="artist-page" hidden>
     <div class="artist-page-shell">
       <button id="artist-back" class="ghost-button artist-back" type="button">Back to Index</button>
-      <article class="artist-detail-card">
+      <article id="artist-detail-card" class="artist-detail-card" data-entity="">
         <div class="artist-hero">
           <div id="artist-photo" class="artist-photo avatar-badge avatar-creator" role="img" aria-label="Artist icon">AR</div>
           <div>
@@ -348,6 +348,18 @@
             <h2 id="artist-name">Artist Name</h2>
             <p id="artist-category-row" class="artist-category-row"></p>
             <p id="artist-bio" class="artist-bio"></p>
+            <div class="artist-action-strip">
+              <div class="artist-position-chip-row">
+                <span id="artist-held-shares" class="artist-position-chip">Held: 0</span>
+                <span id="artist-average-cost" class="artist-position-chip">Avg Cost: $0.00</span>
+                <span id="artist-position-value" class="artist-position-chip">Position: $0.00</span>
+              </div>
+              <div class="artist-profile-actions">
+                <button id="artist-buy-button" class="buy" type="button">Add</button>
+                <button id="artist-sell-button" class="sell" type="button">Trim</button>
+                <button id="artist-trade-button" class="trade" type="button">Adjust</button>
+              </div>
+            </div>
           </div>
         </div>
         <section class="artist-analytics">
@@ -761,6 +773,30 @@
 
     function getRollingStoneSearchUrl(query) {
       return `https://www.rollingstone.com/search/${encodeURIComponent(query)}/`;
+    }
+
+    function getAthleteContext(name) {
+      const contexts = {
+        "Lionel Messi": { sport: "football", league: "MLS Argentina FIFA", search: "football match schedule highlights", event: "football fixtures tickets", coverage: "football transfer match analysis" },
+        "Cristiano Ronaldo": { sport: "football", league: "Saudi Pro League Portugal UEFA", search: "football match schedule highlights", event: "football fixtures tickets", coverage: "football match analysis" },
+        "LeBron James": { sport: "basketball", league: "NBA Lakers", search: "NBA highlights stats", event: "NBA schedule tickets", coverage: "NBA game analysis" },
+        "Stephen Curry": { sport: "basketball", league: "NBA Warriors", search: "NBA highlights stats", event: "NBA schedule tickets", coverage: "NBA game analysis" },
+        "Kobe Bryant": { sport: "basketball", league: "NBA Lakers", search: "NBA legacy highlights", event: "NBA tribute event", coverage: "NBA legacy coverage" },
+        "Kevin Durant": { sport: "basketball", league: "NBA Suns", search: "NBA highlights stats", event: "NBA schedule tickets", coverage: "NBA game analysis" },
+        "Allen Iverson": { sport: "basketball", league: "NBA legacy", search: "NBA legacy highlights", event: "NBA appearance event", coverage: "NBA legacy coverage" },
+        "Patrick Mahomes": { sport: "football", league: "NFL Chiefs", search: "NFL highlights stats", event: "NFL schedule tickets", coverage: "NFL game analysis" },
+        "Shohei Ohtani": { sport: "baseball", league: "MLB Dodgers", search: "MLB highlights stats", event: "MLB schedule tickets", coverage: "MLB game analysis" },
+        "Virat Kohli": { sport: "cricket", league: "IPL India cricket", search: "cricket highlights stats", event: "cricket fixtures tickets", coverage: "cricket match analysis" },
+        "Kylian Mbappe": { sport: "football", league: "Real Madrid France UEFA", search: "football match schedule highlights", event: "football fixtures tickets", coverage: "football match analysis" },
+        "Erling Haaland": { sport: "football", league: "Manchester City Norway UEFA", search: "football match schedule highlights", event: "football fixtures tickets", coverage: "football match analysis" },
+        "Novak Djokovic": { sport: "tennis", league: "ATP Grand Slam", search: "tennis highlights schedule", event: "ATP schedule tickets", coverage: "tennis match analysis" },
+        "Coco Gauff": { sport: "tennis", league: "WTA Grand Slam", search: "tennis highlights schedule", event: "WTA schedule tickets", coverage: "tennis match analysis" },
+        "Max Verstappen": { sport: "formula 1", league: "F1 Red Bull Racing", search: "F1 highlights standings", event: "Grand Prix schedule tickets", coverage: "F1 race analysis" },
+        "Lewis Hamilton": { sport: "formula 1", league: "F1 Ferrari", search: "F1 highlights standings", event: "Grand Prix schedule tickets", coverage: "F1 race analysis" },
+        "Giannis Antetokounmpo": { sport: "basketball", league: "NBA Bucks", search: "NBA highlights stats", event: "NBA schedule tickets", coverage: "NBA game analysis" },
+        "Simone Biles": { sport: "gymnastics", league: "Olympics gymnastics", search: "gymnastics highlights schedule", event: "gymnastics event schedule", coverage: "gymnastics analysis" }
+      };
+      return contexts[name] || { sport: "sports", league: "sports", search: "highlights stats", event: "schedule tickets", coverage: "game analysis" };
     }
 
     function getProjectLink(entry, title) {
@@ -1490,10 +1526,11 @@
             { title: "Trade Coverage", link: getVarietySearchUrl(entry.name), source: "Variety", mode: "fallback" }
           ];
         case "athlete":
+          const athleteContext = getAthleteContext(entry.name);
           return [
-            { title: "ESPN Player Coverage", link: getEspnSearchUrl(entry.name), source: "ESPN", mode: "fallback" },
-            { title: "Game Highlights", link: getYouTubeSearchUrl(`${entry.name} highlights`), source: "YouTube", mode: "fallback" },
-            { title: "Stats and Schedule", link: getWebSearchUrl(`${entry.name} stats schedule`), source: "Google", mode: "fallback" }
+            { title: "ESPN Player Coverage", link: getEspnSearchUrl(`${entry.name} ${athleteContext.league}`), source: "ESPN", mode: "fallback" },
+            { title: "Game Highlights", link: getYouTubeSearchUrl(`${entry.name} ${athleteContext.search}`), source: "YouTube", mode: "fallback" },
+            { title: "Stats and Schedule", link: getWebSearchUrl(`${entry.name} ${athleteContext.search}`), source: "Google", mode: "fallback" }
           ];
         case "comedian":
           return [
@@ -1583,10 +1620,11 @@
             { kind: "coverage", badge: "Coverage", title: `${entry.name} on IMDb`, source: "IMDb", url: getImdbSearchUrl(entry.name), mode: "fallback" }
           ];
         case "athlete":
+          const athleteContext = getAthleteContext(entry.name);
           return [
-            { kind: "coverage", badge: "Coverage", title: `${entry.name} in ESPN coverage`, source: "ESPN", url: getEspnSearchUrl(entry.name), mode: "fallback" },
-            { kind: "coverage", badge: "Coverage", title: `${entry.name} current results and schedule`, source: "Google", url: getWebSearchUrl(`${entry.name} stats schedule`), mode: "fallback" },
-            { kind: "coverage", badge: "Coverage", title: `${entry.name} highlights and analysis`, source: "YouTube", url: getYouTubeSearchUrl(`${entry.name} highlights interview`), mode: "fallback" }
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} in ESPN coverage`, source: "ESPN", url: getEspnSearchUrl(`${entry.name} ${athleteContext.league}`), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} current results and schedule`, source: "Google", url: getWebSearchUrl(`${entry.name} ${athleteContext.search}`), mode: "fallback" },
+            { kind: "coverage", badge: "Coverage", title: `${entry.name} highlights and analysis`, source: "YouTube", url: getYouTubeSearchUrl(`${entry.name} ${athleteContext.coverage}`), mode: "fallback" }
           ];
         case "comedian":
           return [
@@ -1616,9 +1654,10 @@
             { title: `${entry.name} tickets`, date: "Live lookup", link: getTicketmasterSearchUrl(entry.name), source: "Ticketmaster", mode: "fallback" }
           ];
         case "athlete":
+          const athleteContext = getAthleteContext(entry.name);
           return [
-            { title: `${entry.name} upcoming schedule`, date: "Live lookup", link: getEspnSearchUrl(entry.name), source: "ESPN", mode: "fallback" },
-            { title: `${entry.name} ticket and event search`, date: "Live lookup", link: getWebSearchUrl(`${entry.name} tickets schedule`), source: "Google", mode: "fallback" }
+            { title: `${entry.name} upcoming schedule`, date: "Live lookup", link: getEspnSearchUrl(`${entry.name} ${athleteContext.event}`), source: "ESPN", mode: "fallback" },
+            { title: `${entry.name} ticket and event search`, date: "Live lookup", link: getWebSearchUrl(`${entry.name} ${athleteContext.event}`), source: "Google", mode: "fallback" }
           ];
         case "comedian":
           return [
@@ -3047,14 +3086,31 @@
 
     function renderArtistPage(entertainer) {
       const displayEntertainer = getDisplayEntertainer(entertainer);
+      const holding = portfolio[entertainer.name];
+      const heldShares = holding && holding.shares > 0 ? holding.shares : 0;
+      const averageCost = heldShares > 0 ? holding.totalCost / holding.shares : 0;
+      const positionValue = heldShares * entertainer.price;
       const artistPhoto = document.getElementById("artist-photo");
+      const artistCard = document.getElementById("artist-detail-card");
       artistPhoto.className = `artist-photo avatar-badge avatar-${displayEntertainer.category || "creator"}`;
       artistPhoto.textContent = getInitials(displayEntertainer.name);
       artistPhoto.setAttribute("role", "img");
       artistPhoto.setAttribute("aria-label", `${displayEntertainer.name} icon`);
+      artistCard.dataset.entity = displayEntertainer.name;
       document.getElementById("artist-name").innerText = displayEntertainer.name;
       document.getElementById("artist-category-row").innerHTML = getCategoryBadgeMarkup(displayEntertainer.category);
       document.getElementById("artist-bio").innerText = displayEntertainer.bio;
+      document.getElementById("artist-held-shares").innerText = `Held: ${heldShares}`;
+      document.getElementById("artist-average-cost").innerText = `Avg Cost: ${formatCurrency(averageCost)}`;
+      document.getElementById("artist-position-value").innerText = `Position: ${formatCurrency(positionValue)}`;
+
+      const buyButton = document.getElementById("artist-buy-button");
+      const sellButton = document.getElementById("artist-sell-button");
+      const tradeButton = document.getElementById("artist-trade-button");
+      buyButton.onclick = () => handleCardActionByName(displayEntertainer.name, "buy");
+      sellButton.onclick = () => handleCardActionByName(displayEntertainer.name, "sell");
+      tradeButton.onclick = () => handleCardActionByName(displayEntertainer.name, "trade");
+      sellButton.disabled = heldShares === 0;
 
       const news = document.getElementById("artist-news");
       news.innerHTML = "";
