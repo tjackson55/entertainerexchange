@@ -61,6 +61,15 @@ CATEGORY_PREFERRED_SOURCES = {
     "creator": {"variety", "deadline", "youtube", "spotify"},
 }
 
+CATEGORY_NEWS_KEYWORDS = {
+    "musician": {"album", "single", "ep", "song", "track", "tour", "festival", "release", "chart", "billboard", "grammy", "concert", "music", "record"},
+    "actor": {"film", "movie", "series", "season", "trailer", "premiere", "casting", "cast", "role", "production", "box office"},
+    "tv": {"series", "season", "episode", "premiere", "renewed", "renewal", "show", "streaming"},
+    "athlete": {"match", "season", "playoff", "final", "trade", "contract", "injury", "return", "schedule", "championship"},
+    "comedian": {"special", "tour", "show", "festival", "stand-up", "comedy"},
+    "creator": {"video", "stream", "podcast", "series", "drop", "launch", "collab", "creator"},
+}
+
 STOPWORDS = {
     "a", "an", "and", "at", "for", "from", "in", "of", "on", "or", "the", "to", "with"
 }
@@ -161,6 +170,21 @@ def _relevance_score(title: str, category: str, source: object) -> int:
     return score
 
 
+def _is_strong_news_item(title: str, category: str, source: object) -> bool:
+    lowered = title.lower()
+    normalized_source = _normalize_source(source)
+    preferred_sources = CATEGORY_PREFERRED_SOURCES.get(category, set())
+    news_keywords = CATEGORY_NEWS_KEYWORDS.get(category, set())
+
+    if normalized_source in preferred_sources:
+        return True
+    if "official" in normalized_source:
+        return True
+    if any(keyword in lowered for keyword in news_keywords):
+        return True
+    return False
+
+
 def _sort_headlines(items: list[dict], category: str) -> list[dict]:
     return sorted(
         items,
@@ -178,6 +202,7 @@ def _filter_news_items(headlines: list[dict], category: str) -> list[dict]:
         item for item in ranked
         if not _is_noise_headline(str(item.get("title", "")), item.get("source"))
         and _relevance_score(str(item.get("title", "")), category, item.get("source")) >= 3
+        and _is_strong_news_item(str(item.get("title", "")), category, item.get("source"))
     ]
     return strong_items[:MAX_NEWS_ITEMS] if len(strong_items) >= 2 else ranked[:MAX_NEWS_ITEMS]
 
@@ -316,6 +341,7 @@ def _fallback_news_sources(name: str, category: str) -> list[dict]:
         return [
             {"kind": "trade", "badge": "Trade", "title": f"{name} in Billboard coverage", "source": "Billboard", "url": f"https://www.billboard.com/?s={encoded_name}", "publishedAt": None},
             {"kind": "trade", "badge": "Trade", "title": f"{name} in Rolling Stone coverage", "source": "Rolling Stone", "url": f"https://www.rollingstone.com/search/{encoded_name}/", "publishedAt": None},
+            {"kind": "coverage", "badge": "Coverage", "title": f"{name} official music updates", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}+music+release+tour", "publishedAt": None},
         ]
     if category in {"actor", "tv"}:
         return [
@@ -351,8 +377,17 @@ def build_profile_enrichment(name: str, category: str) -> dict:
         }
         for item in headlines[:MAX_NEWS_ITEMS]
     ]
+    fallback_news = _fallback_news_sources(cleaned_name, cleaned_category)
     if len(news) < MAX_NEWS_ITEMS:
-        news = _dedupe_by_title(news + _fallback_news_sources(cleaned_name, cleaned_category))[:MAX_NEWS_ITEMS]
+        news = _dedupe_by_title(news + fallback_news)[:MAX_NEWS_ITEMS]
+    elif cleaned_category == "musician":
+        live_strength = [
+            item for item in news
+            if _is_strong_news_item(str(item.get("title", "")), cleaned_category, item.get("source"))
+            and _normalize_source(item.get("source")) in CATEGORY_PREFERRED_SOURCES.get(cleaned_category, set())
+        ]
+        if len(live_strength) < 2:
+            news = _dedupe_by_title(live_strength + fallback_news + news)[:MAX_NEWS_ITEMS]
 
     extracted_projects, extracted_events = _extract_candidate_labels(cleaned_name, cleaned_category, headlines)
     music_projects = _music_projects(cleaned_name) if cleaned_category == "musician" else []
