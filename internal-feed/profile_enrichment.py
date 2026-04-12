@@ -13,17 +13,11 @@ USER_AGENT = "EntertainersExchangeProfileEnrichment/1.0"
 MAX_NEWS_ITEMS = 4
 MAX_PROJECT_ITEMS = 4
 MAX_EVENT_ITEMS = 4
-PROJECT_KEYWORDS = {
-    "album", "single", "ep", "film", "movie", "series", "season", "documentary",
-    "project", "release", "role", "casting", "cast", "deal", "collection", "campaign",
-    "production", "soundtrack", "tour film", "premiere"
-}
-EVENT_KEYWORDS = {
-    "tour", "festival", "appearance", "show", "concert", "match", "playoff", "premiere",
-    "residency", "schedule", "dates", "tickets", "final", "semifinal", "opening night"
-}
 NOISE_KEYWORDS = {
     "trial", "lawsuit", "legal", "court", "battle", "wedding", "dating", "rumor", "rumour"
+}
+NOISY_SOURCES = {
+    "tmz", "page six", "daily mail", "pinkvilla", "aol.com", "the independent"
 }
 PREFERRED_SOURCE_ORDER = {
     "variety": 0,
@@ -38,6 +32,33 @@ PREFERRED_SOURCE_ORDER = {
     "fifa": 9,
     "vogue.com": 10,
     "people.com": 11,
+}
+
+CATEGORY_PROJECT_KEYWORDS = {
+    "musician": {"album", "single", "ep", "release", "soundtrack", "track", "mixtape", "catalog"},
+    "actor": {"film", "movie", "series", "season", "casting", "cast", "role", "production", "premiere", "trailer"},
+    "tv": {"series", "season", "episode", "show", "premiere", "renewed", "renewal", "special"},
+    "athlete": {"contract", "season", "trade", "playoffs", "schedule", "injury", "return", "finals"},
+    "comedian": {"special", "tour", "show", "series", "podcast", "stand-up"},
+    "creator": {"series", "podcast", "collab", "campaign", "drop", "launch", "video", "season"},
+}
+
+CATEGORY_EVENT_KEYWORDS = {
+    "musician": {"tour", "festival", "concert", "residency", "dates", "tickets", "show"},
+    "actor": {"premiere", "festival", "opening night", "screening", "release date"},
+    "tv": {"premiere", "finale", "release date", "screening", "panel"},
+    "athlete": {"match", "playoff", "final", "semifinal", "schedule", "season opener", "fixture"},
+    "comedian": {"tour", "show", "tickets", "festival", "set"},
+    "creator": {"appearance", "event", "panel", "festival", "drop"},
+}
+
+CATEGORY_PREFERRED_SOURCES = {
+    "musician": {"billboard", "rolling stone", "variety", "deadline", "apple music", "spotify"},
+    "actor": {"variety", "deadline", "the hollywood reporter", "imdb", "tmdb", "vogue.com"},
+    "tv": {"variety", "deadline", "the hollywood reporter", "imdb", "tmdb"},
+    "athlete": {"espn", "nba", "nfl", "mlb", "fifa"},
+    "comedian": {"variety", "deadline", "rolling stone", "youtube"},
+    "creator": {"variety", "deadline", "youtube", "spotify"},
 }
 
 STOPWORDS = {
@@ -86,12 +107,79 @@ def _google_news_rss(query: str) -> list[dict]:
                 "source": source or "Google News",
                 "publishedAt": pub_date,
             })
-    return sorted(items, key=lambda item: (_source_priority(item.get("source")), item.get("publishedAt") or ""))
+    return items
 
 
 def _source_priority(source: object) -> int:
     normalized = str(source or "").strip().lower()
     return PREFERRED_SOURCE_ORDER.get(normalized, 50)
+
+
+def _normalize_source(source: object) -> str:
+    return str(source or "").strip().lower()
+
+
+def _published_timestamp(value: object) -> float:
+    candidate = str(value or "").replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(candidate).timestamp()
+    except ValueError:
+        return 0.0
+
+
+def _category_keywords(category: str, keyword_map: dict[str, set[str]]) -> set[str]:
+    return keyword_map.get(category, keyword_map.get("creator", set()))
+
+
+def _is_noise_headline(title: str, source: object) -> bool:
+    lowered = title.lower()
+    normalized_source = _normalize_source(source)
+    return any(word in lowered for word in NOISE_KEYWORDS) or normalized_source in NOISY_SOURCES
+
+
+def _relevance_score(title: str, category: str, source: object) -> int:
+    lowered = title.lower()
+    normalized_source = _normalize_source(source)
+    score = 0
+
+    preferred_sources = CATEGORY_PREFERRED_SOURCES.get(category, set())
+    if normalized_source in preferred_sources:
+        score += 5
+    if normalized_source in PREFERRED_SOURCE_ORDER:
+        score += 3
+
+    project_keywords = _category_keywords(category, CATEGORY_PROJECT_KEYWORDS)
+    event_keywords = _category_keywords(category, CATEGORY_EVENT_KEYWORDS)
+    score += sum(2 for keyword in project_keywords if keyword in lowered)
+    score += sum(2 for keyword in event_keywords if keyword in lowered)
+
+    if "official" in normalized_source:
+        score += 4
+    if _is_noise_headline(title, source):
+        score -= 8
+
+    return score
+
+
+def _sort_headlines(items: list[dict], category: str) -> list[dict]:
+    return sorted(
+        items,
+        key=lambda item: (
+            _source_priority(item.get("source")),
+            -_relevance_score(str(item.get("title", "")), category, item.get("source")),
+            -_published_timestamp(item.get("publishedAt")),
+        ),
+    )
+
+
+def _filter_news_items(headlines: list[dict], category: str) -> list[dict]:
+    ranked = _sort_headlines(headlines, category)
+    strong_items = [
+        item for item in ranked
+        if not _is_noise_headline(str(item.get("title", "")), item.get("source"))
+        and _relevance_score(str(item.get("title", "")), category, item.get("source")) >= 3
+    ]
+    return strong_items[:MAX_NEWS_ITEMS] if len(strong_items) >= 2 else ranked[:MAX_NEWS_ITEMS]
 
 
 def _parse_rss_date(value: str | None) -> str | None:
@@ -123,9 +211,11 @@ def _dedupe_by_title(items: list[dict], key: str = "title") -> list[dict]:
     return deduped
 
 
-def _extract_candidate_labels(name: str, headlines: list[dict]) -> tuple[list[dict], list[dict]]:
+def _extract_candidate_labels(name: str, category: str, headlines: list[dict]) -> tuple[list[dict], list[dict]]:
     project_items: list[dict] = []
     event_items: list[dict] = []
+    project_keywords = _category_keywords(category, CATEGORY_PROJECT_KEYWORDS)
+    event_keywords = _category_keywords(category, CATEGORY_EVENT_KEYWORDS)
 
     for item in headlines:
         title = _clean_headline(str(item.get("title", "")))
@@ -137,10 +227,10 @@ def _extract_candidate_labels(name: str, headlines: list[dict]) -> tuple[list[di
         source = str(item.get("source", "Google News"))
         published_at = item.get("publishedAt") or ""
 
-        if any(word in lowered for word in NOISE_KEYWORDS):
+        if _is_noise_headline(title, source):
             continue
 
-        if any(word in lowered for word in EVENT_KEYWORDS):
+        if any(word in lowered for word in event_keywords) and _relevance_score(title, category, source) >= 3:
             event_items.append({
                 "title": title,
                 "date": published_at[:10] if published_at else "Current",
@@ -148,7 +238,7 @@ def _extract_candidate_labels(name: str, headlines: list[dict]) -> tuple[list[di
                 "source": source,
             })
 
-        if any(word in lowered for word in PROJECT_KEYWORDS):
+        if any(word in lowered for word in project_keywords) and _relevance_score(title, category, source) >= 3:
             project_items.append({
                 "title": title,
                 "link": url,
@@ -220,13 +310,36 @@ def _fallback_event_sources(name: str, category: str) -> list[dict]:
     ]
 
 
+def _fallback_news_sources(name: str, category: str) -> list[dict]:
+    encoded_name = quote_plus(name)
+    if category == "musician":
+        return [
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Billboard coverage", "source": "Billboard", "url": f"https://www.billboard.com/?s={encoded_name}", "publishedAt": None},
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Rolling Stone coverage", "source": "Rolling Stone", "url": f"https://www.rollingstone.com/search/{encoded_name}/", "publishedAt": None},
+        ]
+    if category in {"actor", "tv"}:
+        return [
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Variety coverage", "source": "Variety", "url": f"https://variety.com/?s={encoded_name}", "publishedAt": None},
+            {"kind": "trade", "badge": "Trade", "title": f"{name} in Deadline coverage", "source": "Deadline", "url": f"https://deadline.com/?s={encoded_name}", "publishedAt": None},
+        ]
+    if category == "athlete":
+        return [
+            {"kind": "coverage", "badge": "Coverage", "title": f"{name} in ESPN coverage", "source": "ESPN", "url": f"https://www.espn.com/search/_/q/{encoded_name}", "publishedAt": None},
+            {"kind": "coverage", "badge": "Coverage", "title": f"{name} in current sports coverage", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}", "publishedAt": None},
+        ]
+    return [
+        {"kind": "coverage", "badge": "Coverage", "title": f"{name} in current coverage", "source": "Google News", "url": f"https://news.google.com/search?q={encoded_name}", "publishedAt": None},
+        {"kind": "trade", "badge": "Trade", "title": f"{name} in Variety coverage", "source": "Variety", "url": f"https://variety.com/?s={encoded_name}", "publishedAt": None},
+    ]
+
+
 def build_profile_enrichment(name: str, category: str) -> dict:
     cleaned_name = (name or "").strip()
     cleaned_category = (category or "creator").strip().lower()
     if not cleaned_name:
         return {"projects": [], "upcomingEvents": [], "news": [], "generatedAt": datetime.now(UTC).isoformat().replace("+00:00", "Z")}
 
-    headlines = _google_news_rss(cleaned_name)
+    headlines = _filter_news_items(_google_news_rss(cleaned_name), cleaned_category)
     news = [
         {
             "kind": "coverage",
@@ -238,8 +351,10 @@ def build_profile_enrichment(name: str, category: str) -> dict:
         }
         for item in headlines[:MAX_NEWS_ITEMS]
     ]
+    if len(news) < MAX_NEWS_ITEMS:
+        news = _dedupe_by_title(news + _fallback_news_sources(cleaned_name, cleaned_category))[:MAX_NEWS_ITEMS]
 
-    extracted_projects, extracted_events = _extract_candidate_labels(cleaned_name, headlines)
+    extracted_projects, extracted_events = _extract_candidate_labels(cleaned_name, cleaned_category, headlines)
     music_projects = _music_projects(cleaned_name) if cleaned_category == "musician" else []
 
     projects = _dedupe_by_title(music_projects + extracted_projects + _fallback_project_sources(cleaned_name, cleaned_category))[:MAX_PROJECT_ITEMS]

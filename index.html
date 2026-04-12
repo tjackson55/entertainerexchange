@@ -1436,17 +1436,50 @@
       return merged;
     }
 
+    function getProfileNewsPriority(item, category) {
+      const source = String(item && item.source || "").trim().toLowerCase();
+      const title = String(item && item.title || "").trim().toLowerCase();
+      const priorities = {
+        variety: 0,
+        deadline: 1,
+        "the hollywood reporter": 2,
+        billboard: 3,
+        "rolling stone": 4,
+        espn: 5,
+        imdb: 6,
+        songkick: 7,
+        ticketmaster: 8,
+        "google news": 20,
+        "people.com": 30,
+        "vogue.com": category === "musician" ? 28 : 12,
+        "page six": 40,
+        tmz: 42,
+        "daily mail": 44
+      };
+      let priority = Object.prototype.hasOwnProperty.call(priorities, source) ? priorities[source] : 24;
+
+      if (title.includes("lawsuit") || title.includes("trial") || title.includes("dating") || title.includes("wedding")) {
+        priority += 20;
+      }
+
+      return priority;
+    }
+
     function getDisplayEntertainer(entertainer) {
       const enrichment = profileEnrichmentCache.get(entertainer.name);
       if (!enrichment) {
         return entertainer;
       }
 
+      const mergedNews = mergeUniqueProfileItems(enrichment.news, entertainer.news)
+        .sort((left, right) => getProfileNewsPriority(left, entertainer.category) - getProfileNewsPriority(right, entertainer.category))
+        .slice(0, 4);
+
       return {
         ...entertainer,
         projects: mergeUniqueProfileItems(enrichment.projects, entertainer.projects),
         upcomingEvents: mergeUniqueProfileItems(enrichment.upcomingEvents, entertainer.upcomingEvents),
-        news: mergeUniqueProfileItems(enrichment.news, entertainer.news)
+        news: mergedNews
       };
     }
 
