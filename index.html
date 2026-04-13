@@ -353,6 +353,7 @@
                 <span id="artist-held-shares" class="artist-position-chip">Held: 0</span>
                 <span id="artist-average-cost" class="artist-position-chip">Avg Cost: $0.00</span>
                 <span id="artist-position-value" class="artist-position-chip">Position: $0.00</span>
+                <span id="artist-unrealized-gain" class="artist-position-chip">Unrealized: +$0.00</span>
               </div>
               <div class="artist-trade-controls">
                 <label class="qty-label" for="artist-qty-input">Qty</label>
@@ -3098,6 +3099,7 @@
       const heldShares = holding && holding.shares > 0 ? holding.shares : 0;
       const averageCost = heldShares > 0 ? holding.totalCost / holding.shares : 0;
       const positionValue = heldShares * entertainer.price;
+      const unrealizedGain = heldShares > 0 ? positionValue - holding.totalCost : 0;
       const quantity = getQuantity(entertainer.name);
       const artistPhoto = document.getElementById("artist-photo");
       const artistCard = document.getElementById("artist-detail-card");
@@ -3112,6 +3114,9 @@
       document.getElementById("artist-held-shares").innerText = `Held: ${heldShares}`;
       document.getElementById("artist-average-cost").innerText = `Avg Cost: ${formatCurrency(averageCost)}`;
       document.getElementById("artist-position-value").innerText = `Position: ${formatCurrency(positionValue)}`;
+      const unrealizedGainNode = document.getElementById("artist-unrealized-gain");
+      unrealizedGainNode.innerText = `Unrealized: ${formatSignedCurrency(unrealizedGain)}`;
+      unrealizedGainNode.className = `artist-position-chip ${unrealizedGain >= 0 ? "positive-text" : "negative-text"}`;
 
       const buyButton = document.getElementById("artist-buy-button");
       const sellButton = document.getElementById("artist-sell-button");
