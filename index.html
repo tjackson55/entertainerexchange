@@ -354,6 +354,14 @@
                 <span id="artist-average-cost" class="artist-position-chip">Avg Cost: $0.00</span>
                 <span id="artist-position-value" class="artist-position-chip">Position: $0.00</span>
               </div>
+              <div class="artist-trade-controls">
+                <label class="qty-label" for="artist-qty-input">Qty</label>
+                <div class="qty-stepper">
+                  <button id="artist-qty-decrease" class="qty-button" type="button">-</button>
+                  <input id="artist-qty-input" class="qty-input" type="number" min="1" step="1" value="1">
+                  <button id="artist-qty-increase" class="qty-button" type="button">+</button>
+                </div>
+              </div>
               <div class="artist-profile-actions">
                 <button id="artist-buy-button" class="buy" type="button">Add</button>
                 <button id="artist-sell-button" class="sell" type="button">Trim</button>
@@ -3090,6 +3098,7 @@
       const heldShares = holding && holding.shares > 0 ? holding.shares : 0;
       const averageCost = heldShares > 0 ? holding.totalCost / holding.shares : 0;
       const positionValue = heldShares * entertainer.price;
+      const quantity = getQuantity(entertainer.name);
       const artistPhoto = document.getElementById("artist-photo");
       const artistCard = document.getElementById("artist-detail-card");
       artistPhoto.className = `artist-photo avatar-badge avatar-${displayEntertainer.category || "creator"}`;
@@ -3107,6 +3116,22 @@
       const buyButton = document.getElementById("artist-buy-button");
       const sellButton = document.getElementById("artist-sell-button");
       const tradeButton = document.getElementById("artist-trade-button");
+      const quantityInput = document.getElementById("artist-qty-input");
+      const quantityDecrease = document.getElementById("artist-qty-decrease");
+      const quantityIncrease = document.getElementById("artist-qty-increase");
+      quantityInput.value = String(quantity);
+      quantityDecrease.onclick = () => {
+        changeQuantity(displayEntertainer.name, -1);
+        quantityInput.value = String(getQuantity(displayEntertainer.name));
+      };
+      quantityIncrease.onclick = () => {
+        changeQuantity(displayEntertainer.name, 1);
+        quantityInput.value = String(getQuantity(displayEntertainer.name));
+      };
+      quantityInput.onchange = () => {
+        setTradeQuantity(displayEntertainer.name, quantityInput.value);
+        quantityInput.value = String(getQuantity(displayEntertainer.name));
+      };
       buyButton.onclick = () => handleCardActionByName(displayEntertainer.name, "buy");
       sellButton.onclick = () => handleCardActionByName(displayEntertainer.name, "sell");
       tradeButton.onclick = () => handleCardActionByName(displayEntertainer.name, "trade");

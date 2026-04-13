@@ -2322,6 +2322,17 @@ body[data-theme="paper"] .community-link-field span {
   gap: 12px;
 }
 
+.artist-trade-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.artist-trade-controls .qty-stepper {
+  margin-left: auto;
+}
+
 .artist-position-chip-row {
   display: flex;
   flex-wrap: wrap;
@@ -2803,6 +2814,15 @@ body[data-theme="paper"] .community-link-field span {
 
   .artist-profile-actions {
     grid-template-columns: 1fr;
+  }
+
+  .artist-trade-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .artist-trade-controls .qty-stepper {
+    margin-left: 0;
   }
 
   .artist-sections {
