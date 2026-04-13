@@ -125,6 +125,37 @@
       </div>
     </header>
 
+    <section id="market-spotlight" class="market-spotlight" aria-label="Live market spotlight">
+      <div class="market-spotlight-shell">
+        <div>
+          <p class="section-kicker">Live Spotlight</p>
+          <h2 id="market-spotlight-name">Scanning the board</h2>
+          <p id="market-spotlight-summary" class="market-spotlight-summary">Building the strongest live angle across the fantasy index.</p>
+          <div id="market-spotlight-actions" class="market-spotlight-actions"></div>
+        </div>
+        <div class="market-spotlight-board">
+          <div class="market-spotlight-ring" aria-hidden="true">
+            <div class="market-spotlight-ring-core"></div>
+          </div>
+          <div class="market-spotlight-metrics">
+            <article>
+              <span>Price Move</span>
+              <strong id="market-spotlight-move">+0.0%</strong>
+            </article>
+            <article>
+              <span>Momentum</span>
+              <strong id="market-spotlight-momentum">+0</strong>
+            </article>
+            <article>
+              <span>24h Flow</span>
+              <strong id="market-spotlight-flow">$0</strong>
+            </article>
+          </div>
+          <div id="market-spotlight-tags" class="market-spotlight-tags"></div>
+        </div>
+      </div>
+    </section>
+
     <main class="layout-grid">
       <section class="panel panel-market">
         <div class="section-heading">
@@ -147,8 +178,28 @@
             <span id="market-brief-timestamp" class="market-brief-timestamp">Refreshing now</span>
           </div>
           <p id="market-brief-summary" class="market-brief-summary">Scanning the board for the strongest moves.</p>
-          <div id="market-brief-grid" class="market-brief-grid"></div>
-          <div id="market-catalyst-strip" class="market-catalyst-strip" aria-live="polite"></div>
+          <div class="market-brief-nav" role="tablist" aria-label="Market pulse views">
+            <button class="market-brief-tab active" type="button" data-brief-view="overview" onclick="setMarketBriefView('overview')" aria-pressed="true">Overview</button>
+            <button class="market-brief-tab" type="button" data-brief-view="sectors" onclick="setMarketBriefView('sectors')" aria-pressed="false">Sectors</button>
+            <button class="market-brief-tab" type="button" data-brief-view="catalysts" onclick="setMarketBriefView('catalysts')" aria-pressed="false">Catalysts</button>
+          </div>
+          <section id="market-brief-overview-panel" class="market-brief-panel">
+            <div id="market-brief-grid" class="market-brief-grid"></div>
+          </section>
+          <section id="market-brief-sectors-panel" class="market-brief-panel" hidden>
+            <div class="market-heatmap-head">
+              <p class="market-brief-label">Sector Heatmap</p>
+              <span>Tap a lane to focus the board</span>
+            </div>
+            <div id="market-sector-heatmap" class="market-sector-heatmap" aria-live="polite"></div>
+          </section>
+          <section id="market-brief-catalysts-panel" class="market-brief-panel" hidden>
+            <div class="market-heatmap-head">
+              <p class="market-brief-label">Catalyst Desk</p>
+              <span>Active headlines shaping the board</span>
+            </div>
+            <div id="market-catalyst-strip" class="market-catalyst-strip" aria-live="polite"></div>
+          </section>
         </section>
         <div class="market-toolbar">
           <label class="toolbar-field">
@@ -261,89 +312,104 @@
           <div id="feed" class="feed-list"></div>
         </section>
 
-        <section class="panel panel-community">
-          <div class="section-heading">
+        <section class="panel panel-community panel-collapsible">
+          <div class="section-heading section-heading-collapsible">
             <div>
               <p class="section-kicker">Community</p>
               <h2>Share Your Profile</h2>
             </div>
+            <button class="panel-collapse-toggle" type="button" data-panel-target="community-panel-body" onclick="togglePanelBody('community-panel-body')" aria-expanded="false">Show</button>
+          </div>
+          <div id="community-panel-body" class="panel-collapsible-body" hidden>
             <p class="section-note">Create a profile card with your bio, links, and profile caption, then share your page URL.</p>
-          </div>
-          <div id="profile-empty" class="empty-state">Profile is optional. Create one any time to make this page shareable.</div>
-          <article id="profile-card" class="community-profile-card" hidden>
-            <div class="community-profile-head">
-              <h3 id="profile-name">Your Name</h3>
-              <span id="profile-status-pill" class="profile-status-pill">Share Ready</span>
+            <div id="profile-empty" class="empty-state">Profile is optional. Create one any time to make this page shareable.</div>
+            <article id="profile-card" class="community-profile-card" hidden>
+              <div class="community-profile-head">
+                <h3 id="profile-name">Your Name</h3>
+                <span id="profile-status-pill" class="profile-status-pill">Share Ready</span>
+              </div>
+              <p id="profile-bio" class="community-profile-bio"></p>
+              <blockquote id="profile-message" class="community-profile-message" hidden></blockquote>
+              <div id="profile-stats" class="community-profile-stats"></div>
+              <div id="profile-badges" class="community-profile-badges"></div>
+              <div id="profile-unlocks" class="community-profile-unlocks"></div>
+              <div id="profile-links" class="community-profile-links"></div>
+            </article>
+            <div class="community-profile-actions">
+              <button id="profile-create-button" class="ghost-button" type="button">Create Profile</button>
+              <button id="profile-copy-link" class="ghost-button" type="button" disabled>Copy Share Link</button>
             </div>
-            <p id="profile-bio" class="community-profile-bio"></p>
-            <blockquote id="profile-message" class="community-profile-message" hidden></blockquote>
-            <div id="profile-stats" class="community-profile-stats"></div>
-            <div id="profile-badges" class="community-profile-badges"></div>
-            <div id="profile-unlocks" class="community-profile-unlocks"></div>
-            <div id="profile-links" class="community-profile-links"></div>
-          </article>
-          <div class="community-profile-actions">
-            <button id="profile-create-button" class="ghost-button" type="button">Create Profile</button>
-            <button id="profile-copy-link" class="ghost-button" type="button" disabled>Copy Share Link</button>
+            <label class="community-link-field" for="profile-share-link">
+              <span>Share URL</span>
+              <input id="profile-share-link" type="text" readonly placeholder="Profile optional. Create one to generate your share link">
+            </label>
           </div>
-          <label class="community-link-field" for="profile-share-link">
-            <span>Share URL</span>
-            <input id="profile-share-link" type="text" readonly placeholder="Profile optional. Create one to generate your share link">
-          </label>
         </section>
 
-        <section class="panel panel-pro">
-          <div class="section-heading">
+        <section class="panel panel-pro panel-collapsible">
+          <div class="section-heading section-heading-collapsible">
             <div>
               <p class="section-kicker">Pro</p>
               <h2>Pro Analytics</h2>
             </div>
+            <button class="panel-collapse-toggle" type="button" data-panel-target="pro-panel-body" onclick="togglePanelBody('pro-panel-body')" aria-expanded="false">Show</button>
           </div>
-          <ul class="pro-feature-list">
-            <li>Advanced ranking filters and private watchlists</li>
-            <li>Historical trend breakdowns and weekly mover reports</li>
-            <li>Creator, athlete, and actor sector dashboards</li>
-            <li>Premium alerts and export-ready roster summaries</li>
-          </ul>
-          <div class="pro-actions">
-            <button id="pro-waitlist-btn" class="featured-nav-link featured-nav-button" type="button">Join Pro Waitlist</button>
-            <a class="featured-nav-link" href="#fantasy-use-note">View Fantasy Use Note</a>
+          <div id="pro-panel-body" class="panel-collapsible-body" hidden>
+            <ul class="pro-feature-list">
+              <li>Advanced ranking filters and private watchlists</li>
+              <li>Historical trend breakdowns and weekly mover reports</li>
+              <li>Creator, athlete, and actor sector dashboards</li>
+              <li>Premium alerts and export-ready roster summaries</li>
+            </ul>
+            <div class="pro-actions">
+              <button id="pro-waitlist-btn" class="featured-nav-link featured-nav-button" type="button">Join Pro Waitlist</button>
+              <a class="featured-nav-link" href="#fantasy-use-note">View Fantasy Use Note</a>
+            </div>
+            <p id="fantasy-use-note" class="disclaimer-copy">Fantasy-use note: this experience is for entertainment and trend tracking only. It does not offer real ownership in entertainers, real-money cash out, or affiliation with the public figures featured here.</p>
           </div>
-          <p id="fantasy-use-note" class="disclaimer-copy">Fantasy-use note: this experience is for entertainment and trend tracking only. It does not offer real ownership in entertainers, real-money cash out, or affiliation with the public figures featured here.</p>
         </section>
 
-        <section class="panel panel-trending">
-          <div class="section-heading">
+        <section class="panel panel-trending panel-collapsible">
+          <div class="section-heading section-heading-collapsible">
             <div>
               <p class="section-kicker">Hot right now</p>
               <h2>Trending</h2>
             </div>
-            <p class="section-note">Biggest movers this session.</p>
+            <button class="panel-collapse-toggle" type="button" data-panel-target="trending-panel-body" onclick="togglePanelBody('trending-panel-body')" aria-expanded="false">Show</button>
           </div>
-          <div id="trending-list" class="trending-list"></div>
+          <div id="trending-panel-body" class="panel-collapsible-body" hidden>
+            <p class="section-note">Biggest movers this session.</p>
+            <div id="trending-list" class="trending-list"></div>
+          </div>
         </section>
 
-        <section class="panel panel-watchlist">
-          <div class="section-heading">
+        <section class="panel panel-watchlist panel-collapsible">
+          <div class="section-heading section-heading-collapsible">
             <div>
               <p class="section-kicker">Watching</p>
               <h2>Watchlist</h2>
             </div>
-            <p class="section-note">Click ★ on any card to add.</p>
+            <button class="panel-collapse-toggle" type="button" data-panel-target="watchlist-panel-body" onclick="togglePanelBody('watchlist-panel-body')" aria-expanded="false">Show</button>
           </div>
-          <div id="watchlist-empty" class="empty-state">No items yet. Star an entertainer to track it here.</div>
-          <div id="watchlist-panel-list" class="watchlist-panel-list"></div>
+          <div id="watchlist-panel-body" class="panel-collapsible-body" hidden>
+            <p class="section-note">Click ★ on any card to add.</p>
+            <div id="watchlist-empty" class="empty-state">No items yet. Star an entertainer to track it here.</div>
+            <div id="watchlist-panel-list" class="watchlist-panel-list"></div>
+          </div>
         </section>
 
-        <section class="panel panel-leaderboard">
-          <div class="section-heading">
+        <section class="panel panel-leaderboard panel-collapsible">
+          <div class="section-heading section-heading-collapsible">
             <div>
               <p class="section-kicker">Rankings</p>
               <h2>Leaderboard</h2>
             </div>
-            <p class="section-note">Top scores. Share your profile to appear here.</p>
+            <button class="panel-collapse-toggle" type="button" data-panel-target="leaderboard-panel-body" onclick="togglePanelBody('leaderboard-panel-body')" aria-expanded="false">Show</button>
           </div>
-          <div id="leaderboard-list" class="leaderboard-list"></div>
+          <div id="leaderboard-panel-body" class="panel-collapsible-body" hidden>
+            <p class="section-note">Top scores. Share your profile to appear here.</p>
+            <div id="leaderboard-list" class="leaderboard-list"></div>
+          </div>
         </section>
       </div>
     </main>
@@ -1160,6 +1226,7 @@
     let newsFeed = [];
     let featuredFeedItems = [];
     let marketCatalysts = [];
+    let marketBriefView = "overview";
     let money = STARTING_MONEY;
     let tradeQuantities = {};
     let charts = {};
@@ -2931,6 +2998,122 @@
       return ranked[0] || { category: "all", score: 0 };
     }
 
+    function buildSectorHeatmap() {
+      const categoryMap = new Map();
+
+      entertainers.forEach((entertainer) => {
+        const metrics = getEntertainerMetrics(entertainer);
+        const current = categoryMap.get(entertainer.category) || {
+          category: entertainer.category,
+          count: 0,
+          momentumSum: 0,
+          priceChangeSum: 0,
+          volume24h: 0,
+          leaderName: entertainer.name,
+          leaderMomentum: -Infinity
+        };
+
+        current.count += 1;
+        current.momentumSum += metrics.momentum;
+        current.priceChangeSum += metrics.priceChangePct;
+        current.volume24h += metrics.volume24h;
+        if (metrics.momentum > current.leaderMomentum) {
+          current.leaderMomentum = metrics.momentum;
+          current.leaderName = entertainer.name;
+        }
+        categoryMap.set(entertainer.category, current);
+      });
+
+      return [...categoryMap.values()]
+        .map((entry) => {
+          const avgMomentum = entry.count > 0 ? entry.momentumSum / entry.count : 0;
+          const avgPriceChangePct = entry.count > 0 ? entry.priceChangeSum / entry.count : 0;
+          const heat = Math.max(8, Math.min(100, Math.round(50 + (avgMomentum * 0.9) + (avgPriceChangePct * 3.5))));
+          return {
+            category: entry.category,
+            label: formatCategoryLabel(entry.category),
+            avgMomentum,
+            avgPriceChangePct,
+            volume24h: entry.volume24h,
+            leaderName: entry.leaderName,
+            heat,
+            tone: avgMomentum > 6 ? "positive" : avgMomentum < -6 ? "negative" : "neutral"
+          };
+        })
+        .sort((left, right) => right.avgMomentum - left.avgMomentum);
+    }
+
+    function setMarketCategoryFilter(category) {
+      marketFilters.category = category || "all";
+      marketFilters.page = 1;
+      saveState();
+      renderMarket();
+      renderStats();
+      renderFeed();
+    }
+
+    function setMarketBriefView(view) {
+      const nextView = ["overview", "sectors", "catalysts"].includes(view) ? view : "overview";
+      marketBriefView = nextView;
+      renderMarketBriefView();
+    }
+
+    function renderMarketBriefView() {
+      const panels = {
+        overview: document.getElementById("market-brief-overview-panel"),
+        sectors: document.getElementById("market-brief-sectors-panel"),
+        catalysts: document.getElementById("market-brief-catalysts-panel")
+      };
+
+      Object.entries(panels).forEach(([view, element]) => {
+        if (!element) {
+          return;
+        }
+        element.hidden = view !== marketBriefView;
+      });
+
+      document.querySelectorAll(".market-brief-tab").forEach((button) => {
+        const isActive = button.dataset.briefView === marketBriefView;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    }
+
+    window.setMarketBriefView = setMarketBriefView;
+
+    function renderSectorHeatmap() {
+      const heatmapEl = document.getElementById("market-sector-heatmap");
+      if (!heatmapEl) {
+        return;
+      }
+
+      const sectors = buildSectorHeatmap();
+      heatmapEl.innerHTML = sectors.map((sector) => `
+        <button
+          class="sector-heatmap-card tone-${escapeHtml(sector.tone)}${marketFilters.category === sector.category ? " active" : ""}"
+          type="button"
+          onclick="setMarketCategoryFilter('${escapeHtml(sector.category)}')"
+          aria-pressed="${marketFilters.category === sector.category ? "true" : "false"}"
+        >
+          <div class="sector-heatmap-topline">
+            <p class="market-brief-label">${escapeHtml(sector.label)}</p>
+            <span>${escapeHtml(formatSignedPercent(sector.avgPriceChangePct))}</span>
+          </div>
+          <h4>${escapeHtml(sector.label)}</h4>
+          <p>Leader: ${escapeHtml(sector.leaderName)}</p>
+          <div class="sector-heatmap-bar" aria-hidden="true">
+            <span style="width:${sector.heat}%"></span>
+          </div>
+          <div class="sector-heatmap-metrics">
+            <strong>${escapeHtml(`${sector.avgMomentum >= 0 ? "+" : ""}${Math.round(sector.avgMomentum)}`)}</strong>
+            <span>${escapeHtml(`${formatCompactCurrency(sector.volume24h)} flow`)}</span>
+          </div>
+        </button>
+      `).join("");
+    }
+
+    window.setMarketCategoryFilter = setMarketCategoryFilter;
+
     function buildMarketBrief() {
       const ranked = entertainers
         .map((entertainer) => ({ entertainer, metrics: getEntertainerMetrics(entertainer) }))
@@ -3002,6 +3185,68 @@
       };
     }
 
+    function buildMarketSpotlight() {
+      const ranked = entertainers
+        .map((entertainer) => ({ entertainer, metrics: getEntertainerMetrics(entertainer) }))
+        .sort((left, right) => {
+          const rightScore = Math.abs(right.metrics.priceChangePct) + (Math.abs(right.metrics.momentum) * 0.35);
+          const leftScore = Math.abs(left.metrics.priceChangePct) + (Math.abs(left.metrics.momentum) * 0.35);
+          return rightScore - leftScore;
+        });
+
+      const spotlight = ranked[0] || null;
+      const catalyst = getLatestMarketCatalyst();
+      const sectorLeader = getCategoryMomentumLeader();
+      if (!spotlight) {
+        return null;
+      }
+
+      const holding = portfolio[spotlight.entertainer.name];
+      const ownedShares = holding?.shares || 0;
+      const tone = spotlight.metrics.priceChangePct >= 0 ? "positive" : "negative";
+
+      return {
+        entertainer: spotlight.entertainer,
+        metrics: spotlight.metrics,
+        tone,
+        summary: `${spotlight.entertainer.name} is the loudest name on the board right now, moving ${formatSignedPercent(spotlight.metrics.priceChangePct)} with ${formatCompactCurrency(spotlight.metrics.volume24h)} in recent flow. ${catalyst.title} is the current read-through while ${formatCategoryLabel(sectorLeader.category)} remain the strongest lane.`,
+        tags: [
+          `${formatCategoryLabel(spotlight.entertainer.category)} focus`,
+          catalyst.title,
+          ownedShares > 0 ? `You own ${ownedShares}` : "Not in your roster"
+        ]
+      };
+    }
+
+    function renderMarketSpotlight() {
+      const spotlight = buildMarketSpotlight();
+      const root = document.getElementById("market-spotlight");
+      const nameEl = document.getElementById("market-spotlight-name");
+      const summaryEl = document.getElementById("market-spotlight-summary");
+      const moveEl = document.getElementById("market-spotlight-move");
+      const momentumEl = document.getElementById("market-spotlight-momentum");
+      const flowEl = document.getElementById("market-spotlight-flow");
+      const tagsEl = document.getElementById("market-spotlight-tags");
+      const actionsEl = document.getElementById("market-spotlight-actions");
+      if (!root || !spotlight || !nameEl || !summaryEl || !moveEl || !momentumEl || !flowEl || !tagsEl || !actionsEl) {
+        return;
+      }
+
+      root.className = `market-spotlight tone-${spotlight.tone} category-${escapeHtml(spotlight.entertainer.category)}`;
+      nameEl.innerText = spotlight.entertainer.name;
+      summaryEl.innerText = spotlight.summary;
+      moveEl.innerText = formatSignedPercent(spotlight.metrics.priceChangePct);
+      momentumEl.innerText = `${spotlight.metrics.momentum >= 0 ? "+" : ""}${spotlight.metrics.momentum}`;
+      flowEl.innerText = formatCompactCurrency(spotlight.metrics.volume24h);
+      tagsEl.innerHTML = spotlight.tags.map((tag) => `<span class="market-spotlight-tag">${escapeHtml(tag)}</span>`).join("");
+
+      const safeName = spotlight.entertainer.name.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+      actionsEl.innerHTML = `
+        <button class="market-spotlight-primary" type="button" onclick="openArtistPage('${safeName}')">Open Spotlight</button>
+        <button class="market-spotlight-secondary" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'buy')">Add To Roster</button>
+      `;
+    }
+
     function renderMarketBrief() {
       const summaryEl = document.getElementById("market-brief-summary");
       const gridEl = document.getElementById("market-brief-grid");
@@ -3021,7 +3266,9 @@
           <p>${escapeHtml(card.detail || "Watching for the next shift.")}</p>
         </article>
       `).join("");
+      renderSectorHeatmap();
       renderMarketCatalysts();
+      renderMarketBriefView();
     }
 
     function calculateVolatilityPercent(entertainer) {
@@ -3355,6 +3602,7 @@
       const feed = document.getElementById("feed");
       feed.innerHTML = "";
 
+      renderMarketSpotlight();
       renderMarketBrief();
 
       const featuredEntries = featuredFeedItems.slice(0, 3).map((item) => ({ kind: "featured", item }));
@@ -4507,6 +4755,24 @@
       closeResetModal(); dismissReceipt(); updateUI();
     }
 
+    function togglePanelBody(bodyId) {
+      const body = document.getElementById(bodyId);
+      if (!body) {
+        return;
+      }
+
+      const nextHidden = !body.hidden;
+      body.hidden = nextHidden;
+
+      const toggle = document.querySelector(`.panel-collapse-toggle[data-panel-target="${bodyId}"]`);
+      if (toggle) {
+        toggle.setAttribute("aria-expanded", nextHidden ? "false" : "true");
+        toggle.innerText = nextHidden ? "Show" : "Hide";
+      }
+    }
+
+    window.togglePanelBody = togglePanelBody;
+
     // ── Profile Stats ────────────────────────────────────────────────────────
     function getProfileStats() {
       const stats = calculatePortfolioStats();
@@ -4620,11 +4886,7 @@
     });
     document.querySelectorAll(".category-chip").forEach((chip) => {
       chip.addEventListener("click", () => {
-        marketFilters.category = chip.dataset.category;
-        marketFilters.page = 1;
-        saveState();
-        renderMarket();
-        renderStats();
+        setMarketCategoryFilter(chip.dataset.category);
       });
     });
     document.getElementById("market-prev").addEventListener("click", () => {
