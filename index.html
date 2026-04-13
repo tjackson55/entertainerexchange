@@ -138,6 +138,18 @@
           <span class="market-banner-label">Now trending</span>
           <div id="ticker-tape" class="ticker-tape"></div>
         </div>
+        <section class="market-brief" aria-label="Live market brief">
+          <div class="market-brief-head">
+            <div>
+              <p class="section-kicker">Live Brief</p>
+              <h3>Market Pulse</h3>
+            </div>
+            <span id="market-brief-timestamp" class="market-brief-timestamp">Refreshing now</span>
+          </div>
+          <p id="market-brief-summary" class="market-brief-summary">Scanning the board for the strongest moves.</p>
+          <div id="market-brief-grid" class="market-brief-grid"></div>
+          <div id="market-catalyst-strip" class="market-catalyst-strip" aria-live="polite"></div>
+        </section>
         <div class="market-toolbar">
           <label class="toolbar-field">
             <span>Sort</span>
@@ -1133,6 +1145,8 @@
     const PRO_WAITLIST_KEY = "entertainers-exchange-pro-waitlist";
     const FEATURED_FEED_REFRESH_MS = 5 * 60 * 1000;
     const MARKET_EVENT_INTERVAL_MS = 12000;
+    const MARKET_CATALYST_LIMIT = 6;
+    const MARKET_CATALYST_TTL = 4;
     const PRICE_HISTORY_LIMIT = 14;
     const EQUITY_HISTORY_LIMIT = 24;
     const TRADE_HISTORY_LIMIT = 5000;
@@ -1145,6 +1159,7 @@
     let portfolio = {};
     let newsFeed = [];
     let featuredFeedItems = [];
+    let marketCatalysts = [];
     let money = STARTING_MONEY;
     let tradeQuantities = {};
     let charts = {};
@@ -2336,6 +2351,7 @@
         entertainers: entertainers.map(({ name, price, history, volumeHistory }) => ({ name, price, history, volumeHistory })),
         portfolio,
         newsFeed,
+        marketCatalysts,
         money,
         tradeQuantities,
         equityHistory,
@@ -2369,6 +2385,7 @@
 
       if (!parsed) {
         newsFeed = ["Index live. Watch for momentum swings."];
+        marketCatalysts = [];
         tradeHistory = loadPermanentTrades();
         displaySettings = loadDisplaySettings();
         ensureEntertainerPhotos();
@@ -2402,6 +2419,9 @@
         }
         portfolio = parsed.portfolio && typeof parsed.portfolio === "object" ? parsed.portfolio : {};
         newsFeed = Array.isArray(parsed.newsFeed) ? parsed.newsFeed : [];
+        marketCatalysts = Array.isArray(parsed.marketCatalysts)
+          ? parsed.marketCatalysts.map(sanitizeMarketCatalyst).filter(Boolean).slice(0, MARKET_CATALYST_LIMIT)
+          : [];
         money = typeof parsed.money === "number" ? parsed.money : STARTING_MONEY;
         tradeQuantities = parsed.tradeQuantities && typeof parsed.tradeQuantities === "object" ? parsed.tradeQuantities : {};
         equityHistory = Array.isArray(parsed.equityHistory) ? parsed.equityHistory.slice(-EQUITY_HISTORY_LIMIT) : [];
@@ -2434,6 +2454,7 @@
         entertainers = cloneBaseEntertainers();
         portfolio = {};
         newsFeed = ["Saved data was reset after a load error."];
+        marketCatalysts = [];
         money = STARTING_MONEY;
         tradeQuantities = {};
         equityHistory = [];
@@ -2590,6 +2611,417 @@
 
     function formatCompactCurrency(value) {
       return `$${formatCompactNumber(value)}`;
+    }
+
+    function formatSignedPercent(value) {
+      const numeric = Number(value) || 0;
+      return `${numeric >= 0 ? "+" : "-"}${Math.abs(numeric).toFixed(1)}%`;
+    }
+
+    function sanitizeMarketCatalyst(catalyst) {
+      if (!catalyst || typeof catalyst !== "object") {
+        return null;
+      }
+
+      const targetType = ["entertainer", "category", "market"].includes(catalyst.targetType)
+        ? catalyst.targetType
+        : "market";
+      const title = String(catalyst.title || "").trim();
+      if (!title) {
+        return null;
+      }
+
+      const target = String(catalyst.target || "").trim();
+      const sentiment = Number(catalyst.sentiment) >= 0 ? 1 : -1;
+      const intensity = Math.max(1, Math.min(5, Math.round(Number(catalyst.intensity) || 1)));
+      const remainingTicks = Math.max(0, Math.min(8, Math.round(Number(catalyst.remainingTicks) || MARKET_CATALYST_TTL)));
+
+      return {
+        id: String(catalyst.id || `${targetType}:${target || title}:${sentiment > 0 ? "up" : "down"}`),
+        title,
+        detail: String(catalyst.detail || "Watching for the next shift.").trim(),
+        targetType,
+        target,
+        sentiment,
+        intensity,
+        remainingTicks,
+        source: String(catalyst.source || "desk"),
+        createdAt: Number(catalyst.createdAt) || Date.now(),
+        lastAppliedAt: Number(catalyst.lastAppliedAt) || 0
+      };
+    }
+
+    function sortMarketCatalysts(list) {
+      return list.slice().sort((left, right) => {
+        const rightScore = (right.intensity * 10) + right.remainingTicks + (right.source === "featured" ? 4 : 0);
+        const leftScore = (left.intensity * 10) + left.remainingTicks + (left.source === "featured" ? 4 : 0);
+        if (rightScore !== leftScore) {
+          return rightScore - leftScore;
+        }
+        return (right.createdAt || 0) - (left.createdAt || 0);
+      });
+    }
+
+    function setMarketCatalysts(nextCatalysts) {
+      marketCatalysts = sortMarketCatalysts(
+        (Array.isArray(nextCatalysts) ? nextCatalysts : [])
+          .map(sanitizeMarketCatalyst)
+          .filter((item) => item && item.remainingTicks > 0)
+      ).slice(0, MARKET_CATALYST_LIMIT);
+    }
+
+    function upsertMarketCatalyst(catalyst) {
+      const normalized = sanitizeMarketCatalyst(catalyst);
+      if (!normalized) {
+        return;
+      }
+
+      const existing = marketCatalysts.find((item) => item.id === normalized.id);
+      if (!existing) {
+        setMarketCatalysts([normalized, ...marketCatalysts]);
+        return;
+      }
+
+      setMarketCatalysts(marketCatalysts.map((item) => {
+        if (item.id !== normalized.id) {
+          return item;
+        }
+        return {
+          ...item,
+          title: normalized.title || item.title,
+          detail: normalized.detail || item.detail,
+          targetType: normalized.targetType || item.targetType,
+          target: normalized.target || item.target,
+          sentiment: normalized.sentiment,
+          intensity: Math.max(item.intensity, normalized.intensity),
+          remainingTicks: Math.max(item.remainingTicks, normalized.remainingTicks),
+          source: normalized.source || item.source,
+          createdAt: Math.max(item.createdAt || 0, normalized.createdAt || 0)
+        };
+      }));
+    }
+
+    function inferCatalystSentiment(text, fallback = 1) {
+      const subject = String(text || "");
+      const positive = /viral|surge|jump|record|award|win|breakout|buzz|sellout|renew|strong|feature|hot|lift/i.test(subject);
+      const negative = /slip|rough|drop|fall|delay|cancel|lawsuit|scandal|injury|backlash|soften|weak|down/i.test(subject);
+      if (positive && !negative) {
+        return 1;
+      }
+      if (negative && !positive) {
+        return -1;
+      }
+      return fallback >= 0 ? 1 : -1;
+    }
+
+    function inferCatalystIntensity(text, fallback = 2) {
+      const subject = String(text || "");
+      let intensity = Math.max(1, Math.min(5, Math.round(Number(fallback) || 2)));
+      if (/record|blockbuster|major|viral|lawsuit|scandal|headline|breakout/i.test(subject)) {
+        intensity += 2;
+      } else if (/fresh|update|buzz|attention|featured|trend/i.test(subject)) {
+        intensity += 1;
+      }
+      return Math.max(1, Math.min(5, intensity));
+    }
+
+    function buildFeaturedFeedCatalyst(item) {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+
+      const entertainer = entertainers.find((candidate) => candidate.name === item.entertainer);
+      const text = [item.headline, item.summary, item.whyItMatters].filter(Boolean).join(" ");
+      const fallbackSentiment = entertainer
+        ? (getEntertainerMetrics(entertainer).momentum >= 0 ? 1 : -1)
+        : 1;
+      const sentiment = inferCatalystSentiment(text, fallbackSentiment);
+      const targetType = entertainer ? "entertainer" : "market";
+      const target = entertainer ? entertainer.name : "";
+
+      return {
+        id: `featured:${targetType}:${target || (item.source || "market")}:${sentiment > 0 ? "up" : "down"}`,
+        title: item.headline || `${item.entertainer || "Market"} catalyst`,
+        detail: item.summary || item.whyItMatters || "Verified coverage is influencing positioning.",
+        targetType,
+        target,
+        sentiment,
+        intensity: inferCatalystIntensity(text, 3),
+        remainingTicks: MARKET_CATALYST_TTL + 1,
+        source: "featured",
+        createdAt: Date.parse(item.publishedAt || "") || Date.now()
+      };
+    }
+
+    function syncMarketCatalystsFromFeed() {
+      featuredFeedItems.slice(0, 3).forEach((item) => {
+        const catalyst = buildFeaturedFeedCatalyst(item);
+        if (catalyst) {
+          upsertMarketCatalyst(catalyst);
+        }
+      });
+      setMarketCatalysts(marketCatalysts);
+    }
+
+    function buildSimulationCatalyst(entertainer, message, change) {
+      if (!entertainer) {
+        return null;
+      }
+
+      return {
+        id: `simulation:${entertainer.name}:${change >= 0 ? "up" : "down"}`,
+        title: `${entertainer.name} pulse`,
+        detail: message,
+        targetType: "entertainer",
+        target: entertainer.name,
+        sentiment: change >= 0 ? 1 : -1,
+        intensity: inferCatalystIntensity(message, Math.max(1, Math.min(5, Math.round(Math.abs(change) / 3) + 1))),
+        remainingTicks: Math.abs(change) >= 8 ? 4 : 3,
+        source: "simulation",
+        createdAt: Date.now()
+      };
+    }
+
+    function getCatalystTargets(catalyst) {
+      if (!catalyst) {
+        return [];
+      }
+      if (catalyst.targetType === "entertainer") {
+        return entertainers.filter((entertainer) => entertainer.name === catalyst.target);
+      }
+      if (catalyst.targetType === "category") {
+        return entertainers.filter((entertainer) => entertainer.category === catalyst.target);
+      }
+      return entertainers.slice();
+    }
+
+    function triggerCatalystEvent() {
+      const catalyst = sortMarketCatalysts(marketCatalysts)[0];
+      if (!catalyst || Math.random() > 0.58) {
+        return null;
+      }
+
+      const pool = getCatalystTargets(catalyst);
+      if (!pool.length) {
+        setMarketCatalysts(marketCatalysts.filter((item) => item.id !== catalyst.id));
+        return null;
+      }
+
+      const targetLimit = catalyst.targetType === "market" ? 4 : catalyst.targetType === "category" ? 2 : 1;
+      const targets = pool.slice(0, targetLimit);
+      let leadTarget = null;
+      let leadMagnitude = 0;
+
+      targets.forEach((target, index) => {
+        const attenuation = Math.max(0.42, 1 - (index * 0.2));
+        const pctMove = catalyst.sentiment * (0.0028 * catalyst.intensity * attenuation * (0.85 + (Math.random() * 0.7)));
+        const previousPrice = target.price;
+        target.price = Math.max(1, Number((target.price * (1 + pctMove)).toFixed(2)));
+        const absoluteChange = Math.abs(target.price - previousPrice);
+        recordPrice(target, Math.max(1, Math.round(absoluteChange * 10)));
+        if (absoluteChange >= leadMagnitude) {
+          leadMagnitude = absoluteChange;
+          leadTarget = target;
+        }
+      });
+
+      setMarketCatalysts(marketCatalysts.map((item) => item.id === catalyst.id
+        ? { ...item, remainingTicks: item.remainingTicks - 1, lastAppliedAt: Date.now() }
+        : item
+      ));
+
+      if (!leadTarget) {
+        return null;
+      }
+
+      const affectedLabel = catalyst.targetType === "category"
+        ? `${formatCategoryLabel(catalyst.target)} names`
+        : catalyst.targetType === "market"
+          ? "the broader board"
+          : leadTarget.name;
+
+      return {
+        entertainer: leadTarget,
+        change: catalyst.sentiment >= 0 ? leadMagnitude : -leadMagnitude,
+        message: `Catalyst pulse: ${catalyst.title} ${catalyst.sentiment >= 0 ? "lifted" : "pressured"} ${affectedLabel}.`
+      };
+    }
+
+    function renderMarketCatalysts() {
+      const stripEl = document.getElementById("market-catalyst-strip");
+      if (!stripEl) {
+        return;
+      }
+
+      const visibleCatalysts = sortMarketCatalysts(marketCatalysts).slice(0, 3);
+      if (visibleCatalysts.length === 0) {
+        stripEl.innerHTML = `
+          <article class="market-catalyst-card tone-neutral is-empty">
+            <p class="market-brief-label">Catalyst Desk</p>
+            <h4>Standing by</h4>
+            <p>No active catalysts yet. Fresh headlines and simulated shocks will appear here.</p>
+          </article>
+        `;
+        return;
+      }
+
+      stripEl.innerHTML = visibleCatalysts.map((catalyst) => `
+        <article class="market-catalyst-card tone-${escapeHtml(catalyst.sentiment >= 0 ? "positive" : "negative")}">
+          <div class="market-catalyst-meta">
+            <p class="market-brief-label">${escapeHtml(catalyst.source === "featured" ? "Active Catalyst" : "Desk Catalyst")}</p>
+            <span>${escapeHtml(catalyst.remainingTicks === 1 ? "1 turn left" : `${catalyst.remainingTicks} turns left`)}</span>
+          </div>
+          <h4>${escapeHtml(catalyst.title)}</h4>
+          <p>${escapeHtml(catalyst.detail)}</p>
+          <p class="market-catalyst-target">${escapeHtml(
+            catalyst.targetType === "entertainer"
+              ? catalyst.target
+              : catalyst.targetType === "category"
+                ? `${formatCategoryLabel(catalyst.target)} sector`
+                : "Broad market"
+          )}</p>
+        </article>
+      `).join("");
+    }
+
+    function getLatestMarketCatalyst() {
+      const activeCatalyst = sortMarketCatalysts(marketCatalysts)[0];
+      if (activeCatalyst) {
+        return {
+          label: "Catalyst",
+          title: activeCatalyst.title,
+          detail: `${activeCatalyst.detail} ${activeCatalyst.remainingTicks === 1 ? "1 turn remains." : `${activeCatalyst.remainingTicks} turns remain.`}`,
+          tone: activeCatalyst.sentiment >= 0 ? "positive" : "negative"
+        };
+      }
+
+      if (featuredFeedItems.length > 0) {
+        const item = featuredFeedItems[0];
+        return {
+          label: "Catalyst",
+          title: item.entertainer || "Featured update",
+          detail: item.headline || item.summary || item.whyItMatters || "Fresh verified coverage is shaping sentiment.",
+          tone: "neutral"
+        };
+      }
+
+      const latestLog = newsFeed[newsFeed.length - 1];
+      return {
+        label: "Desk Note",
+        title: "Flow update",
+        detail: latestLog || "The board is live and waiting for the next catalyst.",
+        tone: "neutral"
+      };
+    }
+
+    function getCategoryMomentumLeader() {
+      const categoryMap = new Map();
+      entertainers.forEach((entertainer) => {
+        const metrics = getEntertainerMetrics(entertainer);
+        const current = categoryMap.get(entertainer.category) || { sum: 0, count: 0 };
+        current.sum += metrics.momentum;
+        current.count += 1;
+        categoryMap.set(entertainer.category, current);
+      });
+
+      const ranked = [...categoryMap.entries()]
+        .map(([category, value]) => ({ category, score: value.count > 0 ? value.sum / value.count : 0 }))
+        .sort((left, right) => right.score - left.score);
+
+      return ranked[0] || { category: "all", score: 0 };
+    }
+
+    function buildMarketBrief() {
+      const ranked = entertainers
+        .map((entertainer) => ({ entertainer, metrics: getEntertainerMetrics(entertainer) }))
+        .sort((left, right) => right.metrics.momentum - left.metrics.momentum);
+
+      const leader = ranked[0] || null;
+      const laggard = ranked[ranked.length - 1] || null;
+      const volumeLeader = ranked.slice().sort((left, right) => right.metrics.volume24h - left.metrics.volume24h)[0] || null;
+      const sectorLeader = getCategoryMomentumLeader();
+      const catalyst = getLatestMarketCatalyst();
+      const ownedLeaders = entertainers
+        .filter((entertainer) => (portfolio[entertainer.name]?.shares || 0) > 0)
+        .map((entertainer) => ({ entertainer, metrics: getEntertainerMetrics(entertainer), holding: portfolio[entertainer.name] }))
+        .sort((left, right) => {
+          const leftGain = (left.holding.shares * left.entertainer.price) - left.holding.totalCost;
+          const rightGain = (right.holding.shares * right.entertainer.price) - right.holding.totalCost;
+          return rightGain - leftGain;
+        });
+      const portfolioLeader = ownedLeaders[0] || null;
+
+      const summaryParts = [];
+      if (leader) {
+        summaryParts.push(`${leader.entertainer.name} leads with ${formatSignedPercent(leader.metrics.priceChangePct)} momentum`);
+      }
+      if (sectorLeader.category && sectorLeader.category !== "all") {
+        summaryParts.push(`${formatCategoryLabel(sectorLeader.category)} are the hottest sector`);
+      }
+      if (portfolioLeader) {
+        const gain = (portfolioLeader.holding.shares * portfolioLeader.entertainer.price) - portfolioLeader.holding.totalCost;
+        summaryParts.push(`your best open position is ${portfolioLeader.entertainer.name} at ${formatSignedCurrency(gain)}`);
+      }
+
+      const cards = [];
+      if (leader) {
+        cards.push({
+          label: "Leader",
+          title: leader.entertainer.name,
+          detail: `${formatSignedPercent(leader.metrics.priceChangePct)} price move · momentum ${leader.metrics.momentum >= 0 ? "+" : ""}${leader.metrics.momentum}`,
+          tone: "positive"
+        });
+      }
+      if (laggard) {
+        cards.push({
+          label: "Laggard",
+          title: laggard.entertainer.name,
+          detail: `${formatSignedPercent(laggard.metrics.priceChangePct)} price move · momentum ${laggard.metrics.momentum >= 0 ? "+" : ""}${laggard.metrics.momentum}`,
+          tone: "negative"
+        });
+      }
+      if (volumeLeader) {
+        cards.push({
+          label: "Heavy Flow",
+          title: volumeLeader.entertainer.name,
+          detail: `${formatCompactCurrency(volumeLeader.metrics.volume24h)} traded in the last 24h`,
+          tone: "neutral"
+        });
+      }
+      cards.push({
+        label: "Hot Sector",
+        title: formatCategoryLabel(sectorLeader.category),
+        detail: `Average momentum ${sectorLeader.score >= 0 ? "+" : ""}${Math.round(sectorLeader.score)}`,
+        tone: sectorLeader.score >= 0 ? "positive" : "negative"
+      });
+      cards.push(catalyst);
+
+      return {
+        summary: summaryParts.join(". ") + (summaryParts.length ? "." : "Momentum is balanced across the board."),
+        cards: cards.slice(0, 5)
+      };
+    }
+
+    function renderMarketBrief() {
+      const summaryEl = document.getElementById("market-brief-summary");
+      const gridEl = document.getElementById("market-brief-grid");
+      const timestampEl = document.getElementById("market-brief-timestamp");
+      if (!summaryEl || !gridEl || !timestampEl) {
+        return;
+      }
+
+      syncMarketCatalystsFromFeed();
+      const brief = buildMarketBrief();
+      summaryEl.innerText = brief.summary;
+      timestampEl.innerText = `Updated ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+      gridEl.innerHTML = brief.cards.map((card) => `
+        <article class="market-brief-card tone-${escapeHtml(card.tone || "neutral")}">
+          <p class="market-brief-label">${escapeHtml(card.label || "Signal")}</p>
+          <h4>${escapeHtml(card.title || "Market update")}</h4>
+          <p>${escapeHtml(card.detail || "Watching for the next shift.")}</p>
+        </article>
+      `).join("");
+      renderMarketCatalysts();
     }
 
     function calculateVolatilityPercent(entertainer) {
@@ -2922,6 +3354,8 @@
     function renderFeed() {
       const feed = document.getElementById("feed");
       feed.innerHTML = "";
+
+      renderMarketBrief();
 
       const featuredEntries = featuredFeedItems.slice(0, 3).map((item) => ({ kind: "featured", item }));
       const activityEntries = newsFeed
@@ -3551,6 +3985,21 @@
       if (isRealtimeMode()) {
         return;
       }
+      syncMarketCatalystsFromFeed();
+
+      const catalystEvent = triggerCatalystEvent();
+      if (catalystEvent) {
+        newsFeed.push(catalystEvent.message);
+        newsFeed = newsFeed.slice(-64);
+        pulseCard(catalystEvent.entertainer.name, catalystEvent.change >= 0 ? "flash-buy" : "flash-sell");
+        playTone("event");
+        awardScore(Math.max(6, Math.round(Math.abs(catalystEvent.change) * 4)));
+        checkPriceAlerts();
+        checkLimitOrders();
+        updateUI();
+        return;
+      }
+
       const entertainer = entertainers[Math.floor(Math.random() * entertainers.length)];
       const eventRoll = Math.random();
       let change = 0;
@@ -3570,9 +4019,11 @@
 
       entertainer.price = Math.max(1, entertainer.price + change);
       recordPrice(entertainer, Math.max(1, Math.round(Math.abs(change) * 2)));
+      upsertMarketCatalyst(buildSimulationCatalyst(entertainer, message, change));
       newsFeed.push(
         `Breaking: ${message} Move ${change >= 0 ? "up" : "down"} ${formatCurrency(Math.abs(change))}.`
       );
+      newsFeed = newsFeed.slice(-64);
       pulseCard(entertainer.name, "flash-event");
       playTone("event");
       awardScore(Math.max(5, Math.round(Math.abs(change))));
@@ -4046,6 +4497,7 @@
       portfolio = {}; money = STARTING_MONEY; tradeQuantities = {}; equityHistory = [STARTING_MONEY];
       shortPositions = {}; tradeHistory = []; limitOrders = [];
       watchlist = new Set(); priceAlerts = {}; firedAlerts = new Set();
+      marketCatalysts = [];
       newsFeed = ["Index reset. Fresh start, clean slate."]; exchangeScore = 0;
       nextLimitOrderSeq = 0;
       localStorage.removeItem(STORAGE_KEY);

@@ -1107,6 +1107,144 @@ body[data-theme="paper"] .market-banner-label {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 12px 24px rgba(14, 116, 144, 0.18);
 }
 
+.market-brief {
+  margin: 0 0 18px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 2px solid rgba(125, 211, 252, 0.16);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(15, 23, 42, 0.5));
+}
+
+.market-brief-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.market-brief-head h3 {
+  margin: 4px 0 0;
+  font-size: 1.12rem;
+}
+
+.market-brief-timestamp {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.market-brief-summary {
+  margin: 14px 0 0;
+  color: var(--text);
+  line-height: 1.55;
+  max-width: 72ch;
+}
+
+.market-brief-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+.market-catalyst-strip {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.market-brief-card {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(2, 6, 23, 0.42);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+.market-catalyst-card {
+  padding: 14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.52));
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.market-catalyst-card.is-empty {
+  background: rgba(2, 6, 23, 0.34);
+}
+
+.market-brief-card h4 {
+  margin: 4px 0 0;
+  font-size: 0.98rem;
+}
+.market-catalyst-card h4 {
+  margin: 6px 0 0;
+  font-size: 0.98rem;
+}
+
+.market-brief-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.market-catalyst-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.market-catalyst-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.market-catalyst-meta span,
+.market-catalyst-target {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.market-catalyst-target {
+  color: #cbd5e1;
+}
+
+.market-brief-label {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.market-brief-card.tone-positive {
+  border-color: rgba(34, 197, 94, 0.24);
+}
+
+.market-brief-card.tone-positive .market-brief-label {
+  color: #86efac;
+}
+
+.market-brief-card.tone-negative {
+  border-color: rgba(239, 68, 68, 0.24);
+}
+
+.market-brief-card.tone-negative .market-brief-label {
+  color: #fca5a5;
+}
+
+.market-brief-card.tone-neutral .market-brief-label {
+  color: #93c5fd;
+}
+.market-catalyst-card.tone-positive {
+  border-color: rgba(34, 197, 94, 0.26);
+}
+.market-catalyst-card.tone-positive .market-brief-label,
+.market-catalyst-card.tone-positive .market-catalyst-meta span {
+  color: #86efac;
+}
+
 .market-pagination {
   margin-top: 12px;
   margin-bottom: 18px;
@@ -1114,6 +1252,13 @@ body[data-theme="paper"] .market-banner-label {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+.market-catalyst-card.tone-negative {
+  border-color: rgba(248, 113, 113, 0.26);
+}
+.market-catalyst-card.tone-negative .market-brief-label,
+.market-catalyst-card.tone-negative .market-catalyst-meta span {
+  color: #fca5a5;
+}
 }
 
 .pagination-button {
@@ -1122,6 +1267,13 @@ body[data-theme="paper"] .market-banner-label {
 }
 
 .pagination-button:hover:not(:disabled) {
+.market-catalyst-card.tone-neutral {
+  border-color: rgba(148, 163, 184, 0.18);
+}
+.market-catalyst-card.tone-neutral .market-brief-label,
+.market-catalyst-card.tone-neutral .market-catalyst-meta span {
+  color: #cbd5e1;
+}
   transform: translateY(-1px);
 }
 
@@ -2739,6 +2891,23 @@ body[data-theme="paper"] .community-link-field span {
   .market-card .vol-badge {
     font-size: 10px;
     padding: 4px 7px;
+  }
+
+  .market-brief-head {
+    flex-direction: column;
+  }
+
+  .market-brief-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .market-catalyst-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .market-catalyst-meta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .market-card .sparkline-wrap {
