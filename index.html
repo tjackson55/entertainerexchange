@@ -21,13 +21,22 @@
   <div class="page-shell">
     <header class="hero">
       <div class="hero-copy">
+        <div class="hero-copy-signal" aria-hidden="true">
+          <span id="hero-signal-label">Live fantasy market</span>
+          <span>Volatility on</span>
+        </div>
         <p class="eyebrow">Fantasy entertainment index</p>
         <h1>Entertainers Exchange</h1>
-        <p class="hero-text">Track performer momentum, build a fantasy roster, and follow the next wave of celebrity attention without real-money trading.</p>
+        <p id="hero-text" class="hero-text">Track performer momentum, build a fantasy roster, and follow the next wave of celebrity attention without real-money trading.</p>
         <div class="hero-strip">
-          <span>Fantasy Index Live</span>
+          <span id="hero-phase-chip">Fantasy Index Live</span>
           <span>Trend Refresh Every 5s</span>
           <span>Celebrity Attention Tracker</span>
+        </div>
+        <div class="hero-flashline">
+          <span id="hero-flashline-label">Momentum</span>
+          <strong id="hero-flashline-title">Live catalysts move the full board</strong>
+          <em id="hero-flashline-detail">Built for fast, repeat sessions</em>
         </div>
         <div class="hero-pulse" aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span>
@@ -154,6 +163,47 @@
           <div id="market-spotlight-tags" class="market-spotlight-tags"></div>
         </div>
       </div>
+    </section>
+
+    <section class="engagement-hub" aria-label="Daily engagement hub">
+      <article class="engagement-card engagement-card-missions">
+        <div class="engagement-card-head">
+          <div>
+            <p class="section-kicker">Daily Loop</p>
+            <h3>Missions</h3>
+          </div>
+          <span id="mission-streak-pill" class="engagement-pill">Streak 0</span>
+        </div>
+        <div id="daily-missions-list" class="daily-missions-list"></div>
+      </article>
+      <article class="engagement-card engagement-card-phase">
+        <div class="engagement-card-head">
+          <div>
+            <p class="section-kicker">Market Phase</p>
+            <h3 id="market-phase-name">Opening Bell</h3>
+          </div>
+          <span id="market-phase-timer" class="engagement-pill">00:00</span>
+        </div>
+        <p id="market-phase-summary" class="engagement-copy">The desk is setting up the next wave.</p>
+      </article>
+      <article class="engagement-card engagement-card-watchlist">
+        <div class="engagement-card-head">
+          <div>
+            <p class="section-kicker">Watchlist Tension</p>
+            <h3>Watchtower</h3>
+          </div>
+        </div>
+        <div id="watchlist-signals-list" class="watchlist-signals-list"></div>
+      </article>
+      <article class="engagement-card engagement-card-rivals">
+        <div class="engagement-card-head">
+          <div>
+            <p class="section-kicker">Rival Board</p>
+            <h3>League Race</h3>
+          </div>
+        </div>
+        <div id="rival-board-list" class="rival-board-list"></div>
+      </article>
     </section>
 
     <main class="layout-grid">
@@ -608,6 +658,32 @@
         <button id="receipt-share-btn" class="ghost-button" type="button">Share Receipt</button>
         <button id="receipt-dismiss-btn" class="ghost-button" type="button">Dismiss</button>
       </div>
+    </div>
+  </div>
+
+  <div id="reward-burst" class="reward-burst" hidden>
+    <div class="reward-burst-shell">
+      <p id="reward-burst-kicker" class="reward-burst-kicker">Mission Complete</p>
+      <h3 id="reward-burst-title">Board cleared</h3>
+      <p id="reward-burst-text" class="reward-burst-text">You just hit a live objective.</p>
+    </div>
+  </div>
+
+  <div id="phase-banner" class="phase-banner" hidden>
+    <div class="phase-banner-shell">
+      <p class="phase-banner-kicker">Market Phase Live</p>
+      <h3 id="phase-banner-title">Opening Bell</h3>
+      <p id="phase-banner-text">Fresh flow is hitting the board.</p>
+    </div>
+  </div>
+
+  <div id="phase-cinematic" class="phase-cinematic" hidden>
+    <div class="phase-cinematic-backdrop"></div>
+    <div class="phase-cinematic-shell">
+      <p id="phase-cinematic-kicker" class="phase-cinematic-kicker">Market Phase Shift</p>
+      <h2 id="phase-cinematic-title">Opening Bell</h2>
+      <p id="phase-cinematic-text" class="phase-cinematic-text">Fresh flow is hitting the board.</p>
+      <p id="phase-cinematic-detail" class="phase-cinematic-detail">Volatility widens and the board resets around fresh pressure.</p>
     </div>
   </div>
 
@@ -1211,6 +1287,9 @@
     const PRO_WAITLIST_KEY = "entertainers-exchange-pro-waitlist";
     const FEATURED_FEED_REFRESH_MS = 5 * 60 * 1000;
     const MARKET_EVENT_INTERVAL_MS = 12000;
+    const MARKET_PHASE_DURATION_MS = 90000;
+    const DAILY_MISSION_COUNT = 3;
+    const WATCHLIST_SIGNAL_LIMIT = 3;
     const MARKET_CATALYST_LIMIT = 6;
     const MARKET_CATALYST_TTL = 4;
     const PRICE_HISTORY_LIMIT = 14;
@@ -1227,6 +1306,15 @@
     let featuredFeedItems = [];
     let marketCatalysts = [];
     let marketBriefView = "overview";
+    let retentionState = {
+      dailyDateKey: "",
+      dailyMissions: [],
+      streakCount: 0,
+      lastMissionCompletionDateKey: "",
+      lastPhaseKey: "",
+      lastWatchSignalKey: "",
+      rivalRoster: []
+    };
     let money = STARTING_MONEY;
     let tradeQuantities = {};
     let charts = {};
@@ -2413,12 +2501,343 @@
       }
     }
 
+    function sanitizeRetentionState(state) {
+      if (!state || typeof state !== "object") {
+        return {
+          dailyDateKey: "",
+          dailyMissions: [],
+          streakCount: 0,
+          lastMissionCompletionDateKey: "",
+          lastPhaseKey: "",
+          lastWatchSignalKey: "",
+          rivalRoster: []
+        };
+      }
+
+      return {
+        dailyDateKey: String(state.dailyDateKey || ""),
+        dailyMissions: Array.isArray(state.dailyMissions) ? state.dailyMissions : [],
+        streakCount: Math.max(0, Number(state.streakCount) || 0),
+        lastMissionCompletionDateKey: String(state.lastMissionCompletionDateKey || ""),
+        lastPhaseKey: String(state.lastPhaseKey || ""),
+        lastWatchSignalKey: String(state.lastWatchSignalKey || ""),
+        rivalRoster: Array.isArray(state.rivalRoster) ? state.rivalRoster : []
+      };
+    }
+
+    function getLocalDateKey(date = new Date()) {
+      const year = date.getFullYear();
+      const month = `${date.getMonth() + 1}`.padStart(2, "0");
+      const day = `${date.getDate()}`.padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function getDayDiff(fromKey, toKey) {
+      if (!fromKey || !toKey) {
+        return Infinity;
+      }
+      const fromDate = new Date(`${fromKey}T00:00:00`);
+      const toDate = new Date(`${toKey}T00:00:00`);
+      if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+        return Infinity;
+      }
+      return Math.round((toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000));
+    }
+
+    function hashString(value) {
+      return String(value || "").split("").reduce((acc, char) => ((acc * 31) + char.charCodeAt(0)) >>> 0, 7);
+    }
+
+    function createSeededRandom(seed) {
+      let state = seed >>> 0;
+      return () => {
+        state = (1664525 * state + 1013904223) >>> 0;
+        return state / 4294967296;
+      };
+    }
+
+    function getTodayTrades() {
+      const todayKey = getLocalDateKey();
+      return tradeHistory.filter((trade) => getLocalDateKey(new Date(Number(trade.ts) || Date.now())) === todayKey);
+    }
+
+    function buildDailyMissionTemplates() {
+      return [
+        () => ({ type: "trade-count", target: 3, reward: 60, label: "Make 3 trades today" }),
+        () => ({ type: "trade-count", target: 5, reward: 90, label: "Make 5 trades today" }),
+        () => ({ type: "watchlist-count", target: 3, reward: 45, label: "Track 3 names on your watchlist" }),
+        () => ({ type: "hold-count", target: 2, reward: 55, label: "Build 2 active roster spots" }),
+        () => ({ type: "realized-gain", target: 20, reward: 85, label: "Lock in $20 realized gain" }),
+        () => {
+          const sectors = ["musician", "athlete", "actor", "comedian", "tv", "creator"];
+          const category = sectors[hashString(getLocalDateKey()) % sectors.length];
+          return { type: "buy-category", category, target: 1, reward: 70, label: `Add 1 ${formatCategoryLabel(category).toLowerCase()} today` };
+        },
+        () => ({ type: "watchlist-trade", target: 1, reward: 75, label: "Trade 1 name from your watchlist" })
+      ];
+    }
+
+    function generateDailyMissions(todayKey) {
+      const random = createSeededRandom(hashString(`missions:${todayKey}`));
+      const templates = buildDailyMissionTemplates().slice();
+      const missions = [];
+
+      while (templates.length > 0 && missions.length < DAILY_MISSION_COUNT) {
+        const index = Math.floor(random() * templates.length);
+        const template = templates.splice(index, 1)[0];
+        const mission = template();
+        missions.push({
+          id: `${todayKey}:${mission.type}:${mission.category || missions.length}`,
+          ...mission,
+          progress: 0,
+          completed: false,
+          rewarded: false
+        });
+      }
+
+      return missions;
+    }
+
+    function evaluateMissionProgress(mission, stats) {
+      const todayTrades = getTodayTrades();
+      switch (mission.type) {
+        case "trade-count":
+          return todayTrades.length;
+        case "watchlist-count":
+          return watchlist.size;
+        case "hold-count":
+          return stats.openPositions;
+        case "realized-gain": {
+          const todayGain = todayTrades.filter((trade) => trade.gain !== null).reduce((sum, trade) => sum + (trade.gain || 0), 0);
+          return todayGain;
+        }
+        case "buy-category":
+          return todayTrades.filter((trade) => {
+            if (trade.action !== "buy" && trade.action !== "limit-buy") {
+              return false;
+            }
+            const entertainer = entertainers.find((candidate) => candidate.name === trade.name);
+            return entertainer && entertainer.category === mission.category;
+          }).length;
+        case "watchlist-trade":
+          return todayTrades.filter((trade) => watchlist.has(trade.name)).length;
+        default:
+          return 0;
+      }
+    }
+
+    function ensureRetentionDay() {
+      const todayKey = getLocalDateKey();
+      if (retentionState.dailyDateKey === todayKey && retentionState.dailyMissions.length > 0) {
+        return;
+      }
+
+      retentionState.dailyDateKey = todayKey;
+      retentionState.dailyMissions = generateDailyMissions(todayKey);
+      if (!Array.isArray(retentionState.rivalRoster) || retentionState.rivalRoster.length === 0) {
+        retentionState.rivalRoster = [];
+      }
+      retentionState.rivalRoster = generateRivalRoster(todayKey);
+      retentionState.lastWatchSignalKey = "";
+    }
+
+    function generateRivalRoster(todayKey) {
+      const names = ["TapeChaser", "CrowdWhisper", "SpotlightKid", "LateMoney", "TrendOracle", "PopGamma", "StageScout"];
+      const archetypes = ["Momentum Hunter", "Sector Rotator", "Catalyst Chaser", "Closer", "Volatility Rider"];
+      const random = createSeededRandom(hashString(`rivals:${todayKey}`));
+
+      return new Array(3).fill(null).map((_, index) => ({
+        id: `${todayKey}:rival:${index}`,
+        name: names.splice(Math.floor(random() * names.length), 1)[0] || `Rival ${index + 1}`,
+        archetype: archetypes[Math.floor(random() * archetypes.length)],
+        bias: Math.round((random() * 180) - 90),
+        tempo: 0.55 + (random() * 0.8)
+      }));
+    }
+
+    function getMarketPhase() {
+      const phases = [
+        { key: "opening-bell", name: "Opening Bell", description: "Fresh flow hits hard and early leaders separate quickly.", volatilityBoost: 1.12, catalystBias: 0.18, sectorShockChance: 0.12 },
+        { key: "catalyst-window", name: "Catalyst Window", description: "Headline sensitivity is elevated. Catalyst names can drag entire lanes.", volatilityBoost: 1.05, catalystBias: 0.34, sectorShockChance: 0.28 },
+        { key: "closing-rush", name: "Closing Rush", description: "Late positioning intensifies. Leaders extend and laggards snap violently.", volatilityBoost: 1.22, catalystBias: 0.24, sectorShockChance: 0.18 }
+      ];
+
+      const cycleLength = phases.length * MARKET_PHASE_DURATION_MS;
+      const now = Date.now();
+      const cycleMs = now % cycleLength;
+      const index = Math.floor(cycleMs / MARKET_PHASE_DURATION_MS);
+      const remainingMs = MARKET_PHASE_DURATION_MS - (cycleMs % MARKET_PHASE_DURATION_MS);
+      return { ...phases[index], remainingMs };
+    }
+
+    function formatCountdown(ms) {
+      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+      const minutes = `${Math.floor(totalSeconds / 60)}`.padStart(2, "0");
+      const seconds = `${totalSeconds % 60}`.padStart(2, "0");
+      return `${minutes}:${seconds}`;
+    }
+
+    function buildWatchlistSignals() {
+      if (watchlist.size === 0) {
+        return [];
+      }
+
+      const activeCatalyst = sortMarketCatalysts(marketCatalysts)[0] || null;
+      const watched = [...watchlist]
+        .map((name) => entertainers.find((entertainer) => entertainer.name === name))
+        .filter(Boolean)
+        .map((entertainer) => ({ entertainer, metrics: getEntertainerMetrics(entertainer) }));
+
+      const signals = watched.map(({ entertainer, metrics }) => {
+        const catalystHit = activeCatalyst && (
+          (activeCatalyst.targetType === "entertainer" && activeCatalyst.target === entertainer.name) ||
+          (activeCatalyst.targetType === "category" && activeCatalyst.target === entertainer.category) ||
+          activeCatalyst.targetType === "market"
+        );
+
+        const detail = catalystHit
+          ? `${activeCatalyst.title} is still active${activeCatalyst.remainingTicks ? ` · ${activeCatalyst.remainingTicks} turns left` : ""}`
+          : `${formatSignedPercent(metrics.priceChangePct)} move · momentum ${metrics.momentum >= 0 ? "+" : ""}${metrics.momentum}`;
+
+        return {
+          key: `${entertainer.name}:${catalystHit ? activeCatalyst.id : Math.round(metrics.momentum)}`,
+          name: entertainer.name,
+          detail,
+          tone: catalystHit ? (activeCatalyst.sentiment >= 0 ? "positive" : "negative") : (metrics.momentum >= 0 ? "positive" : "negative"),
+          weight: (catalystHit ? 120 : 0) + Math.abs(metrics.momentum) + Math.abs(metrics.priceChangePct * 2)
+        };
+      }).sort((left, right) => right.weight - left.weight);
+
+      return signals.slice(0, WATCHLIST_SIGNAL_LIMIT);
+    }
+
+    function buildRivalBoard() {
+      const stats = calculatePortfolioStats();
+      const rivals = Array.isArray(retentionState.rivalRoster) ? retentionState.rivalRoster : [];
+      const rivalRows = rivals.map((rival) => ({
+        name: rival.name,
+        archetype: rival.archetype,
+        score: Math.max(0, Math.round(exchangeScore + rival.bias + (tradeHistory.length * rival.tempo) + ((stats.totalGain || 0) * 0.18)))
+      }));
+
+      const board = [
+        { name: userProfile?.name || "You", archetype: "Local Book", score: exchangeScore, isLocal: true },
+        ...rivalRows
+      ].sort((left, right) => right.score - left.score);
+
+      return board;
+    }
+
+    function renderEngagementHub() {
+      ensureRetentionDay();
+      const stats = calculatePortfolioStats();
+      const todayKey = getLocalDateKey();
+      const missionList = document.getElementById("daily-missions-list");
+      const missionPill = document.getElementById("mission-streak-pill");
+      const phaseNameEl = document.getElementById("market-phase-name");
+      const phaseTimerEl = document.getElementById("market-phase-timer");
+      const phaseSummaryEl = document.getElementById("market-phase-summary");
+      const watchSignalsEl = document.getElementById("watchlist-signals-list");
+      const rivalBoardEl = document.getElementById("rival-board-list");
+      if (!missionList || !missionPill || !phaseNameEl || !phaseTimerEl || !phaseSummaryEl || !watchSignalsEl || !rivalBoardEl) {
+        return;
+      }
+
+      retentionState.dailyMissions = retentionState.dailyMissions.map((mission) => {
+        const progress = evaluateMissionProgress(mission, stats);
+        const completed = progress >= mission.target;
+        if (completed && !mission.rewarded) {
+          awardScore(mission.reward || 50);
+          newsFeed.push(`Mission complete: ${mission.label}. +${mission.reward || 50} score.`);
+          newsFeed = newsFeed.slice(-64);
+          triggerRewardBurst("Mission Complete", mission.label, `+${mission.reward || 50} score added to your board.`);
+        }
+        return {
+          ...mission,
+          progress,
+          completed,
+          rewarded: mission.rewarded || completed
+        };
+      });
+
+      const completedCount = retentionState.dailyMissions.filter((mission) => mission.completed).length;
+      if (completedCount === retentionState.dailyMissions.length && retentionState.lastMissionCompletionDateKey !== todayKey) {
+        const diff = getDayDiff(retentionState.lastMissionCompletionDateKey, todayKey);
+        retentionState.streakCount = diff === 1 ? retentionState.streakCount + 1 : 1;
+        retentionState.lastMissionCompletionDateKey = todayKey;
+        newsFeed.push(`Daily board cleared. Streak now at ${retentionState.streakCount}.`);
+        newsFeed = newsFeed.slice(-64);
+        triggerRewardBurst("Daily Board Cleared", `Streak ${retentionState.streakCount}`, "You completed every mission on today’s card.");
+      }
+
+      missionPill.innerText = `Streak ${retentionState.streakCount}`;
+      missionList.innerHTML = retentionState.dailyMissions.map((mission) => {
+        const percent = Math.max(6, Math.min(100, Math.round((Math.min(mission.progress, mission.target) / mission.target) * 100)));
+        const progressLabel = mission.type === "realized-gain"
+          ? `${formatCurrency(Math.min(mission.progress, mission.target))} / ${formatCurrency(mission.target)}`
+          : `${Math.min(mission.progress, mission.target)} / ${mission.target}`;
+        return `
+          <article class="mission-row ${mission.completed ? "completed" : ""}">
+            <div class="mission-row-head">
+              <p>${escapeHtml(mission.label)}</p>
+              <span>+${escapeHtml(String(mission.reward || 0))}</span>
+            </div>
+            <div class="mission-progress"><span style="width:${percent}%"></span></div>
+            <div class="mission-row-meta">
+              <span>${escapeHtml(progressLabel)}</span>
+              <span>${mission.completed ? "Complete" : "Live"}</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      const phase = getMarketPhase();
+      phaseNameEl.innerText = phase.name;
+      phaseTimerEl.innerText = formatCountdown(phase.remainingMs);
+      phaseSummaryEl.innerText = phase.description;
+      if (retentionState.lastPhaseKey !== phase.key) {
+        retentionState.lastPhaseKey = phase.key;
+        newsFeed.push(`${phase.name} is live. ${phase.description}`);
+        newsFeed = newsFeed.slice(-64);
+        triggerPhaseBanner(phase.name, phase.description, phase.key);
+      }
+
+      const signals = buildWatchlistSignals();
+      watchSignalsEl.innerHTML = signals.length > 0
+        ? signals.map((signal) => `
+          <article class="watch-signal tone-${escapeHtml(signal.tone)}">
+            <div>
+              <strong>${escapeHtml(signal.name)}</strong>
+              <p>${escapeHtml(signal.detail)}</p>
+            </div>
+          </article>
+        `).join("")
+        : `<article class="watch-signal tone-neutral empty"><div><strong>No live watch tension</strong><p>Star a few names to turn this rail into a suspense feed.</p></div></article>`;
+      const nextSignalKey = signals[0]?.key || "";
+      if (nextSignalKey && nextSignalKey !== retentionState.lastWatchSignalKey) {
+        retentionState.lastWatchSignalKey = nextSignalKey;
+        newsFeed.push(`Watchtower: ${signals[0].name} just moved onto your active radar.`);
+        newsFeed = newsFeed.slice(-64);
+      }
+
+      const rivalBoard = buildRivalBoard();
+      rivalBoardEl.innerHTML = rivalBoard.map((entry, index) => `
+        <div class="rival-row ${entry.isLocal ? "local" : ""}">
+          <span>#${index + 1}</span>
+          <strong>${escapeHtml(entry.name)}</strong>
+          <em>${escapeHtml(entry.archetype)}</em>
+          <span>${escapeHtml(String(entry.score))} pts</span>
+        </div>
+      `).join("");
+    }
+
     function saveState() {
       const state = {
         entertainers: entertainers.map(({ name, price, history, volumeHistory }) => ({ name, price, history, volumeHistory })),
         portfolio,
         newsFeed,
         marketCatalysts,
+        retentionState,
         money,
         tradeQuantities,
         equityHistory,
@@ -2453,6 +2872,15 @@
       if (!parsed) {
         newsFeed = ["Index live. Watch for momentum swings."];
         marketCatalysts = [];
+        retentionState = {
+          dailyDateKey: "",
+          dailyMissions: [],
+          streakCount: 0,
+          lastMissionCompletionDateKey: "",
+          lastPhaseKey: "",
+          lastWatchSignalKey: "",
+          rivalRoster: []
+        };
         tradeHistory = loadPermanentTrades();
         displaySettings = loadDisplaySettings();
         ensureEntertainerPhotos();
@@ -2489,6 +2917,7 @@
         marketCatalysts = Array.isArray(parsed.marketCatalysts)
           ? parsed.marketCatalysts.map(sanitizeMarketCatalyst).filter(Boolean).slice(0, MARKET_CATALYST_LIMIT)
           : [];
+        retentionState = sanitizeRetentionState(parsed.retentionState);
         money = typeof parsed.money === "number" ? parsed.money : STARTING_MONEY;
         tradeQuantities = parsed.tradeQuantities && typeof parsed.tradeQuantities === "object" ? parsed.tradeQuantities : {};
         equityHistory = Array.isArray(parsed.equityHistory) ? parsed.equityHistory.slice(-EQUITY_HISTORY_LIMIT) : [];
@@ -2522,6 +2951,15 @@
         portfolio = {};
         newsFeed = ["Saved data was reset after a load error."];
         marketCatalysts = [];
+        retentionState = {
+          dailyDateKey: "",
+          dailyMissions: [],
+          streakCount: 0,
+          lastMissionCompletionDateKey: "",
+          lastPhaseKey: "",
+          lastWatchSignalKey: "",
+          rivalRoster: []
+        };
         money = STARTING_MONEY;
         tradeQuantities = {};
         equityHistory = [];
@@ -2907,6 +3345,12 @@
           ? "the broader board"
           : leadTarget.name;
 
+      if (catalyst.targetType === "category") {
+        pulseSector(catalyst.target, catalyst.sentiment >= 0 ? "positive" : "negative");
+      } else if (catalyst.targetType === "market") {
+        pulseSector("all", catalyst.sentiment >= 0 ? "positive" : "negative");
+      }
+
       return {
         entertainer: leadTarget,
         change: catalyst.sentiment >= 0 ? leadMagnitude : -leadMagnitude,
@@ -3245,6 +3689,45 @@
         <button class="market-spotlight-primary" type="button" onclick="openArtistPage('${safeName}')">Open Spotlight</button>
         <button class="market-spotlight-secondary" type="button" onclick="window.handleCardActionByName && window.handleCardActionByName('${safeName}', 'buy')">Add To Roster</button>
       `;
+
+      renderHeroNarrative(spotlight);
+    }
+
+    function renderHeroNarrative(spotlight = buildMarketSpotlight()) {
+      const signalEl = document.getElementById("hero-signal-label");
+      const textEl = document.getElementById("hero-text");
+      const phaseChipEl = document.getElementById("hero-phase-chip");
+      const labelEl = document.getElementById("hero-flashline-label");
+      const titleEl = document.getElementById("hero-flashline-title");
+      const detailEl = document.getElementById("hero-flashline-detail");
+      const heroEl = document.querySelector(".hero-copy");
+      if (!signalEl || !textEl || !phaseChipEl || !labelEl || !titleEl || !detailEl || !heroEl) {
+        return;
+      }
+
+      const phase = getMarketPhase();
+      const catalyst = getLatestMarketCatalyst();
+      if (!spotlight) {
+        signalEl.innerText = "Live fantasy market";
+        phaseChipEl.innerText = phase.name;
+        labelEl.innerText = "Momentum";
+        titleEl.innerText = "Live catalysts move the full board";
+        detailEl.innerText = phase.description;
+        textEl.innerText = "Track performer momentum, build a fantasy roster, and follow the next wave of celebrity attention without real-money trading.";
+        heroEl.classList.remove("tone-positive", "tone-negative");
+        return;
+      }
+
+      const categoryLabel = formatCategoryLabel(spotlight.entertainer.category);
+      const tone = spotlight.tone === "negative" ? "negative" : "positive";
+      signalEl.innerText = `${categoryLabel} lane live`;
+      phaseChipEl.innerText = phase.name;
+      labelEl.innerText = catalyst.label || "Catalyst";
+      titleEl.innerText = `${spotlight.entertainer.name} is driving the board ${spotlight.metrics.priceChangePct >= 0 ? "higher" : "lower"}`;
+      detailEl.innerText = `${catalyst.title} · ${phase.description}`;
+      textEl.innerText = `${spotlight.entertainer.name} is now moving ${formatSignedPercent(spotlight.metrics.priceChangePct)} with ${formatCompactCurrency(spotlight.metrics.volume24h)} in flow. ${catalyst.detail}`;
+      heroEl.classList.remove("tone-positive", "tone-negative");
+      heroEl.classList.add(`tone-${tone}`);
     }
 
     function renderMarketBrief() {
@@ -3405,6 +3888,7 @@
         const card = document.createElement("article");
         card.className = "market-card";
         card.setAttribute("data-entity", entertainer.name);
+        card.setAttribute("data-category", entertainer.category || "creator");
         card.innerHTML = `
           <div class="card-topline">
             <button class="artist-avatar-button" type="button" onclick="openArtistPage('${safeName}')" aria-label="Open ${entertainer.name} profile">
@@ -3773,6 +4257,45 @@
       card.classList.remove("flash-buy", "flash-sell", "flash-event");
       void card.offsetWidth;
       card.classList.add(type);
+    }
+
+    function pulseSector(category, tone = "positive") {
+      const selector = category === "all"
+        ? ".market-card"
+        : `.market-card[data-category="${CSS.escape(category)}"]`;
+      document.querySelectorAll(selector).forEach((card) => {
+        card.classList.remove("sector-shock-positive", "sector-shock-negative");
+        void card.offsetWidth;
+        card.classList.add(tone === "negative" ? "sector-shock-negative" : "sector-shock-positive");
+      });
+
+      triggerToplineShock(tone, category);
+    }
+
+    function triggerToplineShock(tone = "positive", category = "all") {
+      const targets = [
+        document.querySelector(".hero-copy"),
+        document.getElementById("market-spotlight"),
+        document.querySelector(".market-banner"),
+        document.getElementById("ticker-tape")
+      ].filter(Boolean);
+      const shockClass = tone === "negative" ? "topline-shock-negative" : "topline-shock-positive";
+      const categoryValue = category || "all";
+
+      targets.forEach((node) => {
+        node.classList.remove("topline-shock-positive", "topline-shock-negative");
+        node.setAttribute("data-shock-category", categoryValue);
+        void node.offsetWidth;
+        node.classList.add(shockClass);
+      });
+
+      clearTimeout(triggerToplineShock._timer);
+      triggerToplineShock._timer = setTimeout(() => {
+        targets.forEach((node) => {
+          node.classList.remove("topline-shock-positive", "topline-shock-negative");
+          node.removeAttribute("data-shock-category");
+        });
+      }, 1550);
     }
 
     function renderArtistPage(entertainer) {
@@ -4234,6 +4757,31 @@
         return;
       }
       syncMarketCatalystsFromFeed();
+      ensureRetentionDay();
+      const phase = getMarketPhase();
+
+      if (Math.random() < phase.sectorShockChance) {
+        const sectorPool = ["musician", "athlete", "actor", "comedian", "tv", "creator"];
+        const category = sectorPool[Math.floor(Math.random() * sectorPool.length)];
+        const sentiment = Math.random() > 0.42 ? 1 : -1;
+        const title = `${formatCategoryLabel(category)} rotation ${sentiment > 0 ? "ignites" : "buckles"}`;
+        const detail = sentiment > 0
+          ? `${formatCategoryLabel(category)} names are catching cross-board demand.`
+          : `${formatCategoryLabel(category)} names are leaking momentum under pressure.`;
+        upsertMarketCatalyst({
+          id: `sector-shock:${category}:${sentiment > 0 ? "up" : "down"}`,
+          title,
+          detail,
+          targetType: "category",
+          target: category,
+          sentiment,
+          intensity: 4,
+          remainingTicks: 3,
+          source: "desk",
+          createdAt: Date.now()
+        });
+        pulseSector(category, sentiment > 0 ? "positive" : "negative");
+      }
 
       const catalystEvent = triggerCatalystEvent();
       if (catalystEvent) {
@@ -4281,11 +4829,13 @@
     }
 
     function updateUI() {
+      ensureRetentionDay();
       pushEquitySnapshot();
       renderMarket();
       renderFeaturedMarket();
       renderPortfolio();
       renderFeed();
+      renderEngagementHub();
       renderUserProfile();
       renderStats();
       renderTrending();
@@ -4696,6 +5246,84 @@
       if (options.autoDismiss !== false) {
         showTradeReceipt._timer = setTimeout(dismissReceipt, 6000);
       }
+    }
+
+    function triggerRewardBurst(kicker, title, text) {
+      const burst = document.getElementById("reward-burst");
+      const kickerEl = document.getElementById("reward-burst-kicker");
+      const titleEl = document.getElementById("reward-burst-title");
+      const textEl = document.getElementById("reward-burst-text");
+      if (!burst || !kickerEl || !titleEl || !textEl) {
+        return;
+      }
+
+      kickerEl.innerText = kicker || "Mission Complete";
+      titleEl.innerText = title || "Objective cleared";
+      textEl.innerText = text || "Momentum is building on your board.";
+      burst.removeAttribute("hidden");
+      burst.classList.remove("is-active");
+      void burst.offsetWidth;
+      burst.classList.add("is-active");
+      clearTimeout(triggerRewardBurst._timer);
+      triggerRewardBurst._timer = setTimeout(() => {
+        burst.classList.remove("is-active");
+        burst.setAttribute("hidden", "true");
+      }, 2200);
+    }
+
+    function triggerPhaseBanner(title, text, phaseKey = "") {
+      const banner = document.getElementById("phase-banner");
+      const titleEl = document.getElementById("phase-banner-title");
+      const textEl = document.getElementById("phase-banner-text");
+      if (!banner || !titleEl || !textEl) {
+        return;
+      }
+
+      titleEl.innerText = title || "Market Phase";
+      textEl.innerText = text || "A new market phase is underway.";
+      banner.removeAttribute("hidden");
+      banner.classList.remove("is-active");
+      void banner.offsetWidth;
+      banner.classList.add("is-active");
+      triggerPhaseCinematic(title, text, phaseKey);
+      clearTimeout(triggerPhaseBanner._timer);
+      triggerPhaseBanner._timer = setTimeout(() => {
+        banner.classList.remove("is-active");
+        banner.setAttribute("hidden", "true");
+      }, 3200);
+    }
+
+    function triggerPhaseCinematic(title, text, phaseKey = "") {
+      const cinematic = document.getElementById("phase-cinematic");
+      const kickerEl = document.getElementById("phase-cinematic-kicker");
+      const titleEl = document.getElementById("phase-cinematic-title");
+      const textEl = document.getElementById("phase-cinematic-text");
+      const detailEl = document.getElementById("phase-cinematic-detail");
+      if (!cinematic || !kickerEl || !titleEl || !textEl || !detailEl) {
+        return;
+      }
+
+      const tone = phaseKey === "closing-rush" ? "negative" : phaseKey === "catalyst-window" ? "positive" : "neutral";
+      const detailMap = {
+        "opening-bell": "Fresh positioning hits immediately. Early leaders can snowball before the board settles.",
+        "catalyst-window": "Headline sensitivity is elevated. One strong name can now drag a full lane with it.",
+        "closing-rush": "Late money is rotating hard. Extensions and reversals both land faster into the close."
+      };
+
+      cinematic.className = `phase-cinematic tone-${tone}`;
+      kickerEl.innerText = phaseKey === "closing-rush" ? "Closing Rush Live" : phaseKey === "catalyst-window" ? "Catalyst Window Open" : "Opening Bell Live";
+      titleEl.innerText = title || "Market Phase";
+      textEl.innerText = text || "A new market phase is underway.";
+      detailEl.innerText = detailMap[phaseKey] || "The board is rotating into a new behavior regime.";
+      cinematic.removeAttribute("hidden");
+      cinematic.classList.remove("is-active");
+      void cinematic.offsetWidth;
+      cinematic.classList.add("is-active");
+      clearTimeout(triggerPhaseCinematic._timer);
+      triggerPhaseCinematic._timer = setTimeout(() => {
+        cinematic.classList.remove("is-active");
+        cinematic.setAttribute("hidden", "true");
+      }, 2500);
     }
 
     function dismissReceipt() {
