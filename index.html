@@ -26,7 +26,7 @@
           <span>Volatility on</span>
         </div>
         <p class="eyebrow">Fantasy entertainment index</p>
-        <h1>Entertainers Exchange</h1>
+        <h1 id="hero-title">Entertainers Exchange</h1>
         <p id="hero-text" class="hero-text">Track performer momentum, build a fantasy roster, and follow the next wave of celebrity attention without real-money trading.</p>
         <div class="hero-strip">
           <span id="hero-phase-chip">Fantasy Index Live</span>
@@ -1306,6 +1306,19 @@
     let featuredFeedItems = [];
     let marketCatalysts = [];
     let marketBriefView = "overview";
+    let tickerPriorityState = {
+      names: [],
+      tone: "neutral",
+      expiresAt: 0,
+      label: ""
+    };
+    let heroTakeoverState = {
+      active: false,
+      name: "",
+      tone: "neutral",
+      detail: "",
+      label: ""
+    };
     let retentionState = {
       dailyDateKey: "",
       dailyMissions: [],
@@ -3662,6 +3675,63 @@
       };
     }
 
+    function getRankedEntertainers(category = "all") {
+      return entertainers
+        .filter((entertainer) => category === "all" || entertainer.category === category)
+        .map((entertainer) => ({ entertainer, metrics: getEntertainerMetrics(entertainer) }))
+        .sort((left, right) => {
+          const rightScore = Math.abs(right.metrics.priceChangePct) + (Math.abs(right.metrics.momentum) * 0.35) + (Math.log10(1 + Math.max(1, right.metrics.volume24h)) * 2.2);
+          const leftScore = Math.abs(left.metrics.priceChangePct) + (Math.abs(left.metrics.momentum) * 0.35) + (Math.log10(1 + Math.max(1, left.metrics.volume24h)) * 2.2);
+          return rightScore - leftScore;
+        });
+    }
+
+    function getShockLeader(category = "all") {
+      return getRankedEntertainers(category)[0] || null;
+    }
+
+    function setTickerPriority(names = [], tone = "neutral", label = "") {
+      tickerPriorityState = {
+        names: names.filter(Boolean),
+        tone,
+        label,
+        expiresAt: names.length > 0 ? Date.now() + 2600 : 0
+      };
+
+      clearTimeout(setTickerPriority._timer);
+      if (tickerPriorityState.names.length > 0) {
+        setTickerPriority._timer = setTimeout(() => {
+          tickerPriorityState = { names: [], tone: "neutral", expiresAt: 0, label: "" };
+          renderTickerTape();
+        }, 2600);
+      }
+
+      renderTickerTape();
+    }
+
+    function triggerHeroTakeover(leader, tone = "positive", detail = "", label = "Board Leader") {
+      if (!leader || !leader.entertainer) {
+        return;
+      }
+
+      heroTakeoverState = {
+        active: true,
+        name: leader.entertainer.name,
+        tone,
+        detail,
+        label,
+        expiresAt: Date.now() + 3800
+      };
+
+      clearTimeout(triggerHeroTakeover._timer);
+      triggerHeroTakeover._timer = setTimeout(() => {
+        heroTakeoverState = { active: false, name: "", tone: "neutral", detail: "", label: "", expiresAt: 0 };
+        renderHeroNarrative();
+      }, 3800);
+
+      renderHeroNarrative();
+    }
+
     function renderMarketSpotlight() {
       const spotlight = buildMarketSpotlight();
       const root = document.getElementById("market-spotlight");
@@ -3694,6 +3764,7 @@
     }
 
     function renderHeroNarrative(spotlight = buildMarketSpotlight()) {
+      const titleNode = document.getElementById("hero-title");
       const signalEl = document.getElementById("hero-signal-label");
       const textEl = document.getElementById("hero-text");
       const phaseChipEl = document.getElementById("hero-phase-chip");
@@ -3701,7 +3772,7 @@
       const titleEl = document.getElementById("hero-flashline-title");
       const detailEl = document.getElementById("hero-flashline-detail");
       const heroEl = document.querySelector(".hero-copy");
-      if (!signalEl || !textEl || !phaseChipEl || !labelEl || !titleEl || !detailEl || !heroEl) {
+      if (!titleNode || !signalEl || !textEl || !phaseChipEl || !labelEl || !titleEl || !detailEl || !heroEl) {
         return;
       }
 
@@ -3709,25 +3780,35 @@
       const catalyst = getLatestMarketCatalyst();
       if (!spotlight) {
         signalEl.innerText = "Live fantasy market";
+        titleNode.innerText = "Entertainers Exchange";
         phaseChipEl.innerText = phase.name;
         labelEl.innerText = "Momentum";
         titleEl.innerText = "Live catalysts move the full board";
         detailEl.innerText = phase.description;
         textEl.innerText = "Track performer momentum, build a fantasy roster, and follow the next wave of celebrity attention without real-money trading.";
-        heroEl.classList.remove("tone-positive", "tone-negative");
+        heroEl.classList.remove("tone-positive", "tone-negative", "takeover-active");
         return;
       }
 
       const categoryLabel = formatCategoryLabel(spotlight.entertainer.category);
       const tone = spotlight.tone === "negative" ? "negative" : "positive";
+      const takeoverActive = heroTakeoverState.active && heroTakeoverState.expiresAt > Date.now();
       signalEl.innerText = `${categoryLabel} lane live`;
-      phaseChipEl.innerText = phase.name;
-      labelEl.innerText = catalyst.label || "Catalyst";
-      titleEl.innerText = `${spotlight.entertainer.name} is driving the board ${spotlight.metrics.priceChangePct >= 0 ? "higher" : "lower"}`;
-      detailEl.innerText = `${catalyst.title} · ${phase.description}`;
-      textEl.innerText = `${spotlight.entertainer.name} is now moving ${formatSignedPercent(spotlight.metrics.priceChangePct)} with ${formatCompactCurrency(spotlight.metrics.volume24h)} in flow. ${catalyst.detail}`;
-      heroEl.classList.remove("tone-positive", "tone-negative");
-      heroEl.classList.add(`tone-${tone}`);
+      phaseChipEl.innerText = takeoverActive ? (heroTakeoverState.label || "Board Leader") : phase.name;
+      labelEl.innerText = takeoverActive ? "Leader Lock" : (catalyst.label || "Catalyst");
+      titleNode.innerText = takeoverActive ? heroTakeoverState.name : "Entertainers Exchange";
+      titleEl.innerText = takeoverActive
+        ? `${heroTakeoverState.name} just seized the tape`
+        : `${spotlight.entertainer.name} is driving the board ${spotlight.metrics.priceChangePct >= 0 ? "higher" : "lower"}`;
+      detailEl.innerText = takeoverActive
+        ? (heroTakeoverState.detail || `${catalyst.title} is now defining the next move.`)
+        : `${catalyst.title} · ${phase.description}`;
+      textEl.innerText = takeoverActive
+        ? `${heroTakeoverState.name} is the current board leader. ${heroTakeoverState.detail || catalyst.detail}`
+        : `${spotlight.entertainer.name} is now moving ${formatSignedPercent(spotlight.metrics.priceChangePct)} with ${formatCompactCurrency(spotlight.metrics.volume24h)} in flow. ${catalyst.detail}`;
+      heroEl.classList.remove("tone-positive", "tone-negative", "takeover-active");
+      heroEl.classList.add(`tone-${takeoverActive ? heroTakeoverState.tone : tone}`);
+      heroEl.classList.toggle("takeover-active", takeoverActive);
     }
 
     function renderMarketBrief() {
@@ -4126,10 +4207,25 @@
       const ticker = document.getElementById("ticker-tape");
       ticker.innerHTML = "";
 
-      const chips = entertainers.map((entertainer) => {
+      const hasPriority = tickerPriorityState.expiresAt > Date.now() && tickerPriorityState.names.length > 0;
+      const priorityIndex = new Map(tickerPriorityState.names.map((name, index) => [name, index]));
+      const orderedEntertainers = entertainers.slice().sort((left, right) => {
+        const leftPriority = priorityIndex.has(left.name) ? priorityIndex.get(left.name) : Number.POSITIVE_INFINITY;
+        const rightPriority = priorityIndex.has(right.name) ? priorityIndex.get(right.name) : Number.POSITIVE_INFINITY;
+        if (leftPriority !== rightPriority) {
+          return leftPriority - rightPriority;
+        }
+        return right.price - left.price;
+      });
+
+      const chips = orderedEntertainers.map((entertainer) => {
         const holding = portfolio[entertainer.name];
+        const isPriority = hasPriority && priorityIndex.has(entertainer.name);
         const chip = document.createElement("span");
-        chip.className = "ticker-chip";
+        chip.className = `ticker-chip${isPriority ? ` phase-priority phase-priority-${tickerPriorityState.tone}` : ""}`;
+        if (isPriority) {
+          chip.setAttribute("data-priority-label", tickerPriorityState.label || "Priority");
+        }
         chip.innerHTML = `
           <strong>${entertainer.name}</strong>
           <span>${formatCurrency(entertainer.price)}</span>
@@ -4270,6 +4366,16 @@
       });
 
       triggerToplineShock(tone, category);
+
+      const leader = getShockLeader(category);
+      if (leader) {
+        triggerHeroTakeover(
+          leader,
+          tone,
+          `${leader.entertainer.name} is printing ${formatSignedPercent(leader.metrics.priceChangePct)} with ${formatCompactCurrency(leader.metrics.volume24h)} in recent flow.`,
+          category === "all" ? "Board Leader" : `${formatCategoryLabel(category)} leader`
+        );
+      }
     }
 
     function triggerToplineShock(tone = "positive", category = "all") {
@@ -5309,6 +5415,7 @@
         "catalyst-window": "Headline sensitivity is elevated. One strong name can now drag a full lane with it.",
         "closing-rush": "Late money is rotating hard. Extensions and reversals both land faster into the close."
       };
+      const leaderPool = getRankedEntertainers("all").slice(0, 4);
 
       cinematic.className = `phase-cinematic tone-${tone}`;
       kickerEl.innerText = phaseKey === "closing-rush" ? "Closing Rush Live" : phaseKey === "catalyst-window" ? "Catalyst Window Open" : "Opening Bell Live";
@@ -5319,6 +5426,10 @@
       cinematic.classList.remove("is-active");
       void cinematic.offsetWidth;
       cinematic.classList.add("is-active");
+      setTickerPriority(leaderPool.map((entry) => entry.entertainer.name), tone, title || "Phase live");
+      if (leaderPool[0]) {
+        triggerHeroTakeover(leaderPool[0], tone, detailMap[phaseKey] || text, title || "Board Leader");
+      }
       clearTimeout(triggerPhaseCinematic._timer);
       triggerPhaseCinematic._timer = setTimeout(() => {
         cinematic.classList.remove("is-active");
