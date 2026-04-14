@@ -980,8 +980,7 @@ button:active {
 }
 
 .hero-copy.takeover-active {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 42px 96px rgba(2, 6, 23, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 0 110px rgba(125, 211, 252, 0.08);
+  box-shadow: 0 36px 82px rgba(2, 6, 23, 0.38), inset 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 0 84px rgba(125, 211, 252, 0.06);
 }
 
 .hero-copy::after {
@@ -1170,12 +1169,11 @@ h1 {
 }
 
 .hero-copy.takeover-active h1 {
-  max-width: 12ch;
-  font-size: clamp(3rem, 7vw, 6.4rem);
-  letter-spacing: -0.05em;
+  max-width: 10ch;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  letter-spacing: normal;
   background: linear-gradient(135deg, #ffffff 0%, #fde68a 18%, #f8fafc 38%, #7dd3fc 72%, #e0f2fe 100%);
-  text-shadow: 0 18px 44px rgba(8, 47, 73, 0.34);
-  animation: hero-leader-lockup 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  text-shadow: 0 14px 36px rgba(8, 47, 73, 0.3);
 }
 
 .hero-text {
@@ -3773,6 +3771,40 @@ body[data-theme="paper"] .community-link-field span {
     grid-template-columns: 1fr;
   }
 
+  .hero-copy {
+    padding-right: 104px;
+  }
+
+  .hero-pulse {
+    right: 18px;
+    bottom: 18px;
+    height: 44px;
+    opacity: 0.28;
+  }
+
+  .hero-pulse span:nth-child(n) {
+    width: 4px;
+  }
+
+  .hero-pulse span:nth-child(1)  { height: 20px; }
+  .hero-pulse span:nth-child(2)  { height: 28px; }
+  .hero-pulse span:nth-child(3)  { height: 14px; }
+  .hero-pulse span:nth-child(4)  { height: 24px; }
+  .hero-pulse span:nth-child(5)  { height: 10px; }
+  .hero-pulse span:nth-child(6)  { height: 32px; }
+  .hero-pulse span:nth-child(7)  { height: 18px; }
+  .hero-pulse span:nth-child(8)  { height: 27px; }
+  .hero-pulse span:nth-child(9)  { height: 12px; }
+  .hero-pulse span:nth-child(10) { height: 22px; }
+  .hero-pulse span:nth-child(11) { height: 29px; }
+  .hero-pulse span:nth-child(12) { height: 15px; }
+  .hero-pulse span:nth-child(13) { height: 25px; }
+  .hero-pulse span:nth-child(14) { height: 19px; }
+
+  .hero-flashline {
+    padding-right: 24px;
+  }
+
   .market-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -3780,6 +3812,38 @@ body[data-theme="paper"] .community-link-field span {
   .market-card {
     padding: 12px;
     border-radius: 18px;
+  }
+
+  .market-card .price-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px 10px;
+  }
+
+  .market-card .price-row .vol-badge,
+  .market-card .price-row .artist-position-chip-row,
+  .market-card .price-row .artist-position-chip {
+    justify-self: end;
+  }
+
+  .market-card .trade-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 10px;
+    margin-bottom: 10px;
+  }
+
+  .market-card .trade-controls .qty-label {
+    align-self: center;
+    line-height: 1.2;
+  }
+
+  .market-card .qty-stepper {
+    justify-self: end;
+    align-self: center;
+    gap: 4px;
   }
 
   .market-card .card-actions {
@@ -3805,6 +3869,19 @@ body[data-theme="paper"] .community-link-field span {
   .market-card .qty-input {
     width: 44px;
     padding: 5px;
+  }
+
+  .market-card .card-actions {
+    align-items: stretch;
+  }
+
+  .market-card .buy,
+  .market-card .sell,
+  .market-card .trade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
   }
 
   .stats-grid {
@@ -4600,7 +4677,7 @@ body[data-theme="paper"] .community-link-field span {
   inset: 0;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.14), rgba(2, 6, 23, 0.04) 42%, transparent 68%);
+  background: radial-gradient(circle at center, rgba(14, 165, 233, 0.1), transparent 42%);
 }
 
 .reward-burst[hidden],
@@ -4710,7 +4787,7 @@ body[data-theme="paper"] .community-link-field span {
 .phase-cinematic-backdrop {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(56, 189, 248, 0.16), rgba(2, 6, 23, 0.18) 34%, rgba(2, 6, 23, 0.82) 72%);
+  background: radial-gradient(circle at center, rgba(56, 189, 248, 0.12), rgba(56, 189, 248, 0.05) 24%, transparent 60%);
   opacity: 0;
 }
 

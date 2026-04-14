@@ -1332,7 +1332,9 @@
       name: "",
       tone: "neutral",
       detail: "",
-      label: ""
+      label: "",
+      expiresAt: 0,
+      cooldownUntil: 0
     };
     let boardLeaderState = {
       lastName: "",
@@ -3735,20 +3737,34 @@
         return;
       }
 
+      const now = Date.now();
+      if (heroTakeoverState.cooldownUntil && heroTakeoverState.cooldownUntil > now) {
+        return;
+      }
+
       heroTakeoverState = {
         active: true,
         name: leader.entertainer.name,
         tone,
         detail,
         label,
-        expiresAt: Date.now() + 3800
+        expiresAt: now + 3200,
+        cooldownUntil: now + 4200
       };
 
       clearTimeout(triggerHeroTakeover._timer);
       triggerHeroTakeover._timer = setTimeout(() => {
-        heroTakeoverState = { active: false, name: "", tone: "neutral", detail: "", label: "", expiresAt: 0 };
+        heroTakeoverState = {
+          ...heroTakeoverState,
+          active: false,
+          name: "",
+          tone: "neutral",
+          detail: "",
+          label: "",
+          expiresAt: 0
+        };
         renderHeroNarrative();
-      }, 3800);
+      }, 3200);
 
       renderHeroNarrative();
     }
@@ -3896,7 +3912,7 @@
       signalEl.innerText = `${categoryLabel} lane live`;
       phaseChipEl.innerText = takeoverActive ? (heroTakeoverState.label || "Board Leader") : phase.name;
       labelEl.innerText = takeoverActive ? "Leader Lock" : (catalyst.label || "Catalyst");
-      titleNode.innerText = takeoverActive ? heroTakeoverState.name : "Entertainers Exchange";
+      titleNode.innerText = "Entertainers Exchange";
       titleEl.innerText = takeoverActive
         ? `${heroTakeoverState.name} just seized the tape`
         : `${spotlight.entertainer.name} is driving the board ${spotlight.metrics.priceChangePct >= 0 ? "higher" : "lower"}`;
