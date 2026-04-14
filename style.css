@@ -953,6 +953,70 @@ button:active {
   box-shadow: var(--shadow);
 }
 
+.panel,
+.engagement-card,
+.market-brief,
+.market-spotlight-board,
+.market-brief-card,
+.market-catalyst-card,
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.panel::before,
+.engagement-card::before,
+.market-brief::before,
+.market-spotlight-board::before,
+.market-brief-card::before,
+.market-catalyst-card::before,
+.stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.05), transparent 22%, transparent 72%, rgba(255, 255, 255, 0.04)),
+    repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.05) 0 1px, transparent 1px 22px);
+  mask-image: linear-gradient(to bottom right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.74));
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.panel::after,
+.engagement-card::after,
+.market-brief::after,
+.market-spotlight-board::after,
+.market-brief-card::after,
+.market-catalyst-card::after,
+.stat-card::after {
+  content: "";
+  position: absolute;
+  top: -44px;
+  right: -36px;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(125, 211, 252, 0.16), transparent 70%);
+  filter: blur(4px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.panel > *,
+.engagement-card > *,
+.market-brief > *,
+.market-spotlight-board > *,
+.market-brief-card > *,
+.market-catalyst-card > *,
+.stat-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 .hero-copy {
   border-radius: 28px;
   padding: 34px;
