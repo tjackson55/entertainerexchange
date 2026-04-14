@@ -4594,7 +4594,6 @@ body[data-theme="paper"] .community-link-field span {
   left: 50%;
   z-index: 10000;
   pointer-events: none;
-  transform: translateX(-50%);
 }
 
 .reward-burst {
@@ -4612,9 +4611,9 @@ body[data-theme="paper"] .community-link-field span {
 }
 
 .leader-event {
-  inset: auto 0 26px 0;
-  left: 50%;
+  top: 50%;
   width: min(820px, calc(100vw - 28px));
+  transform: translate(-50%, -50%);
 }
 
 .leader-event-shell {
@@ -4852,8 +4851,9 @@ body[data-theme="paper"] .community-link-field span {
 }
 
 .phase-banner {
-  top: 18px;
+  top: 50%;
   width: min(680px, calc(100vw - 28px));
+  transform: translate(-50%, -50%);
 }
 
 .phase-banner-shell {
