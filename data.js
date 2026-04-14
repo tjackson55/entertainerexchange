@@ -246,9 +246,48 @@ function recordTrade(state, entertainer, action, qty, price) {
 }
 
 function rerenderRankedPages() {
+    const state = loadSharedState();
     renderGrid("entertainers-11-30", 10, 30, 11);
     renderGrid("entertainers-31-50", 30, 50, 31);
-    updateBalanceSummary(loadSharedState());
+    updateBalanceSummary(state);
+    renderTradeHistory(state);
+}
+
+function formatTimestamp(ts) {
+    try {
+        const d = new Date(Number(ts) || 0);
+        if (!d || Number.isNaN(d.getTime())) return "-";
+        return d.toLocaleString();
+    } catch (e) {
+        return "-";
+    }
+}
+
+function renderTradeHistory(state) {
+    const container = document.getElementById("trade-history");
+    const empty = document.getElementById("trade-history-empty");
+    if (!container || !empty) return;
+
+    const trades = Array.isArray(state.tradeHistory) ? state.tradeHistory.slice(0, 25) : [];
+    if (trades.length === 0) {
+        container.innerHTML = "";
+        empty.style.display = "block";
+        return;
+    }
+
+    empty.style.display = "none";
+    container.innerHTML = "";
+
+    trades.forEach((trade) => {
+        const item = document.createElement("div");
+        item.className = "trade-history-item";
+        const when = formatTimestamp(trade.ts);
+        const action = String(trade.action || "").toUpperCase();
+        const qty = Number(trade.qty || 0);
+        const price = typeof trade.price === "number" ? formatCurrency(trade.price) : String(trade.price || "$");
+        item.innerHTML = `<div class="trade-history-line"><span class="trade-ts">${when}</span> <span class="trade-action ${action.toLowerCase()}">${action}</span> <strong class="trade-qty">${qty}</strong> <span class="trade-name">${trade.name}</span> <span class="trade-price">@ ${price}</span></div>`;
+        container.appendChild(item);
+    });
 }
 
 function buyEntertainer(entertainer) {
