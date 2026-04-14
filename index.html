@@ -687,6 +687,15 @@
     </div>
   </div>
 
+  <div id="leader-event" class="leader-event" hidden>
+    <div class="leader-event-shell">
+      <p id="leader-event-kicker" class="leader-event-kicker">New Board Leader</p>
+      <h3 id="leader-event-title">Taylor Swift takes the crown</h3>
+      <p id="leader-event-text" class="leader-event-text">Momentum has flipped at the top of the board.</p>
+      <p id="leader-event-detail" class="leader-event-detail">Fresh flow and price acceleration just reordered the tape.</p>
+    </div>
+  </div>
+
   <footer class="site-footer" role="contentinfo">
     <p class="site-footer-copy">Fantasy entertainment index for trend tracking and editorial-style analysis. No real ownership, cash-out, or entertainer endorsement is implied.</p>
     <nav class="site-footer-links" aria-label="Legal and site links">
@@ -1318,6 +1327,12 @@
       tone: "neutral",
       detail: "",
       label: ""
+    };
+    let boardLeaderState = {
+      lastName: "",
+      lastTone: "neutral",
+      lastChangedAt: 0,
+      initialized: false
     };
     let retentionState = {
       dailyDateKey: "",
@@ -3746,6 +3761,8 @@
         return;
       }
 
+      syncBoardLeaderMoment(spotlight);
+
       root.className = `market-spotlight tone-${spotlight.tone} category-${escapeHtml(spotlight.entertainer.category)}`;
       nameEl.innerText = spotlight.entertainer.name;
       summaryEl.innerText = spotlight.summary;
@@ -3761,6 +3778,83 @@
       `;
 
       renderHeroNarrative(spotlight);
+    }
+
+    function syncBoardLeaderMoment(spotlight) {
+      if (!spotlight || !spotlight.entertainer) {
+        return;
+      }
+
+      const nextName = spotlight.entertainer.name;
+      const nextTone = spotlight.tone === "negative" ? "negative" : "positive";
+      if (!boardLeaderState.initialized) {
+        boardLeaderState = {
+          lastName: nextName,
+          lastTone: nextTone,
+          lastChangedAt: Date.now(),
+          initialized: true
+        };
+        return;
+      }
+
+      if (boardLeaderState.lastName === nextName) {
+        boardLeaderState.lastTone = nextTone;
+        return;
+      }
+
+      const previousLeader = boardLeaderState.lastName;
+      boardLeaderState = {
+        lastName: nextName,
+        lastTone: nextTone,
+        lastChangedAt: Date.now(),
+        initialized: true
+      };
+
+      const detail = `${nextName} displaced ${previousLeader} at the top of the board, moving ${formatSignedPercent(spotlight.metrics.priceChangePct)} on ${formatCompactCurrency(spotlight.metrics.volume24h)} in live flow.`;
+      triggerLeaderEvent(previousLeader, spotlight, detail);
+    }
+
+    function triggerLeaderEvent(previousLeaderName, spotlight, detail = "") {
+      if (!spotlight || !spotlight.entertainer) {
+        return;
+      }
+
+      const leaderTone = spotlight.tone === "negative" ? "negative" : "positive";
+      const event = document.getElementById("leader-event");
+      const kickerEl = document.getElementById("leader-event-kicker");
+      const titleEl = document.getElementById("leader-event-title");
+      const textEl = document.getElementById("leader-event-text");
+      const detailEl = document.getElementById("leader-event-detail");
+      if (!event || !kickerEl || !titleEl || !textEl || !detailEl) {
+        return;
+      }
+
+      event.className = `leader-event tone-${leaderTone}`;
+      kickerEl.innerText = previousLeaderName ? "Leader Dethroned" : "New Board Leader";
+      titleEl.innerText = previousLeaderName
+        ? `${spotlight.entertainer.name} takes the crown from ${previousLeaderName}`
+        : `${spotlight.entertainer.name} takes the crown`;
+      textEl.innerText = previousLeaderName
+        ? `${previousLeaderName} lost control of the tape as leadership rotated.`
+        : "A fresh name just moved to the top of the board.";
+      detailEl.innerText = detail || `${spotlight.entertainer.name} is now setting the pace for the board.`;
+      event.removeAttribute("hidden");
+      event.classList.remove("is-active");
+      void event.offsetWidth;
+      event.classList.add("is-active");
+
+      setTickerPriority([spotlight.entertainer.name, previousLeaderName].filter(Boolean), leaderTone, "Leader flip");
+      triggerHeroTakeover(spotlight, leaderTone, detailEl.innerText, previousLeaderName ? "New Leader" : "Board Leader");
+      newsFeed.push(previousLeaderName
+        ? `${spotlight.entertainer.name} just passed ${previousLeaderName} for board leadership.`
+        : `${spotlight.entertainer.name} is the new board leader.`);
+      newsFeed = newsFeed.slice(-64);
+
+      clearTimeout(triggerLeaderEvent._timer);
+      triggerLeaderEvent._timer = setTimeout(() => {
+        event.classList.remove("is-active");
+        event.setAttribute("hidden", "true");
+      }, 3000);
     }
 
     function renderHeroNarrative(spotlight = buildMarketSpotlight()) {
@@ -5485,6 +5579,7 @@
       shortPositions = {}; tradeHistory = []; limitOrders = [];
       watchlist = new Set(); priceAlerts = {}; firedAlerts = new Set();
       marketCatalysts = [];
+      boardLeaderState = { lastName: "", lastTone: "neutral", lastChangedAt: 0, initialized: false };
       newsFeed = ["Index reset. Fresh start, clean slate."]; exchangeScore = 0;
       nextLimitOrderSeq = 0;
       localStorage.removeItem(STORAGE_KEY);
